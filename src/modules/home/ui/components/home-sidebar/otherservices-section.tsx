@@ -1,0 +1,67 @@
+"use client";
+
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { pageUrls } from "@/lib/enums/page-urls";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { Crown, ListMusic , Clapperboard, CircleUserRound   } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const items = [
+    {
+        title: "WeTube Premium",
+        url: pageUrls.HISTORY,
+        icon: Crown ,
+    },
+    {
+        title: "WeTube Studio",
+        url: pageUrls.LIKED_VIDEOS,
+        icon: Clapperboard ,
+    },
+    {
+        title: "WeTube Music",
+        url: pageUrls.ALL_PLAYLISTS,
+        icon: ListMusic 
+    },
+    {
+        title: "WeTube Kids",
+        url: pageUrls.YOURVIDEO,
+        icon: CircleUserRound  ,
+        auth: true
+    }
+];
+
+export const OtherServices = () => {
+    const { isSignedIn } = useAuth();
+    const clerk = useClerk();
+    const pathname = usePathname();
+    return (
+        <SidebarGroup>
+            <SidebarGroupLabel>Other services of WeTube</SidebarGroupLabel>
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {items.map((item, index) => (
+                        <SidebarMenuItem key={index}>
+                            <SidebarMenuButton
+                                tooltip={item.title}
+                                asChild
+                                isActive={pathname === item.url}
+                                onClick={(e) => {
+                                    if (!isSignedIn && item.auth) {
+                                        e.preventDefault();
+                                        return clerk.openSignIn();
+                                    }
+                                }}
+                            >
+                                <Link prefetch href={item.url} className="flex items-center gap-4">
+                                    <item.icon />
+                                    <span className="text-sm">{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
+    )
+}
