@@ -18,7 +18,7 @@ export default function StudioNavbar() {
             >
               <div className="flex items-center p-4 gap-1">
                 <Image
-                  src="/assets/logo.png"
+                  src="/image/logo.png"
                   alt="Logo"
                   width={32}
                   height={32}
