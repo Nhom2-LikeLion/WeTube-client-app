@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -6,8 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
-import React from "react";
+import { Check, Clock, ListPlus, MoreVertical } from "lucide-react";
+import React, { useState } from "react";
 
 interface VideoItemProps {
   id: string;
@@ -27,17 +28,62 @@ const VideoItem: React.FC<VideoItemProps> = ({
   thumbnail,
   progress,
 }) => {
+  const [watchLaterClicked, setWatchLaterClicked] = useState(false);
+  const [addedPlaylistClicked, setAddedPlaylistClicked] = useState(false);
+
+  // Reset toàn bộ khi rời khỏi group
+  const resetState = () => {
+    setWatchLaterClicked(false);
+    setAddedPlaylistClicked(false);
+  };
+
   return (
-    <Card className="bg-transparent border-none shadow-none hover:cursor-pointer py-2">
+    <Card
+      onMouseLeave={resetState}
+      className="bg-transparent border-none shadow-none hover:cursor-pointer py-2"
+    >
       <CardContent className="p-0">
         <div className="flex gap-3 group">
           {/* Thumbnail */}
-          <div className="relative w-3/8 ">
+          <div className="relative w-3.5/8 ">
             <img
               src={thumbnail}
               alt={title}
               className=" w-full h-full rounded-sm"
             />
+            <div className="absolute top-0 right-1 flex flex-col gap-1 transition-all duration-300 translate-y-0 opacity-0 group-hover:opacity-100 group-hover:translate-y-2">
+              {/* Watch Later */}
+              <button
+                className="p-2 bg-black/70 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setWatchLaterClicked(true);
+                }}
+                aria-label="Watch later"
+              >
+                {watchLaterClicked ? (
+                  <Check className="w-4 h-4 text-green-400 transition-colors" />
+                ) : (
+                  <Clock className="w-4 h-4 text-white hover:text-blue-400 transition-colors duration-300" />
+                )}
+              </button>
+
+              {/* Add to Playlist */}
+              <button
+                className="p-2 bg-black/70 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAddedPlaylistClicked(true);
+                }}
+                aria-label="Add to playlist"
+              >
+                {addedPlaylistClicked ? (
+                  <Check className="w-4 h-4 text-green-400 transition-colors" />
+                ) : (
+                  <ListPlus className="w-4 h-4 text-white hover:text-blue-400 transition-colors duration-300" />
+                )}
+              </button>
+            </div>
 
             {/* Duration badge */}
             {duration && (
@@ -58,7 +104,7 @@ const VideoItem: React.FC<VideoItemProps> = ({
 
           {/* Video Details */}
           <div className="w-5/8">
-            <h3 className=" text-[18px] leading-5 font-semibold w-80 text-black line-clamp-2 mb-1.5 group-hover:text-black">
+            <h3 className=" text-[18px] leading-5 font-semibold w-100 text-black line-clamp-2 mb-1.5 group-hover:text-black">
               {title}
             </h3>
             <div className="text-[13px] text-gray-600">{channel}</div>
