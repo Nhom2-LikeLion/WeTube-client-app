@@ -5,5 +5,8 @@ export const pageUrls = {
     HISTORY: "/playlists/history",
     LIKED_VIDEOS: "/playlists/liked",
     ALL_PLAYLISTS: "/playlists",
-    STUDIO: "/studio"
+    STUDIO: "/studio",
+    SHORTS:"/shorts",
+    YOURVIDEO:"/your-video",
+    SEELATER:"/see-later",
 } as const;

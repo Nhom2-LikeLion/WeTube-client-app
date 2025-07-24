@@ -1,6 +1,15 @@
-// modules/shorts/ui/components/shorts-video-card.tsx
 "use client";
 import { useEffect, useRef, useState } from "react";
+import {
+  Volume2,
+  VolumeX,
+  ThumbsUp,
+  ThumbsDown,
+  MessageCircle,
+  Share2,
+  X,
+  Maximize2,
+} from "lucide-react";
 
 interface ShortsVideoCardProps {
   videoUrl: string;
@@ -9,7 +18,7 @@ interface ShortsVideoCardProps {
   avatar: string;
   hashtags: string;
   music: string;
-  onReachEnd?: () => void; 
+  onReachEnd?: () => void;
 }
 
 export default function ShortsVideoCard({
@@ -28,22 +37,10 @@ export default function ShortsVideoCard({
   const [showComment, setShowComment] = useState(false);
   const [commentInput, setCommentInput] = useState("");
   const [muted, setMuted] = useState(true);
+  const [paused, setPaused] = useState(false);
   const [comments, setComments] = useState<string[]>(
     Array.from({ length: 10 }, (_, i) => `Đây là bình luận số ${i + 1}`)
   );
-
-//   const commentsEndRef = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(false);
-
-  const handleToggleComment = () => setShowComment(!showComment);
-
-  const handleSubmitComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (commentInput.trim() !== "") {
-      setComments((prev) => [...prev, commentInput.trim()]);
-      setCommentInput("");
-    }
-  };
 
   const handleTogglePlay = () => {
     if (videoRef.current) {
@@ -57,21 +54,44 @@ export default function ShortsVideoCard({
     }
   };
 
-  const handleToggleFullscreen = () => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
+  const handleToggleComment = () => setShowComment(!showComment);
 
-    const requestFullscreen =
-      videoEl.requestFullscreen ||
-      (videoEl as any).webkitRequestFullscreen ||
-      (videoEl as any).mozRequestFullScreen ||
-      (videoEl as any).msRequestFullscreen;
-
-    if (requestFullscreen) {
-      requestFullscreen.call(videoEl);
+  const handleSubmitComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (commentInput.trim() !== "") {
+      setComments((prev) => [...prev, commentInput.trim()]);
+      setCommentInput("");
     }
   };
 
+  const handleToggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const requestFullscreen =
+      el.requestFullscreen ||
+      (
+        el as HTMLElement & {
+          webkitRequestFullscreen?: () => Promise<void>;
+          mozRequestFullScreen?: () => Promise<void>;
+          msRequestFullscreen?: () => Promise<void>;
+        }
+      ).webkitRequestFullscreen ||
+      (
+        el as HTMLElement & {
+          mozRequestFullScreen?: () => Promise<void>;
+        }
+      ).mozRequestFullScreen ||
+      (
+        el as HTMLElement & {
+          msRequestFullscreen?: () => Promise<void>;
+        }
+      ).msRequestFullscreen;
+
+    if (requestFullscreen) {
+      requestFullscreen.call(el);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,7 +100,6 @@ export default function ShortsVideoCard({
           const isVisible =
             entry.isIntersecting && entry.intersectionRatio > 0.6;
 
-          // Đừng auto play/pause khi đang mở comment
           if (!showComment) {
             if (isVisible) {
               videoRef.current.play();
@@ -112,15 +131,15 @@ export default function ShortsVideoCard({
   return (
     <div
       ref={containerRef}
-      className="relative bg-black flex justify-center items-center overflow-hidden snap-start"
+      className="relative bg-white flex justify-center items-center overflow-hidden snap-start"
     >
       <div
         className={`flex items-center gap-6 transition-transform duration-500 ease-in-out ${
-          showComment ? "-translate-x-40" : ""
+          showComment ? "-translate-x-60" : ""
         }`}
       >
         <div
-          className="relative aspect-[9/14] w-[360px] max-w-[90vw] sm:rounded-xl overflow-hidden bg-black"
+          className="relative aspect-[9/14] w-[360px] max-w-[90vw] sm:rounded-xl overflow-hidden bg-white"
           onClick={handleTogglePlay}
         >
           <video
@@ -158,30 +177,30 @@ export default function ShortsVideoCard({
           </div>
         </div>
 
-        <div className="hidden sm:flex flex-col items-center justify-center gap-6 text-white text-sm">
+        <div className="hidden sm:flex flex-col items-center justify-center gap-6 text-black text-sm">
+            <ActionButton
+              icon={Maximize2}
+              label="Fullscreen"
+              onClick={handleToggleFullscreen}
+            />
           <ActionButton
-            icon="⛶"
-            label="Fullscreen"
-            onClick={handleToggleFullscreen}
-          />
-          <ActionButton
-            icon={muted ? "🔇" : "🔊"}
+            icon={muted ? VolumeX : Volume2}
             label={muted ? "Tắt tiếng" : "Có tiếng"}
             onClick={() => setMuted((prev) => !prev)}
           />
-          <ActionButton icon="👍" label="27N" />
-          <ActionButton icon="👎" label="Không" />
+          <ActionButton icon={ThumbsUp} label="27N" />
+          <ActionButton icon={ThumbsDown} label="Không" />
           <ActionButton
-            icon="💬"
+            icon={MessageCircle}
             label={comments.length.toString()}
             onClick={handleToggleComment}
           />
-          <ActionButton icon="📤" label="Chia sẻ" />
+          <ActionButton icon={Share2} label="Chia sẻ" />
         </div>
       </div>
 
       <div
-        className={`absolute top-0 right-6 rounded-xl h-full w-[320px] max-w-[90vw] bg-[#111] text-white px-4 py-4 transition-all duration-500 ease-in-out ${
+        className={`absolute top-0 right-10 rounded-xl h-full w-[450px] max-w-[90vw] bg-[#111] text-white px-4 py-4 transition-all duration-500 ease-in-out ${
           showComment
             ? "translate-x-0 opacity-100"
             : "translate-x-full opacity-0 pointer-events-none"
@@ -189,7 +208,9 @@ export default function ShortsVideoCard({
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-lg">Bình luận {comments.length}</h2>
-          <button onClick={handleToggleComment}>❌</button>
+          <button onClick={handleToggleComment}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="space-y-4 overflow-y-auto max-h-[calc(100%-100px)] pr-2 pb-24">
@@ -199,7 +220,6 @@ export default function ShortsVideoCard({
               <p>{cmt}</p>
             </div>
           ))}
-          <div />
         </div>
 
         <form
@@ -219,12 +239,15 @@ export default function ShortsVideoCard({
   );
 }
 
+// ✅ ActionButton sử dụng Lucide Icon
+import type { LucideIcon } from "lucide-react";
+
 function ActionButton({
-  icon,
+  icon: Icon,
   label,
   onClick,
 }: {
-  icon: string;
+  icon: LucideIcon;
   label: string;
   onClick?: () => void;
 }) {
@@ -233,8 +256,8 @@ function ActionButton({
       onClick={onClick}
       className="flex flex-col items-center cursor-pointer hover:scale-110 active:scale-95 transition"
     >
-      <span className="text-xl">{icon}</span>
-      <span className="text-xs mt-1">{label}</span>
+      <Icon className="text-black w-6 h-6" />
+      <span className="text-xs mt-1 text-black">{label}</span>
     </div>
   );
 }

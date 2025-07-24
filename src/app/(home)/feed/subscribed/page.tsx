@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+import { channels } from "./channels";
 
 interface VideoBubblePackProps {
   limit?: number;
@@ -20,49 +20,52 @@ interface Bubble {
   vx: number;
   vy: number;
   size: number;
-  img: string;
-  label: string;
   ox: number;
   oy: number;
+  icon: string;
+  name: string;
+  subscribers: string;
+  description: string;
 }
 
-const generateBubbles = (
-  count: number,
-  width: number,
-  height: number,
-  gap: number
-): Bubble[] => {
-  const bubbles: Bubble[] = [];
-  const radius = Math.min(width, height) * 0.3;
-  const angleIncrement = (2 * Math.PI) / count;
 
-  for (let i = 0; i < count; i++) {
-    const angle = i * angleIncrement;
-    const r = radius * (0.7 + Math.random() * 0.3);
-    const x = Math.cos(angle) * r;
-    const y = Math.sin(angle) * r;
-    const size = 60 + Math.random() * 20;
+// const generateBubbles = (
+//   count: number,
+//   width: number,
+//   height: number,
+//   gap: number
+// ): Bubble[] => {
+//   const bubbles: Bubble[] = [];
+//   const radius = Math.min(width, height) * 0.3;
+//   const angleIncrement = (2 * Math.PI) / count;
 
-    bubbles.push({
-      id: i,
-      x,
-      y,
-      vx: 0,
-      vy: 0,
-      size,
-      img: `https://placehold.co/100x100?text=CH${i + 1}`,
-      label: `Channel ${i + 1}`,
-      ox: x,
-      oy: y,
-    });
-  }
+//   for (let i = 0; i < count; i++) {
+//     const angle = i * angleIncrement;
+//     const r = radius * (0.7 + Math.random() * 0.3);
+//     const x = Math.cos(angle) * r;
+//     const y = Math.sin(angle) * r;
+//     const size = 60 + Math.random() * 20;
 
-  return bubbles;
-};
+//     bubbles.push({
+//       id: i,
+//       x,
+//       y,
+//       vx: 0,
+//       vy: 0,
+//       size,
+//       img: `https://placehold.co/100x100?text=CH${i + 1}`,
+//       label: `Channel ${i + 1}`,
+//       ox: x,
+//       oy: y,
+//     });
+//   }
+
+//   return bubbles;
+// };
+
 
 export default function VideoBubblePack({
-  limit = 20,
-  shrinkOnEdge = true,
+  limit = 30,
   hideOnEdge = false,
   withAnimation = true,
   gap = 20,
@@ -79,12 +82,40 @@ export default function VideoBubblePack({
       const width = window.innerWidth;
       const height = window.innerHeight;
       setViewport({ width, height });
-      setBubbles(generateBubbles(limit, width, height, gap));
+
+      const radius = Math.min(width, height) * 0.3;
+      const angleIncrement = (2 * Math.PI) / channels.length;
+
+      const mapped = channels.map((channel, i) => {
+        const angle = i * angleIncrement;
+        const r = radius * (0.7 + Math.random() * 0.3);
+        const x = Math.cos(angle) * r;
+        const y = Math.sin(angle) * r;
+        const size = 60 + Math.random() * 20;
+
+        return {
+          id: channel.id,
+          x,
+          y,
+          vx: 0,
+          vy: 0,
+          ox: x,
+          oy: y,
+          size,
+          icon: channel.icon,
+          name: channel.name,
+          subscribers: channel.subscribers,
+          description: channel.description,
+        };
+      });
+
+      setBubbles(mapped);
     };
+
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-  }, [limit, gap]);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -107,7 +138,6 @@ export default function VideoBubblePack({
 
           const edgeRatio = 1 - Math.min(distToCenter / maxDist, 1);
           const scaleI = 0.5 + edgeRatio;
-          const sizeI = next[i].size * scaleI;
 
           const dxOrigin = next[i].ox - next[i].x;
           const dyOrigin = next[i].oy - next[i].y;
@@ -128,9 +158,10 @@ export default function VideoBubblePack({
             );
             const edgeRatioJ = 1 - Math.min(distToCenterJ / maxDist, 1);
             const scaleJ = 0.5 + edgeRatioJ;
-            const sizeJ = next[j].size * scaleJ;
 
-            const minDist = (sizeI + sizeJ) / 2 + gap;
+            const minDist =
+              (next[i].size * scaleI + next[j].size * scaleJ) / 2 + gap;
+
 
             if (dist < minDist) {
               const force = (minDist - dist) * 0.12;
@@ -155,12 +186,12 @@ export default function VideoBubblePack({
   }, [gap, viewport, offset]);
 
   const filteredBubbles = bubbles.filter((bubble) =>
-    bubble.label.toLowerCase().includes(search.toLowerCase())
+  bubble.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <>
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+      <div className="absolute top-150 left-1/2  z-50">
         <input
           type="text"
           placeholder="Search bubble..."
@@ -202,7 +233,7 @@ export default function VideoBubblePack({
           return (
             <motion.div
               key={bubble.id}
-              className="absolute rounded-full overflow-hidden border border-white cursor-pointer"
+              className="absolute rounded-full overflow-hidden border border-black cursor-pointer"
               style={{
                 width: newSize,
                 height: newSize,
@@ -211,18 +242,16 @@ export default function VideoBubblePack({
                 opacity: shouldHide ? 0 : 1,
                 pointerEvents: shouldHide ? "none" : "auto",
                 zIndex: shouldHide ? 0 : 10,
-                padding: gap / 2,
+                padding: gap / 3,
               }}
               animate={withAnimation ? { scale } : false}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               onClick={() => setActiveBubble(bubble)}
             >
               <div className="w-full h-full rounded-full overflow-hidden">
-                <Image
-                  src={bubble.img}
-                  alt={`channel-${bubble.label}`}
-                  width={bubble.size}
-                  height={bubble.size}
+                <img
+                  src={bubble.icon}
+                  alt={`channel-${bubble.name}`}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -245,15 +274,24 @@ export default function VideoBubblePack({
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
-                className="rounded-2xl overflow-hidden border border-white shadow-xl"
+                className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
               >
-                <Image
-                  src={activeBubble.img.replace("100x100", "600x400")}
-                  alt="zoomed-channel"
-                  width={600}
-                  height={400}
-                  className="object-cover"
-                />
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src={activeBubble.icon}
+                    alt={activeBubble.name}
+                    className="w-16 h-16 rounded-full"
+                  />
+                  <div>
+                    <h2 className="text-xl font-semibold">
+                      {activeBubble.name}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {activeBubble.subscribers} subscribers
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-700">{activeBubble.description}</p>
               </motion.div>
             </motion.div>
           )}

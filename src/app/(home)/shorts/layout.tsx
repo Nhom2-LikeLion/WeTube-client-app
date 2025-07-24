@@ -1,8 +1,11 @@
+import HomeLayout from "@/modules/home/ui/layouts/home-layout";
+import { div } from "framer-motion/client";
+
 // app/shorts/layout.tsx
 export default function ShortsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="h-screen w-full bg-black text-white">{children}</div>;
+  return <div>{children}</div>
 }

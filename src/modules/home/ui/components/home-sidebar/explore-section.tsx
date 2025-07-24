@@ -1,0 +1,66 @@
+"use client";
+
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { pageUrls } from "@/lib/enums/page-urls";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { Music, Newspaper , Gamepad2, Trophy   } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const items = [
+    {
+        title: "Music",
+        url: pageUrls.HISTORY,
+        icon: Music 
+    },
+    {
+        title: "Game",
+        url: pageUrls.LIKED_VIDEOS,
+        icon: Gamepad2 
+    },
+    {
+        title: "News",
+        url: pageUrls.ALL_PLAYLISTS,
+        icon: Newspaper 
+    },
+    {
+        title: "Sports",
+        url: pageUrls.YOURVIDEO,
+        icon: Trophy  
+    },
+];
+
+export const ExploreSection = () => {
+    const { isSignedIn } = useAuth();
+    const clerk = useClerk();
+    const pathname = usePathname();
+    return (
+        <SidebarGroup>
+            <SidebarGroupLabel>Explore</SidebarGroupLabel>
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {items.map((item, index) => (
+                        <SidebarMenuItem key={index}>
+                            <SidebarMenuButton
+                                tooltip={item.title}
+                                asChild
+                                isActive={pathname === item.url}
+                                onClick={(e) => {
+                                    if (!isSignedIn ) {
+                                        e.preventDefault();
+                                        return clerk.openSignIn();
+                                    }
+                                }}
+                            >
+                                <Link prefetch href={item.url} className="flex items-center gap-4">
+                                    <item.icon />
+                                    <span className="text-sm">{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
+    )
+}

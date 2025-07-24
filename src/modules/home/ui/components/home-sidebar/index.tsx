@@ -1,22 +1,35 @@
-// modules/home/ui/components/home-sidebar/home-sidebar.tsx
-import Link from "next/link";
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { MainSection } from "./main-section";
+import { Separator } from "@/components/ui/separator";
+import { PersonalSection } from "./personal-section";
+import { SignedIn } from "@clerk/nextjs";
+import { SubscriptionsSection } from "./subscriptions-section";
+import { ExploreSection } from "./explore-section";
+import { OtherServices } from "./otherservices-section";
+import { InfoSection } from "./info-section";
 
-const links = [
-  { href: "/feed", label: "Feed" },
-  { href: "/subscriptions", label: "Subscriptions" },
-  { href: "/playlists", label: "Playlists" },
-  { href: "/shorts", label: "Shorts" },
-  { href: "/Channels", label: "Channels" },
-];
-
-export default function HomeSidebar() {
-  return (
-    <nav className="flex flex-col p-4 space-y-2">
-      {links.map((link) => (
-        <Link key={link.href} href={link.href} className="hover:underline">
-          {link.label}
-        </Link>
-      ))}
-    </nav>
-  );
+const HomeSidebar = () => {
+    return (
+        <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
+            <SidebarContent className="bg-background">
+                <MainSection />
+                <Separator />
+                <PersonalSection />
+                <SignedIn>
+                    <>
+                        <Separator />
+                        <SubscriptionsSection/>
+                    </>
+                </SignedIn>
+                <Separator />
+                <ExploreSection />
+                <Separator />
+                <OtherServices />
+                <Separator />
+                <InfoSection/>
+            </SidebarContent>
+        </Sidebar>
+    )
 }
+
+export default HomeSidebar;
