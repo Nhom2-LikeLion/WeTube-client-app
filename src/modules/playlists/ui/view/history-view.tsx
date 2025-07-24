@@ -8,9 +8,9 @@ interface VideoData {
   title: string;
   channel: string;
   views: string;
-  timestamp: string;
   duration: string;
   thumbnail: string;
+  progress?: number;
 }
 
 interface ShortData {
@@ -28,10 +28,10 @@ const History = () => {
         "Build a YouTube Clone with Next.js 15: React, Tailwind, Drizzle, tRPC (2025)",
       channel: "Code With Antonio",
       views: "146 N lượt xem",
-      timestamp: "2025",
       duration: "11:43:27",
       thumbnail:
         "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=320&h=180&fit=crop",
+      progress: 0.85, // 85% đã xem
     },
     {
       id: "2",
@@ -39,20 +39,20 @@ const History = () => {
         "Build a YouTube Clone with Next.js 15: React, Tailwind, Drizzle, tRPC (Part 2/2)",
       channel: "Code With Antonio",
       views: "31 N lượt xem",
-      timestamp: "PART 2/2",
       duration: "11:59:06",
       thumbnail:
         "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=320&h=180&fit=crop",
+      progress: 0.25, // chỉ mới xem 25%
     },
     {
       id: "3",
       title: "Master Next.JS in easy way",
       channel: "Nova Designs",
       views: "112 N lượt xem",
-      timestamp: "",
       duration: "8:45",
       thumbnail:
         "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=320&h=180&fit=crop",
+      progress: 0.0, // chưa xem
     },
   ];
 
@@ -81,36 +81,38 @@ const History = () => {
   ];
 
   return (
-    <div className="max-w-4xl p-6 text-black">
-      <h1 className="text-3xl font-bold mb-6">Nhật ký xem</h1>
+    <div className="max-w-4xl pl-12 pt-6 text-black">
+      <h1 className="text-4xl font-bold mb-3">Nhật ký xem</h1>
+
+      {/* Side Show On Mobile and Tablet Only */}
       <div className="lg:hidden">
         <Sidebar />
       </div>
 
-      <Tabs defaultValue="all" className="mb-8">
-        <TabsList className="bg-transparent border-none p-0 h-auto gap-1 flex-wrap">
+      <Tabs defaultValue="all" className="mb-0">
+        <TabsList className=" border-none p-0 h-auto gap-2 flex-wrap">
           {["all", "video", "shorts", "podcast", "music"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab}
-              className="bg-gray-100 text-black hover:bg-gray-200 data-[state=active]:bg-black data-[state=active]:text-white rounded-full px-4 py-2"
+              className="bg-gray-200 text-black hover:bg-gray-400 data-[state=active]:bg-black data-[state=active]:text-white rounded-sm px-3 py-1.5"
             >
               {tab === "all"
-                ? "Tất cả"
+                ? "All"
                 : tab === "video"
                 ? "Video"
                 : tab === "shorts"
                 ? "Shorts"
                 : tab === "podcast"
                 ? "Podcast"
-                : "Âm nhạc"}
+                : "Music"}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        <TabsContent value="all" className="mt-8">
-          <h2 className="text-xl font-normal mb-6">Hôm nay</h2>
-          <div className="space-y-4">
+        <TabsContent value="all" className="mt-4">
+          <h2 className="text-xl font-bold mb-6">Hôm nay</h2>
+          <div className="space-y-0">
             {videoData.map((video) => (
               <VideoItem key={video.id} {...video} />
             ))}
