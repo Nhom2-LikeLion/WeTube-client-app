@@ -1,7 +1,5 @@
-import Image from "next/image";
+import HomeView from "@/modules/home/ui/views/home-view";
 
-export default function Home() {
-  return (
-    <div className='text-xl font-bold'>Home page</div>
-  );
+export default async function HomePage() {
+  return <HomeView categoryId=""  />;
 }
