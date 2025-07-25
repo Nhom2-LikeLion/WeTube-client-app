@@ -11,4 +11,6 @@ export const pageUrls = {
     SHORTS:"/shorts",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",
+    MUSIC: "/music",
+    SPORTS: "/sports"
 } as const;
