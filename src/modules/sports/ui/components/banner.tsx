@@ -5,7 +5,6 @@ import { ThumbsUp, ThumbsDown, Share, MoreHorizontal, Volume2 } from 'lucide-rea
 interface VideoData {
   id: string;
   title: string;
-  artist: string;
   views: string;
   uploadTime: string;
   likes: string;
@@ -20,43 +19,39 @@ const SportsBanner = () => {
   const videos: VideoData[] = [
     {
       id: '1',
-      title: "AS IF IT'S YOUR LAST",
-      artist: 'BlackPink',
+      title: "2025 F1 Opening",
       views: '3,3 Tr lượt xem',
       uploadTime: '5 ngày trước',
       likes: '125K',
-      description: "BLACKPINK - '마지막처럼 (AS IF IT'S YOUR LAST)' M/V",
-      videoUrl: "https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/BLACKPINK%20-%20'%EB%A7%88%EC%A7%80%EB%A7%89%EC%B2%98%EB%9F%BC%20(AS%20IF%20IT'S%20YOUR%20LAST)'%20M-V.mp4?alt=media&token=c31b1edf-d50b-40fa-a821-6bdbb3297703",
+      description: "2025 F1 Opening",
+      videoUrl: "https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/New%202025%20F1%20Opening%20Titles.mp4?alt=media&token=750bcbd5-1c35-47c7-b6f3-45a3c83f9e64",
     },
     {
       id: '2',
-      title: 'PLAYING WITH FIRE',
-      artist: 'BlackPink',
+      title: 'PNC 2025 Trailer ',
       views: '2,1 Tr lượt xem',
       uploadTime: '1 tuần trước',
       likes: '98K',
-      description: "BLACKPINK - '불장난 (PLAYING WITH FIRE)' M/V",
-      videoUrl: "https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/BLACKPINK%20-%20'%EB%B6%88%EC%9E%A5%EB%82%9C%20(PLAYING%20WITH%20FIRE)'%20M-V.mp4?alt=media&token=b0cbbe49-bf2e-413e-83be-077748531dfd",
+      description: "PNC 2025 Trailer ",
+      videoUrl: "https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/PNC%202025%20Main%20Trailer%20-%20PUBG.mp4?alt=media&token=e1ee37e7-46eb-4723-aed4-90af4975c61a",
     },
     {
       id: '3',
-      title: 'Pink Venom',
-      artist: 'BlackPink',
+      title: 'Oklahoma City Thunder vs Indiana Pacers',
       views: '5,2 Tr lượt xem',
       uploadTime: '2 tuần trước',
       likes: '187K',
-      description: 'BLACKPINK - ‘Pink Venom’ M/V',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/BLACKPINK%20-%20Pink%20Venom%20M-V.mp4?alt=media&token=610d64d2-7545-4410-aa25-c345d6b28d4c',
+      description: 'Oklahoma City Thunder vs Indiana Pacers',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/Oklahoma%20City%20Thunder%20vs%20Indiana%20Pacers%20Full%20Game%206%20Highlights%20-%20June%2019%2C%202025%20-%202025%20NBA%20Finals.mp4?alt=media&token=e60ffebc-43de-4d0c-a975-0ca75034a95c',
     },
     {
       id: '4',
-      title: 'JUMP',
-      artist: 'BlackPink',
+      title: '[TEASER] T1 vs GEN | CHUNG KẾT LCK',
       views: '1,8 Tr lượt xem',
       uploadTime: '3 tuần trước',
       likes: '76K',
-      description: 'BLACKPINK - ‘뛰어(JUMP)’ M/V',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/BLACKPINK%20-%20%EB%9B%B0%EC%96%B4(JUMP)%20M-V.mp4?alt=media&token=86616595-832c-485a-8c2d-43e1ef36bd1c',
+      description: '[TEASER] T1 vs GEN | CHUNG KẾT LCK',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/appxemphim-b758d.firebasestorage.app/o/%5BTEASER%5D%20T1%20vs%20GEN%20-%20CHUNG%20K%E1%BA%BET%20LCK%20M%C3%99A%20XU%C3%82N%202022.mp4?alt=media&token=7b5de4ce-2c99-4e7d-91a0-b1ce54688d37',
     }
   ];
 
@@ -77,7 +72,7 @@ const SportsBanner = () => {
 
     const timer = setTimeout(() => {
       setCurrentVideoIndex(prev => (prev + 1) % videos.length);
-    }, 10000);
+    }, 20000);
 
     return () => clearTimeout(timer);
   }, [currentVideoIndex]);
@@ -102,7 +97,7 @@ const SportsBanner = () => {
         <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end text-white z-20">
           <div className="mb-auto">
             <p className="text-sm md:text-base font-medium text-gray-300 drop-shadow-md">
-              {currentVideo.artist} • {currentVideo.views} • {currentVideo.uploadTime}
+               {currentVideo.views} • {currentVideo.uploadTime}
             </p>
           </div>
 

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-const liveVideos = [
+const HighlightVideos = [
     {
         id: 1,
         thumbnail: "https://th.bing.com/th/id/OIF.4ZIiU2o613QL6f9shpotqA?w=302&h=181&c=7&r=0&o=5&dpr=1.3&pid=1.7",
@@ -52,7 +52,7 @@ const liveVideos = [
     },
 ];
 
-const LiveVideoList = () => {
+const HighlightList = () => {
   const [showAll, setShowAll] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -69,9 +69,9 @@ const LiveVideoList = () => {
 
   const getVideoSlice = () => {
     if (showAll) {
-      return isMobile ? liveVideos.slice(0, 6) : liveVideos.slice(0, 6);
+      return isMobile ? HighlightVideos.slice(0, 6) : HighlightVideos.slice(0, 6);
     } else {
-      return isMobile ? liveVideos.slice(0, 2) : liveVideos.slice(0, 3);
+      return isMobile ? HighlightVideos.slice(0, 2) : HighlightVideos.slice(0, 3);
     }
   };
 
@@ -80,34 +80,31 @@ const LiveVideoList = () => {
   return (
     <div className="bg-white">
       <div className="flex items-center justify-between mb-4 ml-4">
-        <h2 className="text-xl font-bold">Trực tiếp</h2>
+        <h2 className="text-xl font-bold">High Light</h2>
         <button className="px-5 py-2 rounded-md text-black hover:bg-blue-300 hover:font-bold transition-colors mr-4">
           Xem tất cả
         </button>
       </div>
 
       <div className="flex flex-wrap gap-4 sm:gap-6 p-4">
-        {displayedVideos.map((video) => (
+        {displayedVideos.map((HighlightVideos) => (
           <div
-            key={video.id}
+            key={HighlightVideos.id}
             className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col"
           >
             <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
               <img
-                src={video.thumbnail}
-                alt={video.title}
+                src={HighlightVideos.thumbnail}
+                alt={HighlightVideos.title}
                 className="w-full h-full object-cover"
               />
-              <span className="absolute bottom-2 right-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                {video.tag}
-              </span>
             </div>
             <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
               <div>
                 <h3 className="text-lg text-black font-bold leading-tight break-words">
-                  {video.channel}
+                  {HighlightVideos.channel}
                 </h3>
-                <p className="text-sm text-gray-400">{video.viewers}</p>
+                <p className="text-sm text-gray-400">{HighlightVideos.viewers}</p>
               </div>
             </div>
           </div>
@@ -126,4 +123,4 @@ const LiveVideoList = () => {
   );
 };
 
-export default LiveVideoList;
+export default HighlightList;

@@ -3,7 +3,12 @@
 import SubscribedFeedPage from "@/modules/subscribe/ui/views/subcribe-view";
 
 const Page = () => {
-  return <SubscribedFeedPage />;
+  return (
+    <div>
+      <SubscribedFeedPage />
+    </div>
+  );
 };
+
 
 export default Page;
