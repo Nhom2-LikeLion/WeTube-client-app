@@ -26,46 +26,10 @@ interface Bubble {
   name: string;
   subscribers: string;
   description: string;
+  videoUrl: string;
 }
 
-
-// const generateBubbles = (
-//   count: number,
-//   width: number,
-//   height: number,
-//   gap: number
-// ): Bubble[] => {
-//   const bubbles: Bubble[] = [];
-//   const radius = Math.min(width, height) * 0.3;
-//   const angleIncrement = (2 * Math.PI) / count;
-
-//   for (let i = 0; i < count; i++) {
-//     const angle = i * angleIncrement;
-//     const r = radius * (0.7 + Math.random() * 0.3);
-//     const x = Math.cos(angle) * r;
-//     const y = Math.sin(angle) * r;
-//     const size = 60 + Math.random() * 20;
-
-//     bubbles.push({
-//       id: i,
-//       x,
-//       y,
-//       vx: 0,
-//       vy: 0,
-//       size,
-//       img: `https://placehold.co/100x100?text=CH${i + 1}`,
-//       label: `Channel ${i + 1}`,
-//       ox: x,
-//       oy: y,
-//     });
-//   }
-
-//   return bubbles;
-// };
-
-
 export default function VideoBubblePack({
-  limit = 30,
   hideOnEdge = false,
   withAnimation = true,
   gap = 20,
@@ -106,6 +70,7 @@ export default function VideoBubblePack({
           name: channel.name,
           subscribers: channel.subscribers,
           description: channel.description,
+          videoUrl: channel.videoUrl,
         };
       });
 
@@ -162,7 +127,6 @@ export default function VideoBubblePack({
             const minDist =
               (next[i].size * scaleI + next[j].size * scaleJ) / 2 + gap;
 
-
             if (dist < minDist) {
               const force = (minDist - dist) * 0.12;
               fx += (dx / dist) * force;
@@ -186,7 +150,7 @@ export default function VideoBubblePack({
   }, [gap, viewport, offset]);
 
   const filteredBubbles = bubbles.filter((bubble) =>
-  bubble.name.toLowerCase().includes(search.toLowerCase())
+    bubble.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -251,7 +215,7 @@ export default function VideoBubblePack({
               <div className="w-full h-full rounded-full overflow-hidden">
                 <img
                   src={bubble.icon}
-                  alt={`channel-${bubble.name}`}
+                  alt={`${bubble.name}`}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -263,7 +227,7 @@ export default function VideoBubblePack({
           {activeBubble && (
             <motion.div
               key="zoom"
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+              className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -274,24 +238,34 @@ export default function VideoBubblePack({
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
-                className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
+                className="relative z-10 rounded-2xl bg-black overflow-hidden shadow-xl w-full max-w-xl h-[70vh]"
               >
-                <div className="flex items-center gap-4 mb-4">
-                  <img
-                    src={activeBubble.icon}
-                    alt={activeBubble.name}
-                    className="w-16 h-16 rounded-full"
-                  />
-                  <div>
-                    <h2 className="text-xl font-semibold">
-                      {activeBubble.name}
-                    </h2>
-                    <p className="text-sm text-gray-600">
-                      {activeBubble.subscribers} subscribers
-                    </p>
+                <video
+                  src={activeBubble.videoUrl}
+                  autoPlay
+                  muted
+                  loop={false}
+                  className="absolute inset-0 w-full h-full object-cover opacity-80 z-0"
+                />
+
+                <div className="absolute bottom-4 left-4 z-10 backdrop-blur-md bg-white/10 text-blue p-4 rounded-lg shadow-md max-w-[80%]">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={activeBubble.icon}
+                      alt={activeBubble.name}
+                      className="w-16 h-16 rounded-full"
+                    />
+                    <div>
+                      <h2 className="text-xl font-semibold">
+                        {activeBubble.name}
+                      </h2>
+                      <p className="text-sm text-white">
+                        {activeBubble.subscribers} subscribers
+                      </p>
+                    </div>
                   </div>
+                  <p className="text-white">{activeBubble.description}</p>
                 </div>
-                <p className="text-gray-700">{activeBubble.description}</p>
               </motion.div>
             </motion.div>
           )}
@@ -300,3 +274,14 @@ export default function VideoBubblePack({
     </>
   );
 }
+
+// import { VideoBubblePack } from "@/modules/subscription/VideoBubblePack";
+// import { channels } from "./channels";
+
+// export default function BubblePage() {
+//   return (
+//     <div className="w-full h-full max-w-screen overflow-hidden sm:px-2 md:px-4">
+//       <VideoBubblePack data={channels} />
+//     </div>
+//   );
+// }
