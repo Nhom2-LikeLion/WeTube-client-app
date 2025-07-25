@@ -9,4 +9,5 @@ export const pageUrls = {
     SHORTS:"/Shorts",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",
+    MUSIC: "/music"
 } as const;
