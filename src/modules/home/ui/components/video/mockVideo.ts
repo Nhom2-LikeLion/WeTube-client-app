@@ -17,7 +17,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -28,7 +28,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Cosmos",
     thumbnail:
       "https://i.ytimg.com/vi/dPq8j6HALdM/hq720.jpg?v=68822d9e&sqp=CIi_icQG-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAGYbmsOQo8ZZC2GrjPP4cDhguXvA",
-    avatar: "https://placehold.co/80x80/space/fff?text=C",
+    avatar: "https://placehold.co/80x80/space/fff.png?text=C",
     videoUrl: "/videos/space.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -39,7 +39,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Urban Explorer",
     thumbnail:
       "//i.ytimg.com/vi/dPq8j6HALdM/hq720.jpg?v=68822d9e&sqp=CIi_icQG-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAGYbmsOQo8ZZC2GrjPP4cDhguXvA",
-    avatar: "https://placehold.co/80x80/city/fff?text=U",
+    avatar: "https://placehold.co/80x80/city/fff.png?text=U",
     videoUrl: "/videos/city.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -50,7 +50,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -61,7 +61,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -72,7 +72,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -83,7 +83,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -94,7 +94,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -105,7 +105,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Nature World",
     thumbnail:
       "https://i.ytimg.com/vi/MsMklJuyiwY/hq720.jpg?v=6881d3e4&sqp=CPiMiMQG-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLA-VhS88_o3plp2xSJj0Bo2P_kEOg",
-    avatar: "https://placehold.co/80x80/nature/fff?text=N",
+    avatar: "https://placehold.co/80x80/nature/fff.png?text=N",
     videoUrl: "/videos/nature.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
