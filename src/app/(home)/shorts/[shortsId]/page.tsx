@@ -13,3 +13,11 @@
 
 //   return <ShortsView activeId={shortsId} />;
 // }
+
+"use client";
+
+const Page = () => {
+  return <div>Short id page</div>;
+};
+
+export default Page;
