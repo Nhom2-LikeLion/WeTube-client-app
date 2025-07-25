@@ -5,5 +5,10 @@ export const pageUrls = {
     HISTORY: "/playlists/history",
     LIKED_VIDEOS: "/playlists/liked",
     ALL_PLAYLISTS: "/playlists",
-    STUDIO: "/studio"
+    STUDIO: "/studio",
+    SHORTS:"/Shorts",
+    YOURVIDEO:"/your-video",
+    SEELATER:"/see-later",
+    PREMIUM:"/otherservices/premium",
+    MUSIC:"/otherservices/musicwetube",
 } as const;

@@ -1,23 +1,28 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
+import Sidebar from "../components/music-sidebar";
+import MusicSidebar from "../components/music-sidebar";
 import HomeNavbar from "@/modules/home/ui/components/home-navbar";
-import HomeSidebar from "../components/home-sidebar";
+import MusicNavbar from "../components/music-navbar";
 
-interface HomeLayoutProps {
+
+interface MusicLayoutProps {
     children: React.ReactNode;
 }
 
-export default function HomeLayout({ children }: HomeLayoutProps) {
+export default function MusicLayout({ children }: MusicLayoutProps) {
     return (
         <SidebarProvider>
             <div className="w-full">
-                <HomeNavbar />
-                <div className="flex min-h-screen pt-[4rem]">
-                    <HomeSidebar />
+                <MusicNavbar/>
+                <div className="flex min-h-screen">
+                    <MusicSidebar />
                     <main className="flex-1 overflow-y-auto">
                         {children}
                     </main>
                 </div>
             </div>
+
         </SidebarProvider>
+
     )
 }

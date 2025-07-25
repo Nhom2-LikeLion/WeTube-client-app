@@ -34,7 +34,6 @@ export default function HomeView({categoryId }: HomeViewProps) {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Danh mục</h1>
       <FilterCarousel
         value={selectedCategory}
         onSelect={(value) => setSelectedCategory(value)}

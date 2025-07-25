@@ -1,12 +1,16 @@
+
+
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import HomeNavbar from "@/modules/home/ui/components/home-navbar";
-import HomeSidebar from "../components/home-sidebar";
+import HomeSidebar from "@/modules/home/ui/components/home-sidebar";
 
-interface HomeLayoutProps {
+
+interface PremiumLayoutProps {
     children: React.ReactNode;
 }
 
-export default function HomeLayout({ children }: HomeLayoutProps) {
+export default function PremiumLayout({ children }: PremiumLayoutProps) {
     return (
         <SidebarProvider>
             <div className="w-full">
