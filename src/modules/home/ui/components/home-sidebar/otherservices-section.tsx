@@ -10,22 +10,22 @@ import { usePathname } from "next/navigation";
 const items = [
     {
         title: "WeTube Premium",
-        url: pageUrls.HISTORY,
+        url: pageUrls.PREMIUM,
         icon: Crown ,
     },
     {
         title: "WeTube Studio",
-        url: pageUrls.LIKED_VIDEOS,
+        url: "/otherservices/studio",
         icon: Clapperboard ,
     },
     {
         title: "WeTube Music",
-        url: pageUrls.ALL_PLAYLISTS,
+        url:pageUrls.MUSIC,
         icon: ListMusic 
     },
     {
         title: "WeTube Kids",
-        url: pageUrls.YOURVIDEO,
+        url: "/otherservices/kids",
         icon: CircleUserRound  ,
         auth: true
     }
