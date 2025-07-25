@@ -1,12 +1,12 @@
-import Sports from "../components";
+// import Sports from "../components";
 
 
-interface SportsLayoutProps {
-    children: React.ReactNode;
-}
+// interface SportsLayoutProps {
+//     children: React.ReactNode;
+// }
 
-export default function SportsLayout({ children }: SportsLayoutProps) {
-    return (
-        <Sports/>
-    );
-}
+// export default function SportsLayout({ children }: SportsLayoutProps) {
+//     return (
+//         <Sports/>
+//     );
+// }

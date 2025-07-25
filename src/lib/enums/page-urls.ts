@@ -7,7 +7,7 @@ export const pageUrls = {
     ALL_PLAYLISTS: "/playlists",
     STUDIO: "/studio",
     PREMIUM:"/otherservices/premium",
-    MUSIC:"/otherservices/musicwetube",
+    // MUSIC:"/otherservices/musicwetube",
     SHORTS:"/shorts",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",

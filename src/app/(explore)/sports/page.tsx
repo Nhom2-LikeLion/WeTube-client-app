@@ -1,11 +1,6 @@
-import SportsLayout from "@/modules/sports/ui/layouts/sports-layout";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <SportsLayout>
-            {children}
-        </SportsLayout>
-    )
+import Sports from "@/modules/sports/ui/components";
+
+export default function Page() {
+  return <Sports />;
 }
-
-export default Layout;
