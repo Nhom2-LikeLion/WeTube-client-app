@@ -28,7 +28,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Cosmos",
     thumbnail:
       "https://i.ytimg.com/vi/dPq8j6HALdM/hq720.jpg?v=68822d9e&sqp=CIi_icQG-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAGYbmsOQo8ZZC2GrjPP4cDhguXvA",
-    avatar: "https://placehold.co/80x80/space/fff?text=C",
+    avatar: "https://placehold.co/80x80/space/fff.png?text=C",
     videoUrl: "/videos/space.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
@@ -39,7 +39,7 @@ export const getMockVideos = (): VideoItem[] => [
     channelName: "Urban Explorer",
     thumbnail:
       "//i.ytimg.com/vi/dPq8j6HALdM/hq720.jpg?v=68822d9e&sqp=CIi_icQG-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAGYbmsOQo8ZZC2GrjPP4cDhguXvA",
-    avatar: "https://placehold.co/80x80/city/fff?text=U",
+    avatar: "https://placehold.co/80x80/city/fff.png?text=U",
     videoUrl: "/videos/city.mp4",
     views: 100000,
     uploadedAt: "3 months ago",
