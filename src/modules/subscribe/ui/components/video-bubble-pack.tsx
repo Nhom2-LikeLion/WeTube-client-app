@@ -1,10 +1,18 @@
+// components/VideoBubblePack.tsx
 "use client";
 
-import SubscribedFeedPage from "@/modules/subscribe/ui/views/subcribe-view";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { channels } from "../../channels";
+import Image from "next/image";
 
-const Page = () => {
-  return <SubscribedFeedPage />;
-};
+interface VideoBubblePackProps {
+  limit?: number;
+  shrinkOnEdge?: boolean;
+  hideOnEdge?: boolean;
+  withAnimation?: boolean;
+  gap?: number;
+}
 
 interface Bubble {
   id: number;
@@ -19,10 +27,44 @@ interface Bubble {
   name: string;
   subscribers: string;
   description: string;
-  videoUrl: string;
 }
 
+// const generateBubbles = (
+//   count: number,
+//   width: number,
+//   height: number,
+//   gap: number
+// ): Bubble[] => {
+//   const bubbles: Bubble[] = [];
+//   const radius = Math.min(width, height) * 0.3;
+//   const angleIncrement = (2 * Math.PI) / count;
+
+//   for (let i = 0; i < count; i++) {
+//     const angle = i * angleIncrement;
+//     const r = radius * (0.7 + Math.random() * 0.3);
+//     const x = Math.cos(angle) * r;
+//     const y = Math.sin(angle) * r;
+//     const size = 60 + Math.random() * 20;
+
+//     bubbles.push({
+//       id: i,
+//       x,
+//       y,
+//       vx: 0,
+//       vy: 0,
+//       size,
+//       img: `https://placehold.co/100x100?text=CH${i + 1}`,
+//       label: `Channel ${i + 1}`,
+//       ox: x,
+//       oy: y,
+//     });
+//   }
+
+//   return bubbles;
+// };
+
 export default function VideoBubblePack({
+  // limit = 30,
   hideOnEdge = false,
   withAnimation = true,
   gap = 20,
@@ -63,7 +105,6 @@ export default function VideoBubblePack({
           name: channel.name,
           subscribers: channel.subscribers,
           description: channel.description,
-          videoUrl: channel.videoUrl,
         };
       });
 
@@ -206,9 +247,11 @@ export default function VideoBubblePack({
               onClick={() => setActiveBubble(bubble)}
             >
               <div className="w-full h-full rounded-full overflow-hidden">
-                <img
+                <Image
                   src={bubble.icon}
-                  alt={`${bubble.name}`}
+                  alt={`channel-${bubble.name}`}
+                  width={newSize}
+                  height={newSize}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -220,7 +263,7 @@ export default function VideoBubblePack({
           {activeBubble && (
             <motion.div
               key="zoom"
-              className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center"
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -231,34 +274,26 @@ export default function VideoBubblePack({
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
-                className="relative z-10 rounded-2xl bg-black overflow-hidden shadow-xl w-full max-w-xl h-[70vh]"
+                className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
               >
-                <video
-                  src={activeBubble.videoUrl}
-                  autoPlay
-                  muted
-                  loop={false}
-                  className="absolute inset-0 w-full h-full object-cover opacity-80 z-0"
-                />
-
-                <div className="absolute bottom-4 left-4 z-10 backdrop-blur-md bg-white/10 text-blue p-4 rounded-lg shadow-md max-w-[80%]">
-                  <div className="flex items-center gap-4 mb-4">
-                    <img
-                      src={activeBubble.icon}
-                      alt={activeBubble.name}
-                      className="w-16 h-16 rounded-full"
-                    />
-                    <div>
-                      <h2 className="text-xl font-semibold">
-                        {activeBubble.name}
-                      </h2>
-                      <p className="text-sm text-white">
-                        {activeBubble.subscribers} subscribers
-                      </p>
-                    </div>
+                <div className="flex items-center gap-4 mb-4">
+                  <Image
+                    src={activeBubble.icon}
+                    alt={activeBubble.name}
+                    width={80}
+                    height={80}
+                    className="w-16 h-16 rounded-full"
+                  />
+                  <div>
+                    <h2 className="text-xl font-semibold">
+                      {activeBubble.name}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {activeBubble.subscribers} subscribers
+                    </p>
                   </div>
-                  <p className="text-white">{activeBubble.description}</p>
                 </div>
+                <p className="text-gray-700">{activeBubble.description}</p>
               </motion.div>
             </motion.div>
           )}
@@ -267,5 +302,3 @@ export default function VideoBubblePack({
     </>
   );
 }
-
-export default Page;

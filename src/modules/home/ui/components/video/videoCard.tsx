@@ -28,9 +28,13 @@ const VideoCard = ({
       <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
     </div>
     <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
-      <img
+      <Image
+<!--         src="https://placehold.co/80x80.png"
+        alt="logo" -->
         src={avatar}
         alt={channelName}
+        width={48} 
+        height={48}
         className="w-12 h-12 rounded-full object-cover"
       />
       <div>

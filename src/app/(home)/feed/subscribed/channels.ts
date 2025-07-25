@@ -11,7 +11,7 @@ export const channels = [
   {
     id: 2,
     name: "Foodie Fun",
-    icon: "https://placehold.co/100x100?text=FF",
+    icon: "https://placehold.co/100x100?text=FF.png",
     subscribers: "800K",
     description: "Delicious recipes and food challenges!",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -19,7 +19,7 @@ export const channels = [
   {
     id: 3,
     name: "new",
-    icon: "https://placehold.co/100x100?text=FF",
+    icon: "https://placehold.co/100x100?text=FF.png",
     subscribers: "800K",
     description: "Delicious recipes and food challenges!",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -27,7 +27,7 @@ export const channels = [
   {
     id: 4,
     name: "Khai",
-    icon: "https://placehold.co/100x100?text=FF",
+    icon: "https://placehold.co/100x100?text=FF.png",
     subscribers: "800K",
     description: "Delicious recipes and food challenges!",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -35,7 +35,7 @@ export const channels = [
   {
     id: 5,
     name: "NTN",
-    icon: "https://placehold.co/100x100?text=FF",
+    icon: "https://placehold.co/100x100?text=FF.png",
     subscribers: "800K",
     description: "Delicious recipes and food challenges!",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -43,7 +43,7 @@ export const channels = [
   {
     id: 6,
     name: "Coding",
-    icon: "https://placehold.co/100x100?text=FF",
+    icon: "https://placehold.co/100x100?text=FF.png",
     subscribers: "800K",
     description: "Delicious recipes and food challenges!",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",

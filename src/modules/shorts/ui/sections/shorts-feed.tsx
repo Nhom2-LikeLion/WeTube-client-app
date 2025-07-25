@@ -9,7 +9,7 @@ export default function ShortsFeed() {
   return (
     <div className="w-full h-screen overflow-y-scroll snap-y snap-mandatory">
       {shorts.map((item) => (
-        <div key={item.id} className="h-screen snap-start bg-white">
+        <div key={item.id} className="h-screen snap-start bg-white ">
           <ShortsVideoCard {...item} />
         </div>
       ))}
