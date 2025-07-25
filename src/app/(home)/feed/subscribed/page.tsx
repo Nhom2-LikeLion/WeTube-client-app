@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { channels } from "./channels";
+import Image from 'next/image';
 
 interface VideoBubblePackProps {
   limit?: number;
@@ -65,7 +66,7 @@ interface Bubble {
 
 
 export default function VideoBubblePack({
-  limit = 30,
+  // limit = 30,
   hideOnEdge = false,
   withAnimation = true,
   gap = 20,
@@ -249,9 +250,11 @@ export default function VideoBubblePack({
               onClick={() => setActiveBubble(bubble)}
             >
               <div className="w-full h-full rounded-full overflow-hidden">
-                <img
+                <Image
                   src={bubble.icon}
                   alt={`channel-${bubble.name}`}
+                  width={newSize}
+                  height={newSize}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -277,9 +280,11 @@ export default function VideoBubblePack({
                 className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <img
+                  <Image
                     src={activeBubble.icon}
                     alt={activeBubble.name}
+                    width={80}
+                    height={80}
                     className="w-16 h-16 rounded-full"
                   />
                   <div>
