@@ -1,7 +1,6 @@
-"use client";
+import HistoryView from "@/modules/playlists/ui/view/history-view";
+function page() {
+  return <HistoryView />;
+}
 
-const Page = () => {
-  return <div>Hítory</div>;
-};
-
-export default Page;
+export default page;
