@@ -1,8 +1,9 @@
-// app/feed/subscribed/page.tsx
-export default function SubscribedPage() {
-  return (
-    <div>
-      <h1>Subscribed Feed</h1>
-    </div>
-  );
-}
+"use client";
+
+import SubscribedFeedPage from "@/modules/subscribe/ui/views/subcribe-view";
+
+const Page = () => {
+  return <SubscribedFeedPage />;
+};
+
+export default Page;

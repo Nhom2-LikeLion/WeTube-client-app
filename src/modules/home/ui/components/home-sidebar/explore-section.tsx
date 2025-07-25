@@ -25,7 +25,7 @@ const items = [
     },
     {
         title: "Sports",
-        url: pageUrls.YOURVIDEO,
+        url: pageUrls.SPORTS,
         icon: Trophy  
     },
 ];

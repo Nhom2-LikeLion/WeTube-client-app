@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
 import { useAuth, useClerk } from "@clerk/nextjs";
 import { Settings , MessageCircleQuestionMark  , Flag , MessageSquareWarning    } from "lucide-react";
