@@ -29,8 +29,8 @@ const VideoCard = ({
     </div>
     <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
       <Image
-<!--         src="https://placehold.co/80x80.png"
-        alt="logo" -->
+        // src="https://placehold.co/80x80.png"
+        // alt="logo" 
         src={avatar}
         alt={channelName}
         width={48} 
