@@ -82,7 +82,7 @@ export default function HitMusic() {
 
   return (
   <section className="px-4 sm:px-6 md:px-8 py-6">
-      <h2 className="text-2xl font-bold mb-6 text-black">Today's Biggest Hits</h2>
+      <h2 className="text-2xl font-bold mb-6 text-black">Today Biggest Hits</h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {visibleList.map((item) => (
