@@ -1,4 +1,4 @@
-import MusicLayout from "@/modules/music/ui/Layouts/music-layout";
+import MusicLayout from "@/modules/music/ui/layouts/music-layout";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
