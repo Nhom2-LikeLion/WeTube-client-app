@@ -1,5 +1,8 @@
-function page() {
-  return <div>Liked</div>;
-}
 
-export default page;
+"use client";
+
+const Page = () => {
+  return <div>Liked</div>;
+};
+
+export default Page;
