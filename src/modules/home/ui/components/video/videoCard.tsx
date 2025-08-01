@@ -25,15 +25,21 @@ const VideoCard = ({
 }: VideoCardProps) => (
   <div className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col">
     <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-      <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
+      {/* <img src={thumbnail} alt={title} className="w-full h-full object-cover" /> */}
+      <Image
+        width={640}
+        height={360}
+        unoptimized
+        src={thumbnail}
+        alt={title}
+        className="w-full h-full object-cover"
+      />
     </div>
     <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
       <Image
-        // src="https://placehold.co/80x80.png"
-        // alt="logo" 
         src={avatar}
         alt={channelName}
-        width={48} 
+        width={48}
         height={48}
         className="w-12 h-12 rounded-full object-cover"
       />

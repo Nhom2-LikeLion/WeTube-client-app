@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import React, { useEffect, useState } from "react";
 
 const HighlightVideos = [
@@ -93,10 +94,17 @@ const HighlightList = () => {
             className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col"
           >
             <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-              <img
+              {/* <img
                 src={HighlightVideos.thumbnail}
                 alt={HighlightVideos.title}
                 className="w-full h-full object-cover"
+              /> */}
+              <Image
+                src={HighlightVideos.thumbnail}
+                alt={HighlightVideos.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                className="object-cover"
               />
             </div>
             <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
@@ -104,7 +112,9 @@ const HighlightList = () => {
                 <h3 className="text-lg text-black font-bold leading-tight break-words">
                   {HighlightVideos.channel}
                 </h3>
-                <p className="text-sm text-gray-400">{HighlightVideos.viewers}</p>
+                <p className="text-sm text-gray-400">
+                  {HighlightVideos.viewers}
+                </p>
               </div>
             </div>
           </div>

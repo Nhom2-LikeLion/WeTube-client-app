@@ -49,9 +49,9 @@ const ShortsSection = () => {
       {/* Shorts Grid */}
       <div className="relative">
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {shortData.map((short, index) => (
+          {shortData.map((short) => (
             <div key={short.id} className="flex-shrink-0 group">
-              <div key={short.id} className="flex-shrink-0">
+              <div className="flex-shrink-0">
                 <ShortItem {...short} />
               </div>
             </div>

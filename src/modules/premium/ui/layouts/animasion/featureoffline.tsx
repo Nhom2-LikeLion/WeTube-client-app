@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from "react";
 
 export default function FeatureOffline ()  {
@@ -10,10 +11,14 @@ export default function FeatureOffline ()  {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Text content */}
         <div>
-          <h3 className="text-2xl font-bold mb-4">Xem offline mọi lúc mọi nơi</h3>
+          <h3 className="text-2xl font-bold mb-4">
+            Xem offline mọi lúc mọi nơi
+          </h3>
           <p className="text-gray-600 leading-relaxed">
-            Tải video yêu thích để xem bất cứ khi nào mà không cần kết nối internet. <br />
-            Thưởng thức nội dung từ các nhà sáng tạo yêu thích, ngay cả khi không có mạng.
+            Tải video yêu thích để xem bất cứ khi nào mà không cần kết nối
+            internet. <br />
+            Thưởng thức nội dung từ các nhà sáng tạo yêu thích, ngay cả khi
+            không có mạng.
           </p>
         </div>
 
@@ -21,10 +26,17 @@ export default function FeatureOffline ()  {
         <div className="relative flex items-center justify-center">
           <div className="relative w-72 h-72 rounded-full p-[4px] bg-gradient-to-tr from-blue-500 via-purple-500 to-green-500">
             <div className="w-full h-full rounded-full overflow-hidden bg-white">
-              <img
+              {/* <img
                 src="/image/offline-video-thumbnail.png"
                 alt="Xem offline"
                 className="object-cover w-full h-full"
+              /> */}
+              <Image
+                src="/image/video-thumbnail.png"
+                alt="Xem offline"
+                fill 
+                sizes="288px" 
+                className="object-cover"
               />
             </div>
           </div>

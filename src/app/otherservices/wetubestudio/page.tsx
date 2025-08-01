@@ -1,6 +1,5 @@
 "use client";
 
-import UserAvatar from '@/components/user-avatar';
 import React from "react";
 
 export default function Studio() {

@@ -32,7 +32,7 @@ export default function ShortsVideoCard({
 }: ShortsVideoCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  // const observerRef = useRef<IntersectionObserver | null>(null);
 
   const [showComment, setShowComment] = useState(false);
   const [commentInput, setCommentInput] = useState("");
@@ -94,6 +94,9 @@ export default function ShortsVideoCard({
   };
 
   useEffect(() => {
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (videoRef.current) {
@@ -115,15 +118,11 @@ export default function ShortsVideoCard({
       { threshold: 0.6 }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    observerRef.current = observer;
+    observer.observe(currentContainer);
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (currentContainer) {
+        observer.unobserve(currentContainer);
       }
     };
   }, [onReachEnd, showComment]);
