@@ -9,7 +9,7 @@ export default function StudioUploadModal() {
     <>
       <ResponsiveModal
         title="Upload a video"
-        // open
+        open
         onOpenChange={() => {}}
       >
         <p>This will be an uploader</p>

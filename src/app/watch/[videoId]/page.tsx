@@ -1,5 +1,5 @@
 import React from 'react';
-import WatchView from '@/modules/watch/ui/views/WatchView';
+// import WatchView from '@/modules/watch/ui/views/WatchView';
 import HomeLayout from '@/modules/home/ui/layouts/home-layout';
 
 interface WatchPageProps {
@@ -19,11 +19,12 @@ export default async function WatchPage({ params, searchParams }: WatchPageProps
   
   return (
     <HomeLayout>
-      <WatchView
+      {/* <WatchView
         videoId={resolvedParams.videoId}
         playlistId={resolvedSearchParams.list}
         startTime={resolvedSearchParams.t}
-      />
+      /> */}
+      videoID page
     </HomeLayout>
   );
 }
