@@ -9,6 +9,7 @@ const VideoGrid = () => {
       {videos.map((video) => (
         <VideoCard
           key={video.id}
+          id={video.id}
           title={video.title}
           channelName={video.channelName}
           thumbnail={video.thumbnail}
