@@ -8,10 +8,11 @@ export const communityPostsMock = [
     date: "7 tháng trước",
     edited: true,
     likes: 41,
+    dislike:3,
     comments: 2,
     author: {
       name: "GEARVN",
-      avatarUrl: "https://yt3.ggpht.com/ytc/AMLnZu9PdjL-LsNZZ.jpg", // bạn thay link avatar thật nhé
+      avatarUrl: "https://yt3.ggpht.com/ytc/AMLnZu9PdjL-LsNZZ.jpg", 
     },
   },
 ];

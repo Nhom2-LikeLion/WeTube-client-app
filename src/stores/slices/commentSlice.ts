@@ -27,12 +27,12 @@
 //     addComment: (videoId: string, comment: Comment) => void;
 //     updateComment: (videoId: string, commentId: string, updates: Partial<Comment>) => void;
 //     deleteComment: (videoId: string, commentId: string) => void;
-    
+
 //     // Reply operations
 //     addReply: (videoId: string, parentId: string, reply: Comment) => void;
 //     toggleReplies: (commentId: string) => void;
 //     setRepliesLoading: (commentId: string, isLoading: boolean) => void;
-    
+
 //     // Bulk operations with deep merge
 //     updateCommentState: (videoId: string, updates: {
 //       items?: Comment[];
@@ -42,11 +42,11 @@
 //       sortBy?: CommentSortOption['value'];
 //       error?: string | null;
 //     }) => void;
-    
+
 //     // Like/dislike operations
 //     toggleCommentLike: (videoId: string, commentId: string) => void;
 //     toggleCommentDislike: (videoId: string, commentId: string) => void;
-    
+
 //     // Utility actions
 //     clearComments: (videoId: string) => void;
 //     setSortBy: (videoId: string, sortBy: CommentSortOption['value']) => void;
@@ -144,7 +144,7 @@
 //             replies: [],
 //           };
 //         }
-//         state.comments.replyStates[commentId].isExpanded = 
+//         state.comments.replyStates[commentId].isExpanded =
 //           !state.comments.replyStates[commentId].isExpanded;
 //       }),
 
@@ -174,7 +174,7 @@
 //             lastFetched: null,
 //           };
 //         }
-        
+
 //         // Deep merge updates
 //         Object.assign(state.comments.byVideoId[videoId], updates);
 //       }),

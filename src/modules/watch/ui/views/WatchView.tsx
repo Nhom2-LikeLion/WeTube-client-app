@@ -63,7 +63,7 @@
 
 //         setVideo(mockVideo);
 //         setChannel(mockChannel);
-        
+
 //       } catch (error) {
 //         console.error('Error fetching video data:', error);
 //       } finally {
@@ -196,7 +196,7 @@
 //             <div className="max-w-full px-6 py-6">
 //               {renderVideoPlayer()}
 //               {renderVideoInfo()}
-              
+
 //               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 //                 <div className="lg:col-span-2">
 //                   {renderComments()}
@@ -232,7 +232,7 @@
 //         </>
 //       );
 
-//     default: 
+//     default:
 //       return (
 //         <>
 //           <div className="min-h-[calc(100vh-4rem)] bg-white">

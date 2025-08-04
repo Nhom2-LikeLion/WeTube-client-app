@@ -84,12 +84,12 @@
 //     nextVideo: () =>
 //       set((state) => {
 //         if (!state.playlist.current) return;
-        
+
 //         const { items } = state.playlist.current;
 //         const { currentIndex, controls } = state.playlist;
-        
+
 //         let nextIndex = currentIndex + 1;
-        
+
 //         if (nextIndex >= items.length) {
 //           if (controls.repeat === 'all') {
 //             nextIndex = 0;
@@ -99,52 +99,52 @@
 //             return; // End of playlist
 //           }
 //         }
-        
+
 //         // Add current video to history
 //         const currentVideoId = items[currentIndex]?.video.id;
 //         if (currentVideoId && !state.playlist.history.includes(currentVideoId)) {
 //           state.playlist.history.push(currentVideoId);
 //         }
-        
+
 //         state.playlist.currentIndex = nextIndex;
 //       }),
 
 //     previousVideo: () =>
 //       set((state) => {
 //         if (!state.playlist.current) return;
-        
+
 //         const { items } = state.playlist.current;
 //         const { currentIndex } = state.playlist;
-        
+
 //         let prevIndex = currentIndex - 1;
-        
+
 //         if (prevIndex < 0) {
 //           prevIndex = items.length - 1;
 //         }
-        
+
 //         state.playlist.currentIndex = prevIndex;
 //       }),
 
 //     shufflePlaylist: () =>
 //       set((state) => {
 //         if (!state.playlist.current) return;
-        
+
 //         const { items } = state.playlist.current;
 //         const currentItem = items[state.playlist.currentIndex];
-        
+
 //         // Fisher-Yates shuffle
 //         const shuffled = [...items];
 //         for (let i = shuffled.length - 1; i > 0; i--) {
 //           const j = Math.floor(Math.random() * (i + 1));
 //           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 //         }
-        
+
 //         // Ensure current item stays at index 0
 //         const currentItemIndex = shuffled.findIndex(item => item.id === currentItem.id);
 //         if (currentItemIndex !== -1) {
 //           [shuffled[0], shuffled[currentItemIndex]] = [shuffled[currentItemIndex], shuffled[0]];
 //         }
-        
+
 //         state.playlist.current.items = shuffled;
 //         state.playlist.currentIndex = 0;
 //         state.playlist.controls.shuffle = true;
@@ -188,11 +188,11 @@
 //     reorderPlaylist: (fromIndex, toIndex) =>
 //       set((state) => {
 //         if (!state.playlist.current) return;
-        
+
 //         const { items } = state.playlist.current;
 //         const [movedItem] = items.splice(fromIndex, 1);
 //         items.splice(toIndex, 0, movedItem);
-        
+
 //         // Update current index if needed
 //         if (state.playlist.currentIndex === fromIndex) {
 //           state.playlist.currentIndex = toIndex;

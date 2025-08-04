@@ -3,6 +3,7 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from 'next/image';
 
 const mockSuggested = [
   {
@@ -101,11 +102,13 @@ export default function HighlightedVideos() {
               key={video.id}
               className="w-[350px] snap-start shrink-0 flex flex-col gap-2"
             >
-              <div className="w-full h-[200px] overflow-hidden rounded-lg">
-                <img
+              <div className="w-full h-[200px] overflow-hidden rounded-lg relative">
+                <Image
                   src={video.thumbnail}
                   alt={video.title}
-                  className="w-full h-full object-cover"
+                  fill 
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover" 
                 />
               </div>
               <div>

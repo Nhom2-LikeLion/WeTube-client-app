@@ -31,7 +31,7 @@ export default function PostCard({
   return (
     <div className="bg-white shadow-xl rounded-xl p-4 space-y-3 max-w-[600px] mx-auto">
       <div className="flex items-start space-x-3">
-        <img
+        <Image
           src={avatar}
           alt="avatar"
           width={40}
@@ -71,6 +71,7 @@ export default function PostCard({
         </div>
         <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
           <ThumbsDown size={16} />
+          <span>{dislikes}</span>
         </div>
         <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
           <Share2 size={16} />

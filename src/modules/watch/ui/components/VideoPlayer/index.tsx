@@ -55,7 +55,7 @@
 //     updatePlayerState,
 //     initializePlayer,
 //   } = useVideoPlayerActions();
-  
+
 //   const [controlsVisible, setControlsVisible] = useState(true);
 //   const [isHovering, setIsHovering] = useState(false);
 
@@ -162,11 +162,11 @@
 //   // Controls visibility management
 //   const showControlsTemporarily = useCallback(() => {
 //     setControlsVisible(true);
-    
+
 //     if (controlsTimeoutRef.current) {
 //       clearTimeout(controlsTimeoutRef.current);
 //     }
-    
+
 //     if (playerState.isPlaying && !isHovering) {
 //       controlsTimeoutRef.current = setTimeout(() => {
 //         setControlsVisible(false);
@@ -270,7 +270,7 @@
 //   );
 
 //   return (
-//     <div 
+//     <div
 //       className={containerClasses}
 //       onMouseMove={handleMouseMove}
 //       onMouseEnter={handleMouseEnter}
@@ -297,7 +297,7 @@
 //         onError={handleError}
 //         {...props}
 //       />
-      
+
 //       {showControls && controlsVisible && (
 //         <VideoControls
 //           onPlay={play}

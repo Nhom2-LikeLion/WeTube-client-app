@@ -101,15 +101,15 @@
 //     setMode: (mode) =>
 //       set((state) => {
 //         if (mode === state.viewMode.currentMode) return;
-        
+
 //         state.viewMode.previousMode = state.viewMode.currentMode;
 //         state.viewMode.currentMode = mode;
 //         state.viewMode.config = VIEW_MODE_CONFIGS[mode];
 //         state.viewMode.isTransitioning = true;
-        
+
 //         // Update miniplayer visibility
 //         state.viewMode.miniplayer.isVisible = mode === 'miniplayer';
-        
+
 //         // Update fullscreen state
 //         state.viewMode.fullscreen.isActive = mode === 'fullscreen';
 //       }),

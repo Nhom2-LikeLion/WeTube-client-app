@@ -3,6 +3,7 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from 'next/image';
 
 const mockSuggested = [
   {
@@ -82,51 +83,53 @@ export default function SuggestedVideos() {
   };
 
   return (
-      <div className="relative pt-2 border-t border-gray-300">
-        <h3 className="text-lg font-semibold mb-3">Dành Cho Bạn</h3>
-        <div className="relative">
-          <button
-            onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-black/70 p-1 rounded-full shadow-md hover:scale-105"
-          >
-            <ChevronLeft size={34} />
-          </button>
-  
-          <div
-            ref={scrollRef}
-            className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-6 py-1 no-scrollbar"
-          >
-            {mockSuggested.map((video) => (
-              <div
-                key={video.id}
-                className="w-[350px] snap-start shrink-0 flex flex-col gap-2"
-              >
-                <div className="w-full h-[200px] overflow-hidden rounded-lg">
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-medium line-clamp-2">
-                    {video.title}
-                  </p>
-                  <p className="text-xs text-gray-500 pt-2">
-                    {formatViews(video.views)} • {video.uploadedAt}
-                  </p>
-                </div>
+    <div className="relative pt-2 border-t border-gray-300">
+      <h3 className="text-lg font-semibold mb-3">Dành Cho Bạn</h3>
+      <div className="relative">
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-black/70 p-1 rounded-full shadow-md hover:scale-105"
+        >
+          <ChevronLeft size={34} />
+        </button>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-6 py-1 no-scrollbar"
+        >
+          {mockSuggested.map((video) => (
+            <div
+              key={video.id}
+              className="w-[350px] snap-start shrink-0 flex flex-col gap-2"
+            >
+              <div className="w-full h-[200px] overflow-hidden rounded-lg relative">
+                <Image
+                  src={video.thumbnail}
+                  alt={video.title}
+                  fill 
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover" 
+                />
               </div>
-            ))}
-          </div>
-  
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-black/70 p-1 rounded-full shadow-md hover:scale-105"
-          >
-            <ChevronRight size={34} />
-          </button>
+              <div>
+                <p className="text-sm font-medium line-clamp-2">
+                  {video.title}
+                </p>
+                <p className="text-xs text-gray-500 pt-2">
+                  {formatViews(video.views)} • {video.uploadedAt}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
+
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-black/70 p-1 rounded-full shadow-md hover:scale-105"
+        >
+          <ChevronRight size={34} />
+        </button>
       </div>
-    );
+    </div>
+  );
 }

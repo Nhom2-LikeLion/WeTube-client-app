@@ -10,7 +10,7 @@
 //     error: string | null;
 //     isInitialized: boolean;
 //   };
-  
+
 //   // Actions
 //   videoPlayerActions: {
 //     // Player control actions
@@ -25,7 +25,7 @@
 //     setBuffering: (isBuffering: boolean) => void;
 //     setLoading: (isLoading: boolean) => void;
 //     setError: (error: string | null) => void;
-    
+
 //     // Batch updates for performance
 //     updatePlayerState: (updates: Partial<VideoPlayerState>) => void;
 //     resetPlayer: () => void;

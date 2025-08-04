@@ -221,7 +221,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      value={video.title}
+                      {...field}
                       placeholder="Add a title to your video"
                       readOnly
                     />
@@ -252,7 +252,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      value={video.description}
+                      {...field}
                       rows={10}
                       className="resize-none pr-10"
                       placeholder="Add a description to your video"
@@ -272,7 +272,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                   <FormControl>
                     <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
                       <Image
-                        src={video.thumbnailUrl ?? THUMBNAIL_FALLBACK}
+                        src={field.value ?? THUMBNAIL_FALLBACK}
                         alt="Thumbnail"
                         fill
                         className="object-cover"
@@ -318,12 +318,9 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <Select
-                    value={
-                      DUMMY_CATEGORIES.find(
-                        (cat) => cat.id === video.categoryId
-                      )?.id || DUMMY_CATEGORIES[0]?.id
-                    }
-                    disabled
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={true}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -410,8 +407,9 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 <FormItem>
                   <FormLabel>Visibility</FormLabel>
                   <Select
-                    value={video.visibility}
-                    disabled
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={true}
                   >
                     <FormControl>
                       <SelectTrigger>
