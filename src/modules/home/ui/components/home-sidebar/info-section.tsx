@@ -16,17 +16,17 @@ const items = [
     },
     {
         title: "Report diary",
-        url: pageUrls.LIKED_VIDEOS,
+        url: pageUrls.REPORT,
         icon: Flag  ,
     },
     {
-        title: "Help",
-        url: pageUrls.ALL_PLAYLISTS,
+        title: "Support",
+        url: pageUrls.REPORT,
         icon: MessageCircleQuestionMark  
     },
     {
         title: "Send feedback",
-        url: pageUrls.YOURVIDEO,
+        url: pageUrls.FEEDBACK,
         icon: MessageSquareWarning   ,
     }
 ];

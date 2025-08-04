@@ -1,4 +1,5 @@
-import PremiumLayout from "@/modules/otherservices/premium/ui/layouts/premium-layout";
+import ReportLayout from "@/modules/otherservices/reportdiary/ui/layout/report-layout";
+
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +9,8 @@ interface LayoutProps {
 
 export default function Layout({children }: LayoutProps ) {
     return (
-        <PremiumLayout>
+        <ReportLayout>
             {children}
-        </PremiumLayout>
+        </ReportLayout>
     )
 }
