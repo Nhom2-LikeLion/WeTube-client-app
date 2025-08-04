@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import VideoCard from "./videoCard";
-import { getMockVideos } from "./mockVideo"; // sửa lại đường dẫn nếu cần
+import { getMockVideos } from "./mockVideo";
 
 const VideoGrid = () => {
   const videos = getMockVideos();
@@ -26,7 +26,16 @@ const VideoGrid = () => {
               transition={{ duration: 0.3 }}
               className="w-full sm:w-[calc(33.3333%-1rem)]"
             >
-              <VideoCard {...video} />
+              <VideoCard
+                key={video.id}
+                id={video.id}
+                title={video.title}
+                channelName={video.channelName}
+                thumbnail={video.thumbnail}
+                avatar={video.avatar}
+                views={video.views}
+                uploadedAt={video.uploadedAt}
+              />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -38,7 +47,7 @@ const VideoGrid = () => {
             onClick={handleLoadMore}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
           >
-            Hiển thị thêm
+            More
           </button>
         </div>
       )}

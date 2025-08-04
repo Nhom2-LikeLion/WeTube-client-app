@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { useEffect, useState } from "react";
 
 export default function FeatureMusic() {
@@ -41,8 +42,17 @@ export default function FeatureMusic() {
                   alt={`Ảnh ${index + 1}`}
                   className="w-full h-40 object-cover"
                 />
+                {/* <Image
+                  src={`https://picsum.photos/400/200?random=${index}`}
+                  alt={`Ảnh ${index + 1}`}
+                  fill 
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                /> */}
                 <div className="p-4">
-                  <h3 className="text-lg font-bold mb-1">Tên ứng dụng {index + 1}</h3>
+                  <h3 className="text-lg font-bold mb-1">
+                    Tên ứng dụng {index + 1}
+                  </h3>
                   <p className="text-sm text-gray-400">Mô tả ngắn gọn ở đây.</p>
                 </div>
               </div>
