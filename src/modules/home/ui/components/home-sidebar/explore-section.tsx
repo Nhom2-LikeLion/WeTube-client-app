@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 const items = [
     {
         title: "Music",
-        url: pageUrls.HISTORY,
+        url: pageUrls.MUSIC,
         icon: Music 
     },
     {
@@ -25,7 +25,7 @@ const items = [
     },
     {
         title: "Sports",
-        url: pageUrls.YOURVIDEO,
+        url: pageUrls.SPORTS,
         icon: Trophy  
     },
 ];

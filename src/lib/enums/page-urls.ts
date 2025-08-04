@@ -6,7 +6,11 @@ export const pageUrls = {
     LIKED_VIDEOS: "/playlists/liked",
     ALL_PLAYLISTS: "/playlists",
     STUDIO: "/studio",
-    SHORTS:"/Shorts",
+    PREMIUM:"/otherservices/premium",
+    // MUSIC:"/otherservices/musicwetube",
+    SHORTS:"/shorts",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",
+    MUSIC: "/music",
+    SPORTS: "/sports"
 } as const;
