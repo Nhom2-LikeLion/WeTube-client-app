@@ -1,6 +1,5 @@
 "use client";
 
-
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
 import { useAuth, useClerk } from "@clerk/nextjs";

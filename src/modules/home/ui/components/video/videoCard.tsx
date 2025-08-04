@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface VideoCardProps {
+  id: string; 
   title: string;
   channelName: string;
   thumbnail: string;
@@ -16,6 +18,7 @@ const formatViews = (num: number) => {
 };
 
 const VideoCard = ({
+  id,
   title,
   channelName,
   thumbnail,
@@ -23,9 +26,8 @@ const VideoCard = ({
   views,
   uploadedAt,
 }: VideoCardProps) => (
-  <div className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col">
-    <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-      {/* <img src={thumbnail} alt={title} className="w-full h-full object-cover" /> */}
+  <Link href={`/watch/${id}`} className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col cursor-pointer group">
+    <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative group-hover:scale-[1.02] transition-transform">
       <Image
         width={640}
         height={360}
@@ -53,7 +55,7 @@ const VideoCard = ({
         </p>
       </div>
     </div>
-  </div>
+  </Link>
 );
 
 export default VideoCard;
