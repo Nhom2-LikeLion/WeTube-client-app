@@ -24,18 +24,18 @@ const ShortItem: React.FC<ShortItemProps> = ({ title, views, thumbnail }) => {
         <div className="flex flex-col w-40 group">
           {/* Thumbnail */}
           <div className="relative">
-            {/* <img
+            <img
               src={thumbnail}
               alt={title}
               className="w-40 h-72 object-cover rounded-lg bg-gray-200"
-            /> */}
-            <Image
+            />
+            {/* <Image
               src={thumbnail}
               alt={title}
               fill 
               sizes="160px"
               className="object-cover rounded-lg bg-gray-200" 
-            />
+            /> */}
             {/* More Menu Overlay */}
             <div className="absolute top-2 right-2">
               <DropdownMenu>

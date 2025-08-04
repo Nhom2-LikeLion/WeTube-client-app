@@ -47,18 +47,18 @@ const VideoItem: React.FC<VideoItemProps> = ({
         <div className="flex gap-3 group">
           {/* Thumbnail */}
           <div className="relative w-3.5/8 ">
-            {/* <img
+            <img
               src={thumbnail}
               alt={title}
               className=" w-full h-full rounded-sm"
-            /> */}
-            <Image
+            />
+            {/* <Image
               src={thumbnail}
               alt={title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 30vw" // Ví dụ: Điều chỉnh theo responsive layout của bạn
               className="w-full h-full rounded-sm object-cover" // Áp dụng các lớp CSS trực tiếp vào Image component
-            />
+            /> */}
             <div className="absolute top-0 right-1 flex flex-col gap-1 transition-all duration-300 translate-y-0 opacity-0 group-hover:opacity-100 group-hover:translate-y-2">
               {/* Watch Later */}
               <button
