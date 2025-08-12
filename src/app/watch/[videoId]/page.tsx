@@ -1,5 +1,4 @@
 import React from 'react';
-// import WatchView from '@/modules/watch/ui/views/WatchView';
 import HomeLayout from '@/modules/home/ui/layouts/home-layout';
 
 interface WatchPageProps {
@@ -14,8 +13,8 @@ interface WatchPageProps {
 }
 
 export default async function WatchPage({ params, searchParams }: WatchPageProps) {
-  const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
+  // const resolvedParams = await params;
+  // const resolvedSearchParams = await searchParams;
   
   return (
     <HomeLayout>

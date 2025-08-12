@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -23,19 +25,14 @@ const ShortItem: React.FC<ShortItemProps> = ({ title, views, thumbnail }) => {
       <CardContent className="p-0">
         <div className="flex flex-col w-40 group">
           {/* Thumbnail */}
-          <div className="relative">
-            <img
+          <div className="relative w-40 h-72 overflow-hidden rounded-lg bg-gray-200">
+            <Image
               src={thumbnail}
               alt={title}
-              className="w-40 h-72 object-cover rounded-lg bg-gray-200"
-            />
-            {/* <Image
-              src={thumbnail}
-              alt={title}
-              fill 
+              fill
               sizes="160px"
-              className="object-cover rounded-lg bg-gray-200" 
-            /> */}
+              className="object-cover"
+            />
             {/* More Menu Overlay */}
             <div className="absolute top-2 right-2">
               <DropdownMenu>

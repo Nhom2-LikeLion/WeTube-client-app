@@ -25,8 +25,7 @@ const History = () => {
   const videoData: VideoData[] = [
     {
       id: "1",
-      title:
-        "David Guetta - Play Hard ft. Ne-Yo, Akon (Official Video)",
+      title: "David Guetta - Play Hard ft. Ne-Yo, Akon (Official Video)",
       channel: "David Guetta",
       views: "1.2B views",
       duration: "3:21",
@@ -36,8 +35,7 @@ const History = () => {
     },
     {
       id: "2",
-      title:
-        "ATLXS - PASSO BEM SOLTO (SLOWED)",
+      title: "ATLXS - PASSO BEM SOLTO (SLOWED)",
       channel: "phonk",
       views: "125M views",
       duration: "4:02",
@@ -79,6 +77,20 @@ const History = () => {
       thumbnail:
         "https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=160&h=288&fit=crop",
     },
+    {
+      id: "4",
+      title: "Chỉ cần không biết tiếng Việt sẽ tưởng là nhạc Hàn",
+      views: "724 N lượt xem",
+      thumbnail:
+        "https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=160&h=288&fit=crop",
+    },
+    {
+      id: "5",
+      title: "Chỉ cần không biết tiếng Việt sẽ tưởng là nhạc Hàn",
+      views: "724 N lượt xem",
+      thumbnail:
+        "https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=160&h=288&fit=crop",
+    },
   ];
 
   return (
@@ -90,7 +102,10 @@ const History = () => {
         <Sidebar />
       </div>
 
-      <Tabs defaultValue="all" className="mb-0">
+      <Tabs
+        defaultValue="all"
+        className="mb-0"
+      >
         <TabsList className=" border-none p-0 h-auto gap-2 flex-wrap">
           {["all", "video", "shorts", "podcast", "music"].map((tab) => (
             <TabsTrigger
@@ -111,46 +126,69 @@ const History = () => {
           ))}
         </TabsList>
 
-        <TabsContent value="all" className="mt-4">
-
+        <TabsContent
+          value="all"
+          className="mt-8"
+        >
           <h2 className="text-xl font-bold mb-6">Hôm nay</h2>
           <div className="space-y-0">
             {videoData.map((video) => (
-              <VideoItem key={video.id} {...video} />
+              <VideoItem
+                key={video.id}
+                {...video}
+              />
             ))}
           </div>
 
-          <ShortsSection/>
+          <ShortsSection />
         </TabsContent>
 
-        <TabsContent value="video" className="mt-8">
-          <h2 className="text-xl font-normal mb-6">Video</h2>
+        <TabsContent
+          value="video"
+          className="mt-8"
+        >
+          <h2 className="text-xl font-bold mb-6">Video</h2>
           <div className="space-y-4">
             {videoData.map((video) => (
-              <VideoItem key={video.id} {...video} />
+              <VideoItem
+                key={video.id}
+                {...video}
+              />
             ))}
           </div>
         </TabsContent>
 
-        <TabsContent value="shorts" className="mt-8">
+        <TabsContent
+          value="shorts"
+          className="mt-8"
+        >
           <h2 className="text-xl font-normal mb-6">Shorts</h2>
           <div className="flex gap-4 flex-wrap">
             {shortData.map((short) => (
-              <div key={short.id} className="flex-shrink-0">
+              <div
+                key={short.id}
+                className="flex-shrink-0"
+              >
                 <ShortItem {...short} />
               </div>
             ))}
           </div>
         </TabsContent>
 
-        <TabsContent value="podcast" className="mt-8">
+        <TabsContent
+          value="podcast"
+          className="mt-8"
+        >
           <h2 className="text-xl font-normal mb-6">Podcast</h2>
           <div className="text-gray-500 text-center py-12">
             Không có podcast nào trong lịch sử
           </div>
         </TabsContent>
 
-        <TabsContent value="music" className="mt-8">
+        <TabsContent
+          value="music"
+          className="mt-8"
+        >
           <h2 className="text-xl font-normal mb-6">Âm nhạc</h2>
           <div className="text-gray-500 text-center py-12">
             Không có âm nhạc nào trong lịch sử
