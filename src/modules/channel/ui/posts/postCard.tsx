@@ -1,34 +1,63 @@
 "use client";
 
-import Image from "next/image";
-import { MessageCircle, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { useToggleLikeMutation } from "@/api/likeApi";
+import { useState } from "react";
 
 interface PostCardProps {
-  avatar: string;
-  channelName: string;
-  timestamp: string;
-  content: string;
-  imageUrl: string;
-  videoLink?: string;
-  likes: number;
-  dislikes: number;
-  comments: number;
+id: string;
+userId: string;
+avatar: string;
+channelName: string;
+timestamp: string;
+content: string;
+imageUrl: string;
+videoLink?: string;
+comments: number;
+likes: number;
+onLikeToggle: () => void;
+isLiked?: boolean;
 }
 
-
-
 export default function PostCard({
-  avatar,
-  channelName,
-  timestamp,
-  content,
-  imageUrl,
-  videoLink,
-  likes,
-  dislikes,
-  comments,
+    id,
+    userId,
+    avatar,
+    channelName,
+    timestamp,
+    content,
+    imageUrl,
+    videoLink,
+    likes,
+    comments,
+    onLikeToggle,
+    isLiked = false,
 }: PostCardProps) {
-  return (
+const [toggleLike] = useToggleLikeMutation();
+const [liked, setLiked] = useState(isLiked);
+const [likeCount, setLikeCount] = useState(likes);
+
+const handleLike = async () => {
+    try {
+        const newLiked = !liked;
+        setLiked(newLiked);
+        setLikeCount((prev) => prev + (newLiked ? 1 : -1));
+
+        await toggleLike({
+            targetId: id,
+            targetType: "POST",
+            userId,
+        }).unwrap();
+
+        onLikeToggle();
+    } catch (err) {
+        console.error("Toggle like failed", err);
+        setLiked(liked);
+        setLikeCount(likes);
+    }
+};
+
+return (
     <div className="bg-white shadow-xl rounded-xl p-4 space-y-3 max-w-[600px] mx-auto">
       <div className="flex items-start space-x-3">
         <img
@@ -54,7 +83,7 @@ export default function PostCard({
 
       {/* Image */}
       <div className="rounded-lg overflow-hidden border border-neutral-800">
-        <Image
+        <img
           src={imageUrl}
           alt="post"
           width={600}
@@ -65,18 +94,22 @@ export default function PostCard({
 
       {/* Action bar */}
       <div className="flex items-center space-x-6 text-neutral-400 text-sm">
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <ThumbsUp size={16} />
-          <span>{likes}</span>
+        <div className={`flex items-center space-x-1 hover:text-black cursor-pointer transition-transform duration-200 ${
+            liked ? "text-pink-500 scale-110" : "text-gray-500 hover:text-black"
+        }`}
+             onClick={handleLike}>
+            <Heart
+                size={20}
+                fill={liked ? "rgb(236,72,153)" : "transparent"}
+                className="transition-colors duration-300"
+            />
+            <span>{likes}</span>
         </div>
         <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <ThumbsDown size={16} />
+          <Share2 size={20} />
         </div>
         <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <Share2 size={16} />
-        </div>
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <MessageCircle size={16} />
+          <MessageCircle size={20} />
           <span>{comments}</span>
         </div>
       </div>

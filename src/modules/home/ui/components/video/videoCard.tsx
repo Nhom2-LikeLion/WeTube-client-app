@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { VideoItem } from "./mockVideo"; // hoặc truyền từ props
+import type { VideoItem } from "./mockVideo"; 
 
 const formatViews = (num: number) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M views";
