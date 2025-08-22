@@ -12,7 +12,7 @@ COPY . .
 
 # 👇 Truyền key ở build-time qua ARG, không hardcode
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bG95YWwtY29sdC03OC5jbGVyay5hY2NvdW50cy5kZXYk
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
 
 RUN npm run build
 
@@ -23,6 +23,6 @@ ENV NODE_ENV=production
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
-ENV PORT=3000
+
 EXPOSE 3000
 CMD ["node", "server.js"]
