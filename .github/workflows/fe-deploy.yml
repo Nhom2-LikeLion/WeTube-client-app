@@ -8,9 +8,6 @@ jobs:
   build:
     name: Build to Docker Hub
     runs-on: ubuntu-latest
-    outputs:
-      IMAGE_NAME: ${{ steps.build-image.outputs.IMAGE_NAME }}
-      IMAGE_TAG: ${{ steps.build-image.outputs.IMAGE_TAG }}
 
     steps:
       - name: Checkout code
@@ -32,8 +29,6 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          outputs: |
-            type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app,tag=${{ github.sha }}
 
   deploy:
     name: Deploy Frontend to EC2
@@ -74,8 +69,8 @@ jobs:
             # Tạo file .env cho docker-compose
             echo "Creating .env file..."
             cat > .env << EOF
-            IMAGE_NAME=${{ needs.build.outputs.IMAGE_NAME }}
-            IMAGE_TAG=${{ needs.build.outputs.IMAGE_TAG }}
+            IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app
+            IMAGE_TAG=${{ github.sha }}
             EOF
             
             # Login to Docker Hub on EC2
