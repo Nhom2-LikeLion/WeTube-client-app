@@ -52,9 +52,10 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
         e.preventDefault();
         if (!content.trim() && !image && pollOptions.length === 0) return;
 
-        const poll = pollOptions.length > 0
-            ? { options: pollOptions.map(opt => ({ optionText: opt })) }
-            : undefined;
+        const poll =
+            pollOptions.length > 0
+                ? { options: pollOptions.map(opt => ({ optionText: opt })) }
+                : null;
 
         onSubmit({ content, image, poll });
         setContent("");
@@ -107,7 +108,7 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
                                 className="flex-1 rounded-xl border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             <Button type="button" onClick={handleAddOption} disabled={!newOption.trim()}>
-                                Thêm
+                                Add
                             </Button>
                         </div>
 
@@ -124,7 +125,7 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
                                             onClick={() => handleRemoveOption(idx)}
                                             className="text-red-500 hover:underline"
                                         >
-                                            Xóa
+                                            Del
                                         </button>
                                     </li>
                                 ))}
@@ -136,7 +137,7 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
                     <div className="flex justify-between items-center">
                         <label className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-600">
                             <ImagePlus size={20} />
-                            <span className="text-sm">Ảnh</span>
+                            <span className="text-sm">Image</span>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -150,7 +151,7 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
                             disabled={!content.trim() && !image && pollOptions.length === 0}
                             className="rounded-xl px-4"
                         >
-                            Đăng
+                            Post
                         </Button>
                     </div>
                 </form>

@@ -20,32 +20,23 @@ export default function CommunityPosts({ userId }: Props) {
 
     const handleCreatePost = async (data: {
         content: string;
-        image?: File | null;
-        poll?: { options: { optionText: string }[] } | null
+        imageUrl?: string | null;
+        poll?: { options: { optionText: string }[] } | null;
     }) => {
         try {
-            const postDto = {
+            await createPost({
                 userId,
                 content: data.content,
-                poll: data.poll || null,
-            };
+                poll: data.poll || undefined,
+                imageUrl: ""
+            }).unwrap();
 
-            const formData = new FormData();
-            formData.append(
-                "postDto",
-                new Blob([JSON.stringify(postDto)], { type: "application/json" })
-            );
-
-            if (data.image) {
-                formData.append("image", data.image);
-            }
-
-            await createPost(formData).unwrap();
             refetch();
         } catch (err) {
             console.error("Create post failed:", err);
         }
     };
+
 
     if (isLoading) return <div>LOADING...</div>;
     if (isError) return <div>ERROR</div>;
@@ -55,7 +46,7 @@ export default function CommunityPosts({ userId }: Props) {
         author: {
             id: "mock-user",
             name: "Người dùng test",
-            avatarUrl: "https://via.placeholder.com/40",
+            avatarUrl: "https://yt3.googleusercontent.com/B7cKgmonzWyahNmf1g3jDhQyb-5DadDQk02SlFvC00Y8JpBSNnQ0QZ_UuUJKUebSrbdsMrOzI-c=w544-c-h544-k-c0x00ffffff-no-l90-rj",
         },
     }))
         .sort(

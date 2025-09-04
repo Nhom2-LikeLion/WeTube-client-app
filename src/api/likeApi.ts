@@ -17,6 +17,7 @@ export interface ToggleLikeRequest {
 export const likesApi = createApi({
     reducerPath: "likesApi",
     baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/likes" }),
+    tagTypes: ["Like"],
     endpoints: (builder) => ({
         getLikeInfo: builder.query<
             LikeInfo,
@@ -24,14 +25,20 @@ export const likesApi = createApi({
         >({
             query: ({ targetId, targetType, userId }) =>
                 `?targetId=${targetId}&targetType=${targetType}&userId=${userId}`,
+            providesTags: (result, _error, { targetId, targetType, userId }) => [
+                { type: "Like", id: `${targetType}-${targetId}-${userId}` },
+            ],
         }),
 
-        toggleLike: builder.mutation<void, ToggleLikeRequest>({
+        toggleLike: builder.mutation<LikeInfo, ToggleLikeRequest>({
             query: ({ targetId, targetType, userId }) => ({
                 url: "/toggle",
                 method: "POST",
                 params: { targetId, targetType, userId },
             }),
+            invalidatesTags: (_result, _error, { targetId, targetType, userId }) => [
+                { type: "Like", id: `${targetType}-${targetId}-${userId}` },
+            ],
         }),
     }),
 });

@@ -36,18 +36,27 @@ export const postsApi = createApi({
                     : [{ type: "Post", id: "LIST" }],
         }),
 
-        createPost: builder.mutation<Post, FormData>({
-            query: (formData) => ({
-                url: "",
+        createPost: builder.mutation<Post, {
+            userId: string;
+            content: string;
+            imageUrl?: string;
+            poll?: { options: { optionText: string }[] }
+        }>({
+            query: (body) => ({
+                url: "/posts",
                 method: "POST",
-                body: formData,
+                body, // gửi thẳng JSON
+                headers: {
+                    "Content-Type": "application/json",
+                },
             }),
             invalidatesTags: [{ type: "Post", id: "LIST" }],
         }),
 
+
         updatePost: builder.mutation<Post, { postId: string; body: Partial<Post> }>({
             query: ({ postId, body }) => ({
-                url: `/posts/${postId}`,
+                url: `/${postId}`,
                 method: "PUT",
                 body,
             }),
@@ -56,7 +65,7 @@ export const postsApi = createApi({
 
         deletePost: builder.mutation<void, string>({
             query: (postId) => ({
-                url: `/posts/${postId}`,
+                url: `/${postId}`,
                 method: "DELETE",
             }),
             invalidatesTags: (result, error, postId) => [

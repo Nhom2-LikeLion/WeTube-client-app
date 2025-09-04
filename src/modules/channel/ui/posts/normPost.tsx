@@ -1,9 +1,10 @@
 "use client";
 
 import { Heart, MessageCircle, Share2 } from "lucide-react";
-import { useToggleLikeMutation } from "@/api/likeApi";
-import { useState } from "react";
+import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/api/likeApi";
+import {useEffect, useState} from "react";
 import CommentPanel from "@/components/comments/commentPanel";
+import PostMenu from "@/modules/channel/ui/posts/postMenu";
 
 interface NormalPostCardProps {
     id: string;
@@ -16,8 +17,9 @@ interface NormalPostCardProps {
     videoLink?: string;
     comments: number;
     likes: number;
-    isLiked?: boolean;
     isCommentClicked?: boolean;
+    onEdit: (id: string) => void;
+    onDelete: (id: string) => void;
 }
 
 export default function NormalPostCard({
@@ -29,43 +31,61 @@ export default function NormalPostCard({
                                            content,
                                            imageUrl,
                                            videoLink,
-                                           likes,
                                            comments,
-                                           isLiked = false,
                                            isCommentClicked = false,
+                                           onEdit,
+                                           onDelete,
                                        }: NormalPostCardProps) {
+    const { data: likeInfo, refetch } = useGetLikeInfoQuery({
+        targetId: id,
+        targetType: "POST",
+        userId,
+    });
+
     const [toggleLike] = useToggleLikeMutation();
-    const [liked, setLiked] = useState(isLiked);
-    const [likeCount, setLikeCount] = useState(likes);
+
+    const [liked, setLiked] = useState<boolean>(false);
+    const [likeCount, setLikeCount] = useState<number>(0);
     const [clicked, setClicked] = useState(isCommentClicked);
     const [showComment, setShowComment] = useState(false);
 
+    useEffect(() => {
+        if (likeInfo) {
+            setLiked(likeInfo.liked ?? false);
+            setLikeCount(likeInfo.likeCount ?? 0);
+        }
+    }, [likeInfo]);
+
     const handleLike = async () => {
         try {
-            const newLiked = !liked;
-            setLiked(newLiked);
-            setLikeCount((prev) => prev + (newLiked ? 1 : -1));
-
-            await toggleLike({
+            const res = await toggleLike({
                 targetId: id,
                 targetType: "POST",
                 userId,
             }).unwrap();
+
+            setLiked(res.liked ?? false);
+            setLikeCount(res.likeCount ?? 0);
+            refetch();
         } catch (err) {
             console.error("Toggle like failed", err);
-            setLiked(liked);
-            setLikeCount(likes);
         }
     };
 
     return (
-        <div className="bg-white shadow-xl rounded-xl p-4 space-y-3 max-w-[600px] mx-auto">
+        <div className="bg-white shadow-xl rounded-xl p-4 space-y-3
+                w-full max-w-[600px]
+                mx-auto overflow-hidden">
             <div className="flex items-start space-x-3">
                 <img src={avatar} alt="avatar" width={40} height={40} className="rounded-full"/>
                 <div className="flex flex-col text-black text-sm">
                     <div className="font-semibold">{channelName}</div>
                     <div className="text-neutral-400">{timestamp}</div>
                 </div>
+                <PostMenu
+                onEdit={() => onEdit(id)}
+                onDelete={() => onDelete(id)}
+                />
             </div>
 
             <div className="text-black text-sm whitespace-pre-line">

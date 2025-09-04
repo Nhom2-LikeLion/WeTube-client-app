@@ -17,7 +17,7 @@ export interface Post {
 }
 
 export interface PollOption {
-    id: string;
+    optionId: string;
     optionText: string;
     voteCount: number;
     percentage?: number;
