@@ -1,12 +1,17 @@
-
-
 import React from 'react'
+import MusicBanner from '../components/banner';
+import HitMusic from '../components/hits';
+import { Separator } from '@/components/ui/separator';
+import NewTrending from '../components/new-trending';
 
-export default function Musicview() {
+export default function MusicView() {
   return (
     <div>
-      viewne
+      <MusicBanner />
+      <HitMusic />
+      <Separator />
+      <NewTrending />
     </div>
-  )
+  );
 }
 

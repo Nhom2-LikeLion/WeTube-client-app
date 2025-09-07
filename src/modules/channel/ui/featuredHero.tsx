@@ -1,11 +1,15 @@
+import Image from 'next/image';
+
 export default function FeaturedHero() {
   return (
     <div className="flex flex-col md:flex-row gap-4 pb-2 pt-2">
-      <div className="w-full md:w-1/2">
-        <img
+      <div className="w-full md:w-1/2 relative rounded-lg overflow-hidden aspect-video">
+        <Image
           src="https://i.ytimg.com/vi/sn44SGVacMw/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAHPEu29Y95T8aaM3en1bz2kR5ZcQ"
           alt="Video nổi bật"
-          className="rounded-lg w-full aspect-video object-cover"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
         />
       </div>
       <div className="flex flex-col gap-2 w-full md:w-1/2">

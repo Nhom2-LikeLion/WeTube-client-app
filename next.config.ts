@@ -1,21 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone", 
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "placehold.co",
+        hostname: "**",
         port: "",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "yt3.ggpht.com", // Add this hostname
-        port: "",
-        pathname: "/**",
-      },
-      // Add other remote patterns as needed
     ],
   },
   /* config options here */

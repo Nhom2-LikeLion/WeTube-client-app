@@ -1,3 +1,5 @@
+"use client";
+
 import NormalPostCard from "./normPost";
 import PollPostCard from "./pollPost";
 import {Post} from "@/types/post";

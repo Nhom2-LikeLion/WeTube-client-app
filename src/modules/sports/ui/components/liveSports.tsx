@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import React, { useEffect, useState } from "react";
 
 const liveVideos = [
@@ -93,10 +94,17 @@ const LiveVideoList = () => {
             className="w-full sm:w-[calc(33.3333%-1rem)] flex flex-col"
           >
             <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-              <img
+              {/* <img
                 src={video.thumbnail}
                 alt={video.title}
                 className="w-full h-full object-cover"
+              /> */}
+              <Image
+                src={video.thumbnail}
+                alt={video.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                className="object-cover"
               />
               <span className="absolute bottom-2 right-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
                 {video.tag}

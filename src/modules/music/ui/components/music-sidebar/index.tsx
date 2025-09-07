@@ -11,6 +11,7 @@ import {
   Mic,
   Music2,
 } from "lucide-react"
+import Image from 'next/image'
 
 const playlists = [
   { name: "Nhạc đã thích", icon: <Heart className="w-4 h-4" /> },
@@ -24,10 +25,17 @@ export default function MusicSidebar() {
     <aside className="w-64 h-screen bg-white text-gray-800 flex flex-col border-r border-gray-200 z-99">
       {/* Logo */}
       <div className="h-14 px-4 flex items-center gap-3 border-b border-gray-200">
-        <SidebarTrigger/>
-        <img
+        <SidebarTrigger />
+        {/* <img
           src="/image/Logo.png"
           alt="WeTube Premium"
+          className="w-8 h-8 object-contain"
+        /> */}
+        <Image
+          src="/image/Logo.png"
+          alt="WeTube Premium"
+          width={32}
+          height={32}
           className="w-8 h-8 object-contain"
         />
         <span className="text-2xl font-bold">Music</span>
@@ -35,10 +43,23 @@ export default function MusicSidebar() {
 
       {/* Menu items */}
       <nav className="flex-1 px-2 py-4 space-y-1">
-        <SidebarItem icon={<Home className="w-5 h-5" />} label="Trang chủ" active />
-        <SidebarItem icon={<Compass className="w-5 h-5" />} label="Khám phá" />
-        <SidebarItem icon={<Library className="w-5 h-5" />} label="Thư viện" />
-        <SidebarItem icon={<UploadCloud className="w-5 h-5" />} label="Nâng cấp" />
+        <SidebarItem
+          icon={<Home className="w-5 h-5" />}
+          label="Trang chủ"
+          active
+        />
+        <SidebarItem
+          icon={<Compass className="w-5 h-5" />}
+          label="Khám phá"
+        />
+        <SidebarItem
+          icon={<Library className="w-5 h-5" />}
+          label="Thư viện"
+        />
+        <SidebarItem
+          icon={<UploadCloud className="w-5 h-5" />}
+          label="Nâng cấp"
+        />
       </nav>
 
       {/* New Playlist */}
@@ -62,7 +83,7 @@ export default function MusicSidebar() {
         ))}
       </div>
     </aside>
-  )
+  );
 }
 
 function SidebarItem({
