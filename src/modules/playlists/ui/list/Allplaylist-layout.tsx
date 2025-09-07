@@ -1,18 +1,14 @@
+import { SidebarProvider } from '@/components/ui/sidebar';
+import HomeNavbar from '@/modules/home/ui/components/home-navbar';
+import HomeSidebar from '@/modules/home/ui/components/home-sidebar';
+import React from 'react'
 
-
-
-import { SidebarProvider } from "@/components/ui/sidebar";
-import HomeNavbar from "@/modules/home/ui/components/home-navbar";
-import HomeSidebar from "@/modules/home/ui/components/home-sidebar";
-
-
-interface PremiumLayoutProps {
+interface AllPlaylistlayoutProps {
     children: React.ReactNode;
 }
-
-export default function PremiumLayout({ children }: PremiumLayoutProps) {
-    return (
-        <SidebarProvider>
+export default function Allplaylistlayout({children}: AllPlaylistlayoutProps) {
+  return (
+    <SidebarProvider>
             <div className="w-full">
                 <HomeNavbar />
                 <div className="flex min-h-screen pt-[4rem]">
@@ -23,5 +19,5 @@ export default function PremiumLayout({ children }: PremiumLayoutProps) {
                 </div>
             </div>  
         </SidebarProvider>
-    )
+  )
 }
