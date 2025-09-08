@@ -1,23 +1,28 @@
 "use client";
 
-import { useTracks, ParticipantTile } from "@livekit/components-react";
+interface VideoPlayerProps {
+    videoUrl: string; // URL Cloudinary trả về
+}
 
-export default function VideoPlayer() {
-    const tracks = useTracks(); // lấy tất cả track trong room
-
-    if (tracks.length === 0) {
+export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
+    if (!videoUrl) {
         return (
-            <div className="w-full h-full bg-black flex items-center justify-center text-neutral-500">
-                No stream yet
+            <div className="w-full aspect-video bg-black flex items-center justify-center text-neutral-400">
+                No video available
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full h-full">
-            {tracks.map((trackRef) => (
-                <ParticipantTile key={trackRef.publication.trackSid} trackRef={trackRef} />
-            ))}
+        <div className="w-full aspect-video bg-black">
+            <video
+                key={videoUrl} // reset khi đổi URL
+                src={videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full rounded-lg"
+            />
         </div>
     );
 }

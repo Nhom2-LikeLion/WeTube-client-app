@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import {
     DndContext,
     closestCenter,
@@ -19,21 +18,14 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface VideoItem {
+export interface VideoItem {
     id: number;
     title: string;
     thumbnail: string;
+    url: string;
 }
 
-const initialVideos: VideoItem[] = [
-    { id: 1, title: "Funny Cats Compilation", thumbnail: "/thumb1.jpg" },
-    { id: 2, title: "Lo-fi Study Beats", thumbnail: "/thumb2.jpg" },
-    { id: 3, title: "React Tutorial", thumbnail: "/thumb3.jpg" },
-    { id: 4, title: "Travel Vlog", thumbnail: "/thumb4.jpg" },
-];
-
-// Component video có thể kéo
-function SortableVideo({ video }: { video: VideoItem }) {
+function SortableVideo({ video, isActive, onClick }: { video: VideoItem; isActive: boolean; onClick: () => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: video.id });
 
     const style = {
@@ -47,14 +39,16 @@ function SortableVideo({ video }: { video: VideoItem }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="flex items-center gap-2 bg-neutral-100 rounded-lg overflow-hidden cursor-move"
+            onClick={onClick}
+            className={`flex items-center gap-2 p-2 rounded-lg overflow-hidden cursor-move 
+            ${isActive ? "bg-blue-100 border border-blue-400" : "bg-neutral-100"}`}
         >
             <Image
                 src={video.thumbnail}
                 alt={video.title}
-                width={128}
-                height={72}
-                className="w-32 h-20 object-cover"
+                width={96}
+                height={54}
+                className="w-24 h-14 object-cover rounded"
             />
             <div className="flex-1">
                 <div className="text-sm truncate">{video.title}</div>
@@ -63,9 +57,17 @@ function SortableVideo({ video }: { video: VideoItem }) {
     );
 }
 
-export default function UpcomingList() {
-    const [videos, setVideos] = useState(initialVideos);
-
+export default function UpcomingList({
+                                         videos,
+                                         setVideos,
+                                         currentVideoId,
+                                         onPlay,
+                                     }: {
+    videos: VideoItem[];
+    setVideos: (v: VideoItem[]) => void;
+    currentVideoId: number;
+    onPlay: (id: number) => void;
+}) {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -73,6 +75,8 @@ export default function UpcomingList() {
 
     const handleDragEnd = (event: any) => {
         const { active, over } = event;
+        if (!over) return;
+
         if (active.id !== over.id) {
             const oldIndex = videos.findIndex((v) => v.id === active.id);
             const newIndex = videos.findIndex((v) => v.id === over.id);
@@ -83,9 +87,14 @@ export default function UpcomingList() {
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={videos.map((v) => v.id)} strategy={verticalListSortingStrategy}>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                     {videos.map((v) => (
-                        <SortableVideo key={v.id} video={v} />
+                        <SortableVideo
+                            key={v.id}
+                            video={v}
+                            isActive={v.id === currentVideoId}
+                            onClick={() => onPlay(v.id)}
+                        />
                     ))}
                 </div>
             </SortableContext>
