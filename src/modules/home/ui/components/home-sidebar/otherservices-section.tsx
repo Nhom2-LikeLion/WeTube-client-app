@@ -2,7 +2,6 @@
 
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
-import { useAuth, useClerk } from "@clerk/nextjs";
 import { Crown, ListMusic , Clapperboard, CircleUserRound   } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -32,8 +31,6 @@ const items = [
 ];
 
 export const OtherServices = () => {
-    const { isSignedIn } = useAuth();
-    const clerk = useClerk();
     const pathname = usePathname();
     return (
         <SidebarGroup>
@@ -46,12 +43,6 @@ export const OtherServices = () => {
                                 tooltip={item.title}
                                 asChild
                                 isActive={pathname === item.url}
-                                onClick={(e) => {
-                                    if (!isSignedIn && item.auth) {
-                                        e.preventDefault();
-                                        return clerk.openSignIn();
-                                    }
-                                }}
                             >
                                 <Link prefetch href={item.url} className="flex items-center gap-4">
                                     <item.icon />

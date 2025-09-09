@@ -129,3 +129,12 @@
     scrollbar-width: none;
   }
 }
+
+html, body {
+    overflow-y: scroll;
+}
+
+body[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+}

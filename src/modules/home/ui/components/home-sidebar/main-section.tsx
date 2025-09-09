@@ -8,7 +8,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
-import { useAuth, useClerk } from "@clerk/nextjs";
 import { FileVideo, HomeIcon, PlaySquareIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,8 +32,6 @@ const items = [
 ];
 
 export const MainSection = () => {
-  const { isSignedIn } = useAuth();
-  const clerk = useClerk();
   const pathname = usePathname();
   return (
     <SidebarGroup>
@@ -46,12 +43,6 @@ export const MainSection = () => {
                 tooltip={item.title}
                 asChild
                 isActive={pathname === item.url}
-                onClick={(e) => {
-                  if (!isSignedIn && item.auth) {
-                    e.preventDefault();
-                    return clerk.openSignIn();
-                  }
-                }}
               >
                 <Link
                   prefetch
