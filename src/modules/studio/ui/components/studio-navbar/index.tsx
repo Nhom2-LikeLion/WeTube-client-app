@@ -4,13 +4,14 @@ import {SidebarTrigger} from "@/components/ui/sidebar";
 import {pageUrls} from "@/lib/enums/page-urls";
 import Image from "next/image";
 import Link from "next/link";
-import {ListPlus, RadioTower, SquarePen, Upload, Video} from "lucide-react";
+import {Bell, ListPlus, RadioTower, SquarePen, Upload, Video} from "lucide-react";
 import {CreateButton} from "@/modules/home/ui/components/home-navbar/create-button";
 import React, {useEffect, useState} from "react";
 import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {Dialog, DialogContent} from "@/components/ui/dialog";
 import {VideoUploadModal} from "@/modules/home/ui/components/home-navbar/video-upload-modal";
 import {useRouter, useSearchParams} from "next/navigation";
+import {Button} from "@/components/ui/button";
 
 export default function StudioNavbar() {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -80,6 +81,17 @@ export default function StudioNavbar() {
 
                 <div className="flex-shrink-0 items-center flex gap-4">
                     <Dialog open={isUploadModalOpen} onOpenChange={handleDialogChange}>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full px-4 py-2 flex items-center gap-2 text-black shadow-md transition-all duration-200"
+                            onClick={() => {
+                                console.log("Notification button clicked");
+                            }}
+                        >
+                            <Bell className="h-10 w-10" />
+                        </Button>
+
                         <CreateButton triggerIcon={Video} align="end">
                             {(closeDropdown) => (
                                 <>
