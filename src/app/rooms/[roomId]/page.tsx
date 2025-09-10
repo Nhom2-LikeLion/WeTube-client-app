@@ -1,14 +1,7 @@
-"use client";
+import WatchRoomPageClient from "@/modules/rooms/watchRoomPageClient";
 
-import LiveKitRoomWrapper from "@/modules/rooms/ui/components/room/liveKitRoom";
-import WatchRoomLayout from "@/modules/rooms/ui/components/room/watchRoomLayout";
+export default async function Page({ params }: { params: Promise<{ roomId: string }> }) {
+    const { roomId } = await params; // unwrap Promise
 
-export default function WatchRoomPage({ params }: { params: { roomId: string } }) {
-    const userId = "user-" + Math.floor(Math.random() * 1000);
-
-    return (
-        <LiveKitRoomWrapper roomId={params.roomId} userId={userId}>
-            <WatchRoomLayout roomId={params.roomId} />
-        </LiveKitRoomWrapper>
-    );
+    return <WatchRoomPageClient initialRoomId={roomId} />;
 }

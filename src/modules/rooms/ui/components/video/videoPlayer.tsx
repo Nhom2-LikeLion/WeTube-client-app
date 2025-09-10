@@ -1,28 +1,51 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { VideoItem } from "../room/upcomingList";
+
 interface VideoPlayerProps {
-    videoUrl: string; // URL Cloudinary trả về
+    videos: VideoItem[];
+    currentVideoId: number;
+    onChangeVideo: (id: number) => void;
 }
 
-export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
-    if (!videoUrl) {
-        return (
-            <div className="w-full aspect-video bg-black flex items-center justify-center text-neutral-400">
-                No video available
-            </div>
-        );
-    }
+export default function VideoPlayer({
+                                        videos,
+                                        currentVideoId,
+                                        onChangeVideo,
+                                    }: VideoPlayerProps) {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const currentVideo = videos.find((v) => v.id === currentVideoId);
+
+    useEffect(() => {
+        if (videoRef.current && currentVideo) {
+            videoRef.current.load();
+            videoRef.current.play().catch(() => {
+                console.log("Autoplay bị chặn, user cần click vào video.");
+            });
+        }
+    }, [currentVideoId]);
+
+    const handleEnded = () => {
+        const currentIndex = videos.findIndex((v) => v.id === currentVideoId);
+        if (currentIndex >= 0 && currentIndex < videos.length - 1) {
+            onChangeVideo(videos[currentIndex + 1].id);
+        } else {
+            onChangeVideo(videos[0].id);
+        }
+    };
+
+    if (!currentVideo) return null;
 
     return (
-        <div className="w-full aspect-video bg-black">
-            <video
-                key={videoUrl} // reset khi đổi URL
-                src={videoUrl}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full rounded-lg"
-            />
-        </div>
+        <video
+            ref={videoRef}
+            key={currentVideo.id}
+            src={currentVideo.url}
+            controls
+            autoPlay
+            className="w-full h-full rounded-lg"
+            onEnded={handleEnded}
+        />
     );
 }
