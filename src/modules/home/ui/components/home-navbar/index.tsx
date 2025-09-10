@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SearchInput from "./search-input";
 import AuthButton from "@/modules/auth/ui/components/auth-button";
+import {mockVideos} from "@/mockData";
 
 const HomeNavbar = () => {
   return (
@@ -19,7 +20,7 @@ const HomeNavbar = () => {
         </div>
 
         <div className="flex-1 flex justify-center max-w-[720px] mx-auto">
-          <SearchInput />
+            <SearchInput allVideos={mockVideos} />
         </div>
 
         <div className="flex-shrink-0 items-center flex gap-4">
