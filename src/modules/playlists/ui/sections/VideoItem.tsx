@@ -19,7 +19,7 @@ interface VideoItemProps {
   views: string;
   duration: string;
   thumbnail: string;
-  progress?: number; // Giá trị từ 0 đến 1
+  progress?: number;
 }
 
 const VideoItem: React.FC<VideoItemProps> = ({
