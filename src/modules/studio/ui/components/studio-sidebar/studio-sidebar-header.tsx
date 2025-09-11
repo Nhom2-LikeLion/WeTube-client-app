@@ -6,14 +6,19 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/user-avatar";
-import { useUser } from "@clerk/nextjs";
-// import { useUser } from "@clerk/nextjs"
 import Link from "next/link";
 
+const mockUser = {
+    picture: "https://img.freepik.com/premium-vector/vector-flat-illustration-grayscale-avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-social-media-profiles-icons-screensavers-as-templatex9xa_719432-2210.jpg?semt=ais_hybrid&w=740",
+    name: "Kyson Huynh",
+};
+
 export const StudioSidebarHeader = () => {
-  const { user } = useUser();
   const { state } = useSidebar();
-  if (!user)
+
+    const user = mockUser;
+
+    if (!user)
     return (
       <SidebarHeader className="flex items-center justify-center pb-4">
         <Skeleton className="size-[112px] rounded-full" />
@@ -36,8 +41,8 @@ export const StudioSidebarHeader = () => {
             href="/users/current"
           >
             <UserAvatar
-              imageUrl="https://img.freepik.com/premium-vector/vector-flat-illustration-grayscale-avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-social-media-profiles-icons-screensavers-as-templatex9xa_719432-2210.jpg?semt=ais_hybrid&w=740"
-              name="User"
+              imageUrl={user.picture}
+              name={user.name}
               size="xl"
             />
             <span className="text-sm">Your profile</span>
@@ -54,14 +59,14 @@ export const StudioSidebarHeader = () => {
         href="/users/current"
       >
         <UserAvatar
-          imageUrl={user?.imageUrl ?? ""}
-          name={user?.fullName ?? "User"}
+          imageUrl={user?.picture ?? ""}
+          name={user?.name ?? "User"}
           className="size-[112px] hover:opacity-80 transition-opacity"
         />
       </Link>
       <div className="flex flex-col items-center mt-2 gap-y-2">
         <p className="text-sm font-medium">Your profile</p>
-        <p className="text-xs text-muted-foreground">{user.fullName}</p>
+        <p className="text-xs text-muted-foreground">{user.name}</p>
       </div>
     </SidebarHeader>
   );

@@ -4,13 +4,18 @@ export const pageUrls = {
     TRENDING: "/feed/trending",
     HISTORY: "/playlists/history",
     LIKED_VIDEOS: "/playlists/liked",
-    ALL_PLAYLISTS: "/playlists",
+    ALL_PLAYLISTS: "/playlists/allplaylists",
     STUDIO: "/studio",
     PREMIUM:"/otherservices/premium",
     // MUSIC:"/otherservices/musicwetube",
     SHORTS:"/shorts",
-    YOURVIDEO:"/your-video",
-    SEELATER:"/see-later",
+    YOURVIDEO:"/studio",
+    SEELATER:"/playlists/seelater",
+    ROOMS:"/rooms",
+    LIVESTREAM:"/livestream",
     MUSIC: "/music",
-    SPORTS: "/sports"
+    SPORTS: "/sports",
+    REPORT: "/otherservices/reportdiary",
+    SUPPORT:"/otherservices/support",
+    FEEDBACK: "/otherservices/feedback"
 } as const;

@@ -1,86 +1,89 @@
 "use client";
 
-import Image from "next/image";
-import { MessageCircle, Share2, ThumbsDown, ThumbsUp } from "lucide-react";
+import NormalPostCard from "./normPost";
+import PollPostCard from "./pollPost";
+import {Post} from "@/types/post";
+import {useDeletePostMutation, useUpdatePostMutation} from "@/api/postApi";
+import EditPostModal from "@/modules/channel/ui/posts/editPostModal";
+import {useState} from "react";
 
 interface PostCardProps {
-  avatar: string;
-  channelName: string;
-  timestamp: string;
-  content: string;
-  imageUrl: string;
-  videoLink?: string;
-  likes: number;
-  dislikes: number;
-  comments: number;
+    post: Post;
+    userId: string;
 }
 
+export default function PostCard({post, userId}: PostCardProps) {
+    const [deletePost] = useDeletePostMutation();
+    const [updatePost] = useUpdatePostMutation();
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
+    const handleDelete = async (id: string) => {
+        if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+            await deletePost(id);
+        }
+    };
 
-export default function PostCard({
-  avatar,
-  channelName,
-  timestamp,
-  content,
-  imageUrl,
-  videoLink,
-  likes,
-  dislikes,
-  comments,
-}: PostCardProps) {
-  return (
-    <div className="bg-white shadow-xl rounded-xl p-4 space-y-3 max-w-[600px] mx-auto">
-      <div className="flex items-start space-x-3">
-        <Image
-          src={avatar}
-          alt="avatar"
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
-        <div className="flex flex-col text-black text-sm">
-          <div className="font-semibold">{channelName}</div>
-          <div className="text-neutral-400">{timestamp}</div>
-        </div>
-      </div>
+    const handleEdit = () => {
+        setIsEditOpen(true);
+    };
 
-      {/* Content */}
-      <div className="text-black text-sm whitespace-pre-line">
-        {content}
-        {videoLink && (
-          <div className="text-blue-400 underline mt-1">{videoLink}</div>
-        )}
-      </div>
+    const handleSave = async (newContent: string) => {
+        await updatePost({
+            postId: post.id,
+            body: { content: newContent },
+        });
+    };
 
-      {/* Image */}
-      <div className="rounded-lg overflow-hidden border border-neutral-800">
-        <Image
-          src={imageUrl}
-          alt="post"
-          width={600}
-          height={400}
-          className="w-full object-cover"
-        />
-      </div>
+    const author = post.author ?? {
+        id: "mock-user",
+        name: "Người dùng test",
+        avatarUrl: "https://yt3.googleusercontent.com/B7cKgmonzWyahNmf1g3jDhQyb-5DadDQk02SlFvC00Y8JpBSNnQ0QZ_UuUJKUebSrbdsMrOzI-c=w544-c-h544-k-c0x00ffffff-no-l90-rj",
+    };
 
-      {/* Action bar */}
-      <div className="flex items-center space-x-6 text-neutral-400 text-sm">
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <ThumbsUp size={16} />
-          <span>{likes}</span>
-        </div>
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <ThumbsDown size={16} />
-          <span>{dislikes}</span>
-        </div>
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <Share2 size={16} />
-        </div>
-        <div className="flex items-center space-x-1 hover:text-black cursor-pointer">
-          <MessageCircle size={16} />
-          <span>{comments}</span>
-        </div>
-      </div>
-    </div>
-  );
+    return (
+        <>
+            {post.poll ? (
+                <PollPostCard
+                    id={post.id}
+                    userId={userId}
+                    avatar={author.avatarUrl} //{post.author.avatarUrl}
+                    channelName={author.name} //{post.author.name}
+                    timestamp={post.createdAt}
+                    content={post.content}
+                    poll={{
+                        id: post.poll.id,
+                        options: post.poll.options,
+                        totalVotes: post.poll.totalVotes ?? 0,
+                    }}
+                    likes={post.likeCount}
+                    comments={post.commentCount}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            ) : (
+                <NormalPostCard
+                    id={post.id}
+                    userId={userId}
+                    avatar={author.avatarUrl}
+                    channelName={author.name}
+                    timestamp={post.createdAt}
+                    content={post.content}
+                    imageUrl={post.imageUrl}
+                    videoLink={post.videoLink}
+                    likes={post.likeCount}
+                    comments={post.commentCount}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            )}
+
+            <EditPostModal
+                isOpen={isEditOpen}
+                initialContent={post.content}
+                onClose={() => setIsEditOpen(false)}
+                onSave={handleSave}
+            />
+        </>
+)
+    ;
 }

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { VideoItem } from "./mockVideo"; 
-import Link from "next/link";
 
 const formatViews = (num: number) => {
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M views";
@@ -9,7 +8,6 @@ const formatViews = (num: number) => {
 };
 
 const VideoCard = ({
-  id,
   title,
   channelName,
   thumbnail,
@@ -17,19 +15,9 @@ const VideoCard = ({
   views,
   uploadedAt,
 }: VideoItem) => (
-  <Link
-    href={`/watch/${id}`}
-    className="w-full flex flex-col cursor-pointer group"
-  >
-    <div className="aspect-video relative group-hover:scale-[1.02] transition-transform">
-      <Image
-        width={640}
-        height={360}
-        unoptimized
-        src={thumbnail}
-        alt={title}
-        className="w-full h-full object-cover rounded-xl"
-      />
+  <div className="w-full flex flex-col">
+    <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
+      <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
     </div>
     <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
       <Image
@@ -49,7 +37,7 @@ const VideoCard = ({
         </p>
       </div>
     </div>
-  </Link>
+  </div>
 );
 
 export default VideoCard;
