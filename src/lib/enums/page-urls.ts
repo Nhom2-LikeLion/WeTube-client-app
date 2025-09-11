@@ -11,6 +11,10 @@ export const pageUrls = {
     SHORTS:"/shorts",
     YOURVIDEO:"/studio",
     SEELATER:"/playlists/seelater",
+    ROOMS:"/rooms",
+    LIVESTREAM:"/livestream",
+    YOURVIDEO:"/your-video",
+    SEELATER:"/see-later",
     MUSIC: "/music",
     SPORTS: "/sports"
 } as const;

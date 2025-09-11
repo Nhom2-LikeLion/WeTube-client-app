@@ -1,7 +1,7 @@
 import FormSection from '../sections/form-section';
 
 interface VideoViewPageProps {
-  videoId: string;
+  readonly videoId: string;
 }
 
 export default function VideoView({ videoId }: VideoViewPageProps) {

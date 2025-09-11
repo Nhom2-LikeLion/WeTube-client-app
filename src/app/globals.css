@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "@radix-ui/themes/styles.css";
+
+@tailwind components;
+@tailwind utilities;
 
 @custom-variant dark (&:is(.dark *));
 
@@ -128,4 +132,13 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+}
+
+html, body {
+    overflow-y: scroll;
+}
+
+body[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
 }
