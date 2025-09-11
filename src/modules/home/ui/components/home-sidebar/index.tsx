@@ -1,6 +1,5 @@
 import {Separator} from "@/components/ui/separator";
 import {Sidebar, SidebarContent} from "@/components/ui/sidebar";
-import {SignedIn, SignedOut} from "@clerk/nextjs";
 import {ExploreSection} from "./explore-section";
 import {InfoSection} from "./info-section";
 import {MainSection} from "./main-section";
@@ -14,26 +13,15 @@ const HomeSidebar = () => {
             <SidebarContent className="no-scrollbar bg-background">
                 <MainSection/>
                 <Separator/>
-                <SignedIn>
-                    <PersonalSection/>
-                </SignedIn>
-                <SignedOut>
-                    <div className="p-4 text-muted-foreground text-sm">
-                        Please sign in to access personal features.
-                    </div>
-                </SignedOut>
-                <SignedIn>
-                    <>
-                        <Separator/>
-                        <SubscriptionsSection/>
-                    </>
-                </SignedIn>
+                <PersonalSection/>
+                <Separator/>
+                <SubscriptionsSection/>
                 <Separator/>
                 <ExploreSection/>
                 <Separator/>
                 <OtherServices/>
-                <Separator/>
-                <InfoSection/>
+                <Separator />
+                <InfoSection />
             </SidebarContent>
         </Sidebar>
     );

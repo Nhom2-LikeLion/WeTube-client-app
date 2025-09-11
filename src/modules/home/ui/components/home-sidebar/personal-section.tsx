@@ -9,7 +9,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
-import { useAuth, useClerk } from "@clerk/nextjs";
 import {
   Clock3,
   HistoryIcon,
@@ -54,8 +53,6 @@ const items = [
 ];
 
 export const PersonalSection = () => {
-  const { isSignedIn } = useAuth();
-  const clerk = useClerk();
   const pathname = usePathname();
   return (
     <SidebarGroup>
@@ -68,12 +65,6 @@ export const PersonalSection = () => {
                 tooltip={item.title}
                 asChild
                 isActive={pathname === item.url}
-                onClick={(e) => {
-                  if (!isSignedIn && item.auth) {
-                    e.preventDefault();
-                    return clerk.openSignIn();
-                  }
-                }}
               >
                 <Link
                   prefetch

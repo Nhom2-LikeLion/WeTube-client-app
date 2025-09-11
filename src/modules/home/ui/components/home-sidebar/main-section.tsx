@@ -7,12 +7,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { pageUrls } from "@/lib/enums/page-urls";
-import { useAuth, useClerk } from "@clerk/nextjs";
-import { FileVideo, HomeIcon, PlaySquareIcon, Popcorn } from "lucide-react";
+import {pageUrls} from "@/lib/enums/page-urls";
+import {FileVideo, HomeIcon, PlaySquareIcon, Popcorn} from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import {usePathname} from "next/navigation";
+import {useState} from "react";
 import RoomModal from "@/modules/rooms/ui/components/room/roomModal";
 
 const items = [
@@ -40,8 +39,6 @@ const items = [
 ];
 
 export const MainSection = () => {
-    const { isSignedIn } = useAuth();
-    const clerk = useClerk();
     const pathname = usePathname();
     const [openRoomModal, setOpenRoomModal] = useState(false);
 
@@ -62,13 +59,10 @@ export const MainSection = () => {
                                             className="flex items-center gap-4 w-full"
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                if (!isSignedIn && item.auth) {
-                                                    return clerk.openSignIn();
-                                                }
                                                 setOpenRoomModal(true);
                                             }}
                                         >
-                                            <item.icon />
+                                            <item.icon/>
                                             <span className="text-sm">{item.title}</span>
                                         </button>
                                     </SidebarMenuButton>
@@ -78,10 +72,7 @@ export const MainSection = () => {
                                         asChild
                                         isActive={pathname === item.url}
                                         onClick={(e) => {
-                                            if (!isSignedIn && item.auth) {
-                                                e.preventDefault();
-                                                return clerk.openSignIn();
-                                            }
+                                            e.preventDefault();
                                         }}
                                     >
                                         <Link
@@ -89,7 +80,7 @@ export const MainSection = () => {
                                             href={item.url}
                                             className="flex items-center gap-4"
                                         >
-                                            <item.icon />
+                                            <item.icon/>
                                             <span className="text-sm">{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -101,7 +92,7 @@ export const MainSection = () => {
             </SidebarGroup>
 
             {/* RoomModal */}
-            <RoomModal open={openRoomModal} onOpenChange={setOpenRoomModal} />
+            <RoomModal open={openRoomModal} onOpenChange={setOpenRoomModal}/>
         </>
     );
 };
