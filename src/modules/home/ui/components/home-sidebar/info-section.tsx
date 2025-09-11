@@ -20,18 +20,18 @@ const items = [
     },
     {
         title: "Report diary",
-        url: pageUrls.LIKED_VIDEOS,
-        icon: Flag,
+        url: pageUrls.REPORT,
+        icon: Flag  ,
     },
     {
-        title: "Help",
-        url: pageUrls.ALL_PLAYLISTS,
-        icon: MessageCircleQuestionMark
+        title: "Support",
+        url: pageUrls.REPORT,
+        icon: MessageCircleQuestionMark  
     },
     {
         title: "Send feedback",
-        url: pageUrls.YOURVIDEO,
-        icon: MessageSquareWarning,
+        url: pageUrls.FEEDBACK,
+        icon: MessageSquareWarning   ,
     }
 ];
 

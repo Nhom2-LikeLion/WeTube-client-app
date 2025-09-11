@@ -1,4 +1,4 @@
-import PremiumView from "@/modules/premium/ui/views/premium-view";
+import PremiumView from "@/modules/otherservices/premium/ui/views/premium-view";
 
 
 
