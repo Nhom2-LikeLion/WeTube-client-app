@@ -9,6 +9,8 @@ export const pageUrls = {
     PREMIUM:"/otherservices/premium",
     // MUSIC:"/otherservices/musicwetube",
     SHORTS:"/shorts",
+    ROOMS:"/rooms",
+    LIVESTREAM:"/livestream",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",
     MUSIC: "/music",

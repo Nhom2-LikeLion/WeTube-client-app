@@ -1,5 +1,5 @@
 "use client";
-import Image from 'next/image';
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function FeatureMusic() {
@@ -37,18 +37,16 @@ export default function FeatureMusic() {
                 key={index}
                 className="bg-[#1A1A1A] rounded-lg overflow-hidden shadow-md hover:scale-[1.01] transition-transform duration-200"
               >
-                <img
-                  src={`https://picsum.photos/400/200?random=${index}`}
-                  alt={`Ảnh ${index + 1}`}
-                  className="w-full h-40 object-cover"
-                />
-                {/* <Image
-                  src={`https://picsum.photos/400/200?random=${index}`}
-                  alt={`Ảnh ${index + 1}`}
-                  fill 
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                /> */}
+                <div className="relative w-full h-40 overflow-hidden">
+                  <Image
+                      // src={`https://picsum.photos/400/200?random=${index}`}
+                      src={'https://www.gstatic.com/youtube/img/promos/growth/premium_lp2_large_feature_BackgroundPlay_dark_tablet_632x624.webp'}
+                    alt={`Ảnh ${index + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="text-lg font-bold mb-1">
                     Tên ứng dụng {index + 1}

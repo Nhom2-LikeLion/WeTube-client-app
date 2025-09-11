@@ -1,5 +1,5 @@
-const Page = () => {
-  return <div>User id page</div>;
-};
+import ChannelView from "@/modules/channel/view/channelView";
 
-export default Page;
+export default function ChannelPage() {
+  return <ChannelView />;
+}

@@ -1,6 +1,8 @@
+import { LoadingBar } from "@/components/LoadingBar";
+import Providers from "@/providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs"; // ✅ Thêm dòng này
+import React from "react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,14 +26,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider> {/* ✅ Bọc toàn bộ ứng dụng */}
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className="mdl-js">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <LoadingBar />
+        <Providers>{children}</Providers>
+      </body>
+    </html>
   );
 }
