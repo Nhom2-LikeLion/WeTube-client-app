@@ -10,6 +10,7 @@ export const pageUrls = {
     // MUSIC:"/otherservices/musicwetube",
     SHORTS:"/shorts",
     ROOMS:"/rooms",
+    LIVESTREAM:"/livestream",
     YOURVIDEO:"/your-video",
     SEELATER:"/see-later",
     MUSIC: "/music",

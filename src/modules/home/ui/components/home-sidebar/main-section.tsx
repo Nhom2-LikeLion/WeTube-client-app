@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { pageUrls } from "@/lib/enums/page-urls";
 import { useAuth, useClerk } from "@clerk/nextjs";
-import { FileVideo, HomeIcon, PlaySquareIcon, Popcorn } from "lucide-react";
+import {FileVideo, HomeIcon, PlaySquareIcon, Popcorn, Radio} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -36,6 +36,11 @@ const items = [
         title: "WatchTogether",
         url: pageUrls.ROOMS,
         icon: Popcorn,
+    },
+    {
+        title: "Live",
+        url: pageUrls.LIVESTREAM,
+        icon: Radio,
     },
 ];
 
