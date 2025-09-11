@@ -13,8 +13,6 @@ export const pageUrls = {
     SEELATER:"/playlists/seelater",
     ROOMS:"/rooms",
     LIVESTREAM:"/livestream",
-    YOURVIDEO:"/your-video",
-    SEELATER:"/see-later",
     MUSIC: "/music",
     SPORTS: "/sports",
     REPORT: "/otherservices/reportdiary",
