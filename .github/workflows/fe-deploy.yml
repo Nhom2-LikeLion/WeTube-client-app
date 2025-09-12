@@ -2,7 +2,7 @@ name: CI/CD pipeline for WeTube Frontend Service
 
 on:
   push:
-    branches: [ feature/Deploy-to-aws ]
+    branches: [ main ]
 
 jobs:
   build:
