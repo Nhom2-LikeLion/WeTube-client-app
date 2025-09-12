@@ -33,13 +33,15 @@ export default function WatchPage({
   const [roomToken, setRoomToken] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
   const onJoin = async () => {
     setLoading(true);
-    const res = await fetch("/api/join_stream", {
+    const res = await fetch(`${API_BASE}/api/livekit/join-stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        room_name: roomName,
+        roomName: roomName,
         identity: name,
       }),
     });

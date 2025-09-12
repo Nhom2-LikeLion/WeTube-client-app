@@ -48,7 +48,7 @@ export function JoinDialog({ children }: { children: React.ReactNode }) {
             disabled={!roomName || loading}
             onClick={() => {
               setLoading(true);
-              router.push(`/watch/${roomName}`);
+              router.push(`/livestream/watching/${roomName}`);
             }}
           >
             {loading ? (
