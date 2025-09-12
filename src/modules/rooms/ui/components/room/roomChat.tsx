@@ -1,93 +1,110 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Room, RoomConnectOptions } from "livekit-client";
+import SockJS from "sockjs-client";
+import { Client, over } from "stompjs";
 
-interface RoomChatProps {
-    roomId: string;
-    token: string;
-    livekitUrl: string; // <-- thêm
+interface ChatMessage {
+    type: "CHAT" | "JOIN" | "LEAVE";
+    sender: string;
+    content?: string;
 }
 
-export default function RoomChat({ roomId, token, livekitUrl }: RoomChatProps) {
-    const [messages, setMessages] = useState<string[]>([]);
+export default function RoomChat({ roomId, username }: { roomId: string; username: string }) {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
-    const roomRef = useRef<Room | null>(null);
+    const stompClientRef = useRef<Client | null>(null);
 
+    // Kết nối WebSocket
     useEffect(() => {
-        if (!token || !livekitUrl) return;
+        const socket = new SockJS("http://localhost:8080/ws"); // backend endpoint
+        const stompClient = over(socket);
+        stompClientRef.current = stompClient;
 
-        const room = new Room();
-        roomRef.current = room;
+        stompClient.connect({}, () => {
+            // Subscribe vào topic chung (hoặc bạn có thể dùng `/topic/room.{roomId}`)
+            stompClient.subscribe("/topic/public", (payload) => {
+                const message: ChatMessage = JSON.parse(payload.body);
+                setMessages((prev) => [...prev, message]);
+            });
 
-        const options: RoomConnectOptions = { autoSubscribe: true };
-
-        (async () => {
-            try {
-                console.log("[RoomChat] connecting to", livekitUrl);
-                await room.connect(livekitUrl, token, options);
-                console.log("[RoomChat] connected");
-
-                room.on("connected", () => {
-                    console.log("[RoomChat] event: connected");
-                });
-
-                room.on("disconnected", () => {
-                    console.log("[RoomChat] event: disconnected");
-                });
-
-                room.on("connectionStateChanged", (state) => {
-                    console.log("[RoomChat] connectionStateChanged", state);
-                });
-
-                room.on("dataReceived", (payload, participant) => {
-                    const msg = new TextDecoder().decode(payload);
-                    console.log(
-                        "[RoomChat] dataReceived",
-                        "from identity:", participant?.identity,
-                        "message:", msg
-                    );
-                    setMessages(prev => [...prev, `${participant?.identity}: ${msg}`]);
-                });
-
-            } catch (err) {
-                console.error("[RoomChat] connect failed", err);
-            }
-        })();
+            // Gửi sự kiện JOIN
+            stompClient.send(
+                "/app/chat.addUser",
+                {},
+                JSON.stringify({ sender: username, type: "JOIN" })
+            );
+        });
 
         return () => {
-            try {
-                room.disconnect();
-            } catch (e) {}
-            roomRef.current = null;
+            if (stompClientRef.current) {
+                stompClientRef.current.disconnect(() => {
+                    console.log("Disconnected");
+                });
+            }
         };
-    }, [roomId, token, livekitUrl]);
+    }, [roomId, username]);
 
-    const sendMessage = () => {
-        if (!input || !roomRef.current) return;
-        const data = new TextEncoder().encode(input);
-        // gửi reliable để ít bị drop
-        roomRef.current.localParticipant.publishData(data, { reliable: true });
-        setMessages(prev => [...prev, `You: ${input}`]);
-        setInput("");
+    // Gửi message
+    const handleSendMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (input.trim() && stompClientRef.current) {
+            const chatMessage: ChatMessage = {
+                sender: username,
+                content: input,
+                type: "CHAT",
+            };
+            stompClientRef.current.send(
+                "/app/chat.sendMessage",
+                {},
+                JSON.stringify(chatMessage)
+            );
+            setInput("");
+        }
     };
 
     return (
-        <div className="flex flex-col h-full p-3 border-l border-neutral-300">
-            <div className="flex-1 overflow-y-auto space-y-2 mb-2">
+        <div className="flex flex-col w-full max-w-md border rounded-lg shadow-md bg-white">
+            <div className="p-3 border-b font-semibold">Room Chat ({roomId})</div>
+
+            <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
                 {messages.map((msg, i) => (
-                    <div key={i} className="text-sm">{msg}</div>
+                    <div key={i}>
+                        {msg.type === "JOIN" && (
+                            <p className="text-sm text-gray-500 italic">
+                                {msg.sender} joined the room
+                            </p>
+                        )}
+                        {msg.type === "LEAVE" && (
+                            <p className="text-sm text-gray-500 italic">
+                                {msg.sender} left the room
+                            </p>
+                        )}
+                        {msg.type === "CHAT" && (
+                            <p className="text-sm">
+                                <span className="font-bold">{msg.sender}: </span>
+                                {msg.content}
+                            </p>
+                        )}
+                    </div>
                 ))}
             </div>
-            <div className="flex gap-2">
+
+            <form onSubmit={handleSendMessage} className="flex p-2 border-t">
                 <input
-                    className="flex-1 border rounded px-2 py-1"
+                    type="text"
+                    className="flex-1 border rounded px-2 py-1 text-sm"
+                    placeholder="Type a message..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type message..."
                 />
-                <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={sendMessage}>Send</button>
-            </div>
+                <button
+                    type="submit"
+                    className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded"
+                >
+                    Send
+                </button>
+            </form>
         </div>
     );
 }
