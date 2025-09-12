@@ -22,7 +22,7 @@ export interface VoteRequestDto {
 
 export const postsApi = createApi({
     reducerPath: "postsApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/users" }),
+    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/posts" }),
     tagTypes: ["Post"],
     endpoints: (builder) => ({
         getPostsByUser: builder.query<Post[], string>({

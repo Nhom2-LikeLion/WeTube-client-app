@@ -28,7 +28,7 @@ export function BroadcastDialog({ children }: { children: React.ReactNode }) {
 
     const onGoLive = async () => {
     setLoading(true);
-      const res = await fetch(`${API_BASE}/api/livekit/create-stream`, {
+      const res = await fetch(`http://10.19.3.2:8080/api/livekit/create-stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
