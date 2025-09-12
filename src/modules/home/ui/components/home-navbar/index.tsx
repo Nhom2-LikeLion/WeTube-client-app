@@ -8,11 +8,25 @@ import {Button} from "@/components/ui/button";
 import {CreateButton} from "@/modules/home/ui/components/home-navbar/create-button";
 import {Bell, Plus, RadioTower, SquarePen, Video} from "lucide-react";
 import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
-import React from "react";
+import React, {useEffect} from "react";
 import {useRouter} from "next/navigation";
 
 const HomeNavbar = () => {
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchIpAndCountry = async () => {
+            try {
+                const response = await fetch("https://api.ipify.org?format=json");
+                const data = await response.json();
+                console.log("User IP:", data.ip);
+            } catch (error) {
+                console.error("Error fetching IP and country:", error);
+            }
+        };
+
+        void fetchIpAndCountry();
+    }, []);
     const handleUploadVideoClick = (closeDropdown: () => void) => {
         closeDropdown();
         router.push('/studio?openUploadModal=true');
