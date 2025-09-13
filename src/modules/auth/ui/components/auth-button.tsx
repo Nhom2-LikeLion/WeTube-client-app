@@ -1,57 +1,53 @@
 "use client";
+
+import { useAuth } from '@/contexts/auth-context';
 import { Button } from "@/components/ui/button";
-import { pageUrls } from "@/lib/enums/page-urls";
-import {UserButton, SignInButton, SignedIn, SignedOut, useAuth} from "@clerk/nextjs";
-import { ClapperboardIcon, UserCircleIcon, UserIcon } from "lucide-react";
-import {useEffect} from "react";
+import Image from "next/image";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const AuthButton = () => {
-    const { getToken } = useAuth();
-    useEffect(() => {
-        // Chúng ta cần một hàm async bên trong useEffect để có thể dùng await
-        const logTokenForTesting = async () => {
-            // Lấy token từ session hiện tại
-            const token = await getToken();
-            // In ra console với một nhãn rõ ràng để bạn dễ tìm
-            console.log("CLERK_TOKEN_FOR_TESTING:", token);
-        };
+    const { user, isLoading, login, logout } = useAuth();
 
-        // Gọi hàm để thực thi
-        logTokenForTesting();
+    if (isLoading) {
+        return <div className="h-10 w-24 bg-gray-200 rounded-full animate-pulse" />;
+    }
 
-    }, [getToken]);
-    return (
-        <>
-            <SignedIn>
-                <UserButton>
-                    <UserButton.MenuItems>
-                        <UserButton.Link
-                            href={`/users/current`}
-                            label="My profile"
-                            labelIcon={<UserIcon className="size-4" />}
+    if (user) {
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Image
+                            src={user.picture}
+                            alt={user.name}
+                            fill
+                            className="rounded-full"
                         />
-                        <UserButton.Link
-                            href={pageUrls.STUDIO}
-                            label="Studio"
-                            labelIcon={<ClapperboardIcon className="size-4" />}
-                        />
-                        <UserButton.Action label="manageAccount" />
-                    </UserButton.MenuItems>
-                </UserButton>
-            </SignedIn>
-            <SignedOut>
-                <SignInButton mode="modal">
-                    <Button
-                        variant="outline"
-                        className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-500 border-blue-500/20 rounded-full shadow-none"
-                    >
-                        <UserCircleIcon />
-                        Sign in
                     </Button>
-                </SignInButton>
-            </SignedOut>
-        </>
-    )
-}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+    }
+
+    return (
+        <Button
+            variant="ghost"
+            size="lg"
+            className="rounded-full px-4 py-2 flex items-center gap-2 text-black shadow-md"
+            onClick={login}
+        >
+            Sign In
+        </Button>
+    );
+};
 
 export default AuthButton;
