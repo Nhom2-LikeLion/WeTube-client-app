@@ -10,6 +10,7 @@ import {Bell, Plus, RadioTower, SquarePen, Video} from "lucide-react";
 import {DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import React, {useEffect} from "react";
 import {useRouter} from "next/navigation";
+import AuthButton from "@/modules/auth/ui/components/auth-button";
 
 const HomeNavbar = () => {
     const router = useRouter();
@@ -96,8 +97,9 @@ const HomeNavbar = () => {
                     >
                         <Bell className="h-10 w-10" />
                     </Button>
-                    <Button variant="ghost" size="lg" className="rounded-full px-4 py-2 flex items-center gap-2
-                     text-black shadow-md transition-all duration-200">Sign In</Button>
+                    {/*<Button variant="ghost" size="lg" className="rounded-full px-4 py-2 flex items-center gap-2*/}
+                    {/* text-black shadow-md transition-all duration-200">Sign In</Button>*/}
+                    <AuthButton />
                 </div>
             </div>
         </nav>
