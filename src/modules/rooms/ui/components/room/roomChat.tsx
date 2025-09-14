@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import SockJS from "sockjs-client";
-import { Client, over } from "stompjs";
+import { Client, IMessage } from "@stomp/stompjs";
 
 interface ChatMessage {
     type: "CHAT" | "JOIN" | "LEAVE";
@@ -10,86 +9,90 @@ interface ChatMessage {
     content?: string;
 }
 
-export default function RoomChat({ roomId, username }: { roomId: string; username: string }) {
+interface RoomChatProps {
+    roomId: string;
+    username: string;
+    stompClient: Client;
+}
+
+export default function RoomChat({ roomId, username, stompClient }: RoomChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
-    const stompClientRef = useRef<Client | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Kết nối WebSocket
     useEffect(() => {
-        const socket = new SockJS("http://localhost:8080/ws"); // backend endpoint
-        const stompClient = over(socket);
-        stompClientRef.current = stompClient;
+        if (!stompClient) return;
 
-        stompClient.connect({}, () => {
-            // Subscribe vào topic chung (hoặc bạn có thể dùng `/topic/room.{roomId}`)
-            stompClient.subscribe("/topic/public", (payload) => {
-                const message: ChatMessage = JSON.parse(payload.body);
-                setMessages((prev) => [...prev, message]);
-            });
+        let subscription: any;
 
-            // Gửi sự kiện JOIN
-            stompClient.send(
-                "/app/chat.addUser",
-                {},
-                JSON.stringify({ sender: username, type: "JOIN" })
+        // subscribe khi connect thành công
+        stompClient.onConnect = () => {
+            console.log("📌 Subscribing to topic:", `/topic/rooms.${roomId}.chat`);
+
+            subscription = stompClient.subscribe(
+                `/topic/rooms.chat.${roomId}`,
+                (msg: IMessage) => {
+                    console.log("📩 Received:", msg.body);
+                    const payload = JSON.parse(msg.body);
+                    setMessages((prev) => [...prev, payload]);
+                }
             );
-        });
+
+            // gửi join khi subscribe xong
+            stompClient.publish({
+                destination: `/app/chat.${roomId}`,
+                body: JSON.stringify({ type: "JOIN", sender: username }),
+            });
+        };
 
         return () => {
-            if (stompClientRef.current) {
-                stompClientRef.current.disconnect(() => {
-                    console.log("Disconnected");
+            if (subscription) subscription.unsubscribe();
+            if (stompClient && stompClient.connected) {
+                stompClient.publish({
+                    destination: `/app/chat.${roomId}`,
+                    body: JSON.stringify({ type: "LEAVE", sender: username }),
                 });
             }
         };
-    }, [roomId, username]);
+    }, [stompClient, roomId, username]);
 
-    // Gửi message
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (input.trim() && stompClientRef.current) {
-            const chatMessage: ChatMessage = {
-                sender: username,
-                content: input,
-                type: "CHAT",
-            };
-            stompClientRef.current.send(
-                "/app/chat.sendMessage",
-                {},
-                JSON.stringify(chatMessage)
-            );
-            setInput("");
-        }
+        if (!input.trim() || !stompClient.connected) return;
+
+        stompClient.publish({
+            destination: `/app/chat.${roomId}`,
+            body: JSON.stringify({ type: "CHAT", sender: username, content: input }),
+        });
+
+        setInput("");
     };
 
     return (
         <div className="flex flex-col w-full max-w-md border rounded-lg shadow-md bg-white">
             <div className="p-3 border-b font-semibold">Room Chat ({roomId})</div>
-
             <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
                 {messages.map((msg, i) => (
                     <div key={i}>
                         {msg.type === "JOIN" && (
-                            <p className="text-sm text-gray-500 italic">
-                                {msg.sender} joined the room
-                            </p>
+                            <p className="text-sm text-gray-500 italic">{msg.sender} joined the room</p>
                         )}
                         {msg.type === "LEAVE" && (
-                            <p className="text-sm text-gray-500 italic">
-                                {msg.sender} left the room
-                            </p>
+                            <p className="text-sm text-gray-500 italic">{msg.sender} left the room</p>
                         )}
                         {msg.type === "CHAT" && (
                             <p className="text-sm">
-                                <span className="font-bold">{msg.sender}: </span>
-                                {msg.content}
+                                <b>{msg.sender}:</b> {msg.content}
                             </p>
                         )}
                     </div>
                 ))}
+                <div ref={messagesEndRef} />
             </div>
-
             <form onSubmit={handleSendMessage} className="flex p-2 border-t">
                 <input
                     type="text"
