@@ -6,19 +6,15 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/user-avatar";
+import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
-
-const mockUser = {
-    picture: "https://img.freepik.com/premium-vector/vector-flat-illustration-grayscale-avatar-user-profile-person-icon-gender-neutral-silhouette-profile-picture-suitable-social-media-profiles-icons-screensavers-as-templatex9xa_719432-2210.jpg?semt=ais_hybrid&w=740",
-    name: "Kyson Huynh",
-};
 
 export const StudioSidebarHeader = () => {
   const { state } = useSidebar();
 
-    const user = mockUser;
+  const { user, isLoading } = useAuth();
 
-    if (!user)
+  if (isLoading || !user) {
     return (
       <SidebarHeader className="flex items-center justify-center pb-4">
         <Skeleton className="size-[112px] rounded-full" />
@@ -28,6 +24,7 @@ export const StudioSidebarHeader = () => {
         </div>
       </SidebarHeader>
     );
+  }
 
   if (state === "collapsed") {
     return (
