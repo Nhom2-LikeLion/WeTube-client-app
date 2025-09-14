@@ -10,6 +10,7 @@ import React, {
   useCallback,
 } from "react";
 import apiClient from "@/lib/apiClient";
+import axios from "axios";
 
 interface User {
   id: string;
@@ -29,7 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -40,8 +41,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         setUser(response.data);
       } catch (error) {
-        console.error("❌ Error call API /me:", error);
-
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          console.log("User is not authenticated (handled gracefully).");
+        } else {
+          console.error(
+            "❌ An unexpected error occurred while fetching user:",
+            error
+          );
+        }
         setUser(null);
       } finally {
         setIsLoading(false);
