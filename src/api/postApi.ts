@@ -20,13 +20,18 @@ export interface VoteRequestDto {
     userId: string;
 }
 
+export interface UploadResponse {
+    url: string;
+    error?: string;
+}
+
 export const postsApi = createApi({
     reducerPath: "postsApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/users" }),
+    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api" }),
     tagTypes: ["Post"],
     endpoints: (builder) => ({
         getPostsByUser: builder.query<Post[], string>({
-            query: (userId) => `/${userId}/posts`,
+            query: (userId) => `/posts/${userId}`,
             providesTags: (result, error, userId) =>
                 result
                     ? [
@@ -45,7 +50,7 @@ export const postsApi = createApi({
             query: (body) => ({
                 url: "/posts",
                 method: "POST",
-                body, // gửi thẳng JSON
+                body,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -56,7 +61,7 @@ export const postsApi = createApi({
 
         updatePost: builder.mutation<Post, { postId: string; body: Partial<Post> }>({
             query: ({ postId, body }) => ({
-                url: `/${postId}`,
+                url: `/posts/${postId}`,
                 method: "PUT",
                 body,
             }),
@@ -65,7 +70,7 @@ export const postsApi = createApi({
 
         deletePost: builder.mutation<void, string>({
             query: (postId) => ({
-                url: `/${postId}`,
+                url: `/posts/${postId}`,
                 method: "DELETE",
             }),
             invalidatesTags: (result, error, postId) => [
@@ -76,13 +81,26 @@ export const postsApi = createApi({
 
         votePoll: builder.mutation<PollSummaryDto, VoteRequestDto>({
             query: ({ postId, optionId, userId }) => ({
-                url: `/${postId}/polls/vote`,
+                url: `/posts/${postId}/polls/vote`,
                 method: "POST",
                 body: { optionId, userId },
             }),
             invalidatesTags: (result, error, { postId }) => [
                 { type: "Post", id: postId },
             ],
+        }),
+
+        uploadImage: builder.mutation<UploadResponse, File>({
+            query: (file) => {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                return {
+                    url: "/uploads/image",
+                    method: "POST",
+                    body: formData,
+                };
+            },
         }),
     }),
 });
@@ -93,4 +111,5 @@ export const {
     useUpdatePostMutation,
     useDeletePostMutation,
     useVotePollMutation,
+    useUploadImageMutation,
 } = postsApi;
