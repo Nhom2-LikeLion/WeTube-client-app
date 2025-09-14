@@ -56,6 +56,8 @@ apiClient.interceptors.response.use(
             : new Error("Refresh failed");
         processQueue(err);
         console.error("Session expired, logging out.", err);
+
+        window.dispatchEvent(new Event("auth-failure"));
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

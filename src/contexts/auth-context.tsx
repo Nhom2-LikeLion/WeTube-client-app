@@ -12,7 +12,7 @@ import React, {
 import apiClient from "@/lib/apiClient";
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   picture: string;
@@ -49,6 +49,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchUser();
+
+    const handleAuthFailure = () => {
+      console.log("Auth failure event received, clearing user.");
+      setUser(null);
+    };
+    window.addEventListener("auth-failure", handleAuthFailure);
+
+    return () => {
+      window.removeEventListener("auth-failure", handleAuthFailure);
+    };
   }, []);
 
   const login = useCallback(() => {
