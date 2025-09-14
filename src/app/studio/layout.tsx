@@ -1,13 +1,14 @@
-import StudioLayout from '@/modules/studio/ui/layouts/studio-layout';
+import ProtectedRoute from "@/components/ProtectedRoute";
+import StudioLayout from "@/modules/studio/ui/layouts/studio-layout";
 
-interface LayoutProps {
+export default function Layout({
+  children,
+}: Readonly<{
   children: React.ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
-    return (
-        <StudioLayout>
-            {children}
-        </StudioLayout>
-    )
+}>) {
+  return (
+    <ProtectedRoute>
+      <StudioLayout>{children}</StudioLayout>
+    </ProtectedRoute>
+  );
 }

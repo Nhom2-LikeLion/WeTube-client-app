@@ -13,7 +13,7 @@ import apiClient from "@/lib/apiClient";
 import axios from "axios";
 
 interface User {
-  id: string;
+  sub: string;
   name: string;
   email: string;
   picture: string;
