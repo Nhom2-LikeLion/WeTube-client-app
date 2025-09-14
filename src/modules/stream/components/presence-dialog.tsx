@@ -171,7 +171,7 @@ function ParticipantListItem({
                     {isCurrentUser && " (you)"}
                 </Text>
             </Flex>
-            {isHost && roomMetadata.allow_participation ? (
+            {isHost && roomMetadata.allowParticipation ? (
                 <HostActions/>
             ) : (
                 <ViewerActions/>

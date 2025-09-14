@@ -29,19 +29,21 @@ export function IngressDialog({ children }: { children: React.ReactNode }) {
   const [ingressResponse, setIngressResponse] =
     useState<CreateIngressResponse>();
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
   const onCreateIngress = async () => {
     setLoading(true);
 
-    const res = await fetch("/api/create_ingress", {
+    const res = await fetch(`${API_BASE}/api/livekit/create-ingress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        room_name: roomName,
-        ingress_type: type,
+        roomName: roomName,
+        ingressType: type,
         metadata: {
-          creator_identity: name,
-          enable_chat: enableChat,
-          allow_participation: allowParticipation,
+          creatorIdentity: name,
+          enableChat: enableChat,
+          allowParticipation: allowParticipation,
         },
       }),
     });

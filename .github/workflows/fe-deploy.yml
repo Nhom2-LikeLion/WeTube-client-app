@@ -1,0 +1,84 @@
+name: CI/CD pipeline for WeTube Frontend Service
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build to Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+
+  deploy:
+    name: Deploy Frontend to EC2
+    runs-on: ubuntu-latest
+    needs: [ build ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create deployment directory on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            mkdir -p wetube-frontend-deploy
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "compose.yml"
+          target: "wetube-frontend-deploy"
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd wetube-frontend-deploy
+            
+            # Tạo file .env cho docker-compose
+            echo "Creating .env file..."
+            cat > .env << EOF
+            IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app
+            IMAGE_TAG=${{ github.sha }}
+            EOF
+            
+            # Login to Docker Hub on EC2
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            
+            # Pull image mới nhất và khởi động lại container
+            echo "Pulling latest image and restarting service..."
+            sudo docker-compose pull
+            sudo docker-compose up -d --remove-orphans
+            
+            echo "Frontend deployment complete!"

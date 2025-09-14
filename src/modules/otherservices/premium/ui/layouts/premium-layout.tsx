@@ -21,7 +21,7 @@ export default function PremiumLayout({ children }: PremiumLayoutProps) {
                         {children}
                     </main>
                 </div>
-            </div>
+            </div>  
         </SidebarProvider>
     )
 }
