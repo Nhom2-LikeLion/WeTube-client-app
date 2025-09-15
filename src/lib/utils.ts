@@ -46,3 +46,12 @@ export function timeAgo(dateString: string): string {
   if (months < 12)  return `${months} month${months > 1 ? 's' : ''} ago`;
   return `${years} year${years > 1 ? 's' : ''} ago`;
 };
+
+export const formatViews = (num?: number) => {
+  if (!num) return "0 views";
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M views";
+  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K views";
+  return num + " views";
+};
+
+export const generateId = () => crypto.randomUUID();

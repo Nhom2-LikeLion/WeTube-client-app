@@ -1,29 +1,25 @@
+"use client";
+import { formatViews, timeAgo } from "@/lib/utils";
+import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // <-- từ next/navigation
-import type { VideoItem } from "./mockVideo";
-import { timeAgo } from "@/lib/utils";
-
-const formatViews = (num: number) => {
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M views";
-  if (num >= 1_000) return (num / 1_000).toFixed(1) + "K views";
-  return num + " views";
-};
+import { useRouter } from "next/navigation";
 
 const VideoCard = ({
-  id, // cần có id
+  id,
   title,
-  channelName,
-  thumbnail,
-  avatar,
-  views,
-  uploadedAt,
-  videoUrl,
-}: VideoItem) => {
-  const router = useRouter(); // từ next/navigation
-  const displayTime = timeAgo(uploadedAt);
+  thumbnailUrl,
+  totalView,
+  createAt,
+  name,
+  duration,
+  picture,
+  uploadedAgo
+}: RecommendedVideoItem) => {
+  const router = useRouter();
+  const displayTime = timeAgo(createAt);
 
   const handleClick = () => {
-    router.push(`/watch?id=${id}`); // push sang trang watch
+    router.push(`/watch?id=${id}`);
   };
 
   return (
@@ -32,24 +28,28 @@ const VideoCard = ({
       onClick={handleClick}
     >
       <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-        <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
+        <img
+          src={thumbnailUrl}
+          alt={title}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
         <Image
-          src={avatar}
-          alt={channelName}
+          src={picture}
+          alt={name}
           width={48}
           height={48}
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
           <h3 className="text-lg text-black font-bold leading-tight break-words">
-            {channelName}
+            {name}
           </h3>
           <p className="text-sm text-gray-300">{title}</p>
           <p className="text-sm text-gray-400">
-            {formatViews(views)} • {displayTime}
+            {formatViews(totalView)} • {displayTime}
           </p>
         </div>
       </div>

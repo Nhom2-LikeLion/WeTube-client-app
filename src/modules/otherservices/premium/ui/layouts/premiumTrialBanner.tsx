@@ -1,5 +1,7 @@
 "use client";
 
+import PaymentButton from "./PaymentButton";
+
 export default function PremiumTrialBanner() {
   return (
     <section className="text-center py-20 px-4 bg-white">
@@ -11,9 +13,7 @@ export default function PremiumTrialBanner() {
         Dùng thử 1 tháng với giá 0 ₫ • Sau đó là 79.000 ₫/tháng • Không bao gồm thuế GTGT • Hủy bất cứ lúc nào
       </p>
 
-      <button className="bg-blue-600 text-white text-lg font-medium px-6 py-3 rounded-full hover:bg-blue-700 transition">
-        Dùng thử 1 tháng với giá 0 ₫
-      </button>
+      <PaymentButton/>
 
       <div className="text-sm text-gray-500 mt-6">
         Thanh toán định kỳ.{" "}

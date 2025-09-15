@@ -1,41 +1,49 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useGetRecommendVideosQuery } from "@/app/api/recommentApi";
+import { useAuth } from "@/contexts/auth-context";
+import { useEffect, useState } from "react";
 import VideoCard from "./videoCard";
-import { videos as mockVideos } from "./mockVideo";
 
-const VideoGrid = () => {
-  const videos = mockVideos;
-  const LOAD_COUNT = 12; // mỗi lần load 12 video
+const LOAD_COUNT = 12;
+
+export default function VideoGrid() {
+  const { user } = useAuth();
+  const userId = user?.sub;
   const [visibleCount, setVisibleCount] = useState(LOAD_COUNT);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const loadMore = () => {
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
-      setIsLoadingMore(false);
-    }, 500); // giả lập loading
-  };
+  const {
+    data: videos = [],
+    isLoading,
+    isFetching,
+    error,
+  } = useGetRecommendVideosQuery("bc7d3d56-921d-11f0-8118-98fa9b3ea470", {
+    skip: !userId,
+  });
+
+  const loadMore = () =>
+    setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.innerHeight + window.scrollY;
-      const pageHeight = document.documentElement.scrollHeight;
-      const threshold = 100; // load thêm khi còn cách cuối trang 100px
-
-      if (scrollPosition + threshold >= pageHeight && visibleCount < videos.length && !isLoadingMore) {
+      if (
+        window.innerHeight + window.scrollY + 100 >=
+          document.documentElement.scrollHeight &&
+        visibleCount < videos.length &&
+        !isFetching
+      ) {
         loadMore();
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [visibleCount, videos.length, isLoadingMore]);
+  }, [visibleCount, videos.length, isFetching]);
+
+  if (!userId)
+    return <p className="p-4">Bạn cần đăng nhập để xem video gợi ý.</p>;
+  if (isLoading) return <p className="p-4">Đang tải video...</p>;
+  if (error) return <p className="p-4 text-red-500">Lỗi tải video!</p>;
 
   return (
     <div className="p-4">
-      {/* Grid video */}
       <div className="flex flex-wrap gap-4">
         {videos.slice(0, visibleCount).map((video) => (
           <div key={video.id} className="w-full sm:w-[calc(33.333%-1rem)]">
@@ -44,19 +52,15 @@ const VideoGrid = () => {
         ))}
       </div>
 
-      {/* Spinner Tailwind */}
-      {isLoadingMore && (
+      {isFetching && (
         <div className="flex justify-center mt-6">
           <div className="w-10 h-10 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Hết video */}
-      {visibleCount >= videos.length && !isLoadingMore && (
+      {visibleCount >= videos.length && !isFetching && (
         <p className="text-center mt-6 text-gray-500">Đã hết video</p>
       )}
     </div>
   );
-};
-
-export default VideoGrid;
+}

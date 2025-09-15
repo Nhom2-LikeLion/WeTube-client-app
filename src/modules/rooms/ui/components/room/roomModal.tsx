@@ -12,10 +12,9 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { customAlphabet } from "nanoid";
-import axios from "axios";
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz";
-const nanoid = customAlphabet(alphabet, 4); // mỗi block 4 ký tự
+const nanoid = customAlphabet(alphabet, 4);
 
 function generateMeetStyleId() {
     return `${nanoid()}-${nanoid()}-${nanoid()}`;
@@ -28,50 +27,26 @@ export default function RoomModal({
                                   }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onRoomCreated?: (roomId: string) => void;
+    onRoomCreated?: (roomId: string, username: string) => void;
 }) {
     const [roomId, setRoomId] = useState("");
     const [roomName, setRoomName] = useState("");
+    const [username, setUsername] = useState("");
     const router = useRouter();
 
-    const handleJoin = async () => {
-        if (!roomId.trim()) return;
-        try {
-             await axios.post(`http://localhost:8080/api/rooms/${roomId}/join`, {
-                userId: "user-" + Math.random().toString(36).slice(2, 8), // TODO: thay bằng userId từ auth
-                username: roomName || "Guest",
-            });
-
-            onOpenChange(false);
-            onRoomCreated?.(roomId);
-            router.push(
-                `/rooms/${roomId}`
-            );
-        } catch (err) {
-            console.error("Failed to join room", err);
-        }
+    const handleJoin = () => {
+        if (!roomId.trim() || !username.trim()) return;
+        console.log("Joining room:", roomId, "as", username);
+        onOpenChange(false);
+        onRoomCreated?.(roomId, username);
+        router.push(`/rooms/${roomId}?username=${encodeURIComponent(username)}`);
     };
 
-    const handleCreate = async () => {
+    const handleCreate = () => {
+        if (!username.trim()) return;
         const newRoomId = generateMeetStyleId();
-        try {
-            await axios.post("http://localhost:8080/api/rooms/create", null, {
-                params: { roomId: newRoomId, roomName, userId: "host-123" }, // TODO: thay hostId từ auth
-            });
-
-            const res = await axios.post(`http://localhost:8080/api/rooms/${newRoomId}/join`, {
-                userId: "host-123",
-                username: roomName || "Host",
-            });
-
-            onOpenChange(false);
-            onRoomCreated?.(newRoomId);
-            router.push(
-                `/rooms/${newRoomId}`
-            );
-        } catch (err) {
-            console.error("Failed to create room", err);
-        }
+        onOpenChange(false);
+        router.push(`/rooms/${newRoomId}?username=${encodeURIComponent(username)}`);
     };
 
     return (
@@ -82,6 +57,16 @@ export default function RoomModal({
                 </DialogHeader>
 
                 <div className="flex flex-col gap-6">
+                    {/* Username */}
+                    <div>
+                        <label className="text-sm font-medium">Your Name</label>
+                        <Input
+                            placeholder="Enter username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                    </div>
+
                     {/* Join Room */}
                     <div>
                         <label className="text-sm font-medium">Join with Room ID</label>
@@ -91,7 +76,10 @@ export default function RoomModal({
                                 value={roomId}
                                 onChange={(e) => setRoomId(e.target.value)}
                             />
-                            <Button onClick={handleJoin} disabled={!roomId.trim()}>
+                            <Button
+                                onClick={handleJoin}
+                                disabled={!roomId.trim() || !username.trim()}
+                            >
                                 Join
                             </Button>
                         </div>
@@ -102,11 +90,15 @@ export default function RoomModal({
                         <label className="text-sm font-medium">Create New Room</label>
                         <div className="flex flex-col gap-2 mt-1">
                             <Input
-                                placeholder="Enter Room Name"
+                                placeholder="Enter Room Name (optional)"
                                 value={roomName}
                                 onChange={(e) => setRoomName(e.target.value)}
                             />
-                            <Button variant="secondary" onClick={handleCreate}>
+                            <Button
+                                variant="secondary"
+                                onClick={handleCreate}
+                                disabled={!username.trim()}
+                            >
                                 Create Room
                             </Button>
                         </div>

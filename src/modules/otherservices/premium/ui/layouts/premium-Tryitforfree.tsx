@@ -1,4 +1,8 @@
+"use client";
+
 import Image from 'next/image';
+import { useState } from 'react';
+import PaymentButton from './PaymentButton';
 
 const features = [
   {
@@ -24,6 +28,7 @@ const features = [
 ];
 
 export default function PremiumTryitforfree() {
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center text-center px-4 py-20">
       <div className="max-w-3xl w-full flex flex-col items-center">
@@ -63,9 +68,7 @@ export default function PremiumTryitforfree() {
         </p>
 
         <div className="mt-6">
-          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium transition">
-            Dùng thử 1 tháng với giá 0 ₫
-          </button>
+          <PaymentButton/>
         </div>
 
         <p className="mt-4 text-sm text-blue-700 underline cursor-pointer hover:text-blue-900">
@@ -73,7 +76,6 @@ export default function PremiumTryitforfree() {
         </p>
       </div>
 
-      {/* Thêm phần tính năng */}
       <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
         {features.map((feature, index) => (
           <div
