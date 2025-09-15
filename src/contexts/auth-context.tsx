@@ -12,10 +12,11 @@ import React, {
 import apiClient from "@/lib/apiClient";
 
 interface User {
-  id: number;
+  sub: string;
   name: string;
   email: string;
   picture: string;
+  sub?: string;
 }
 
 interface AuthContextType {
@@ -30,7 +31,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -49,6 +49,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchUser();
+
+    const handleAuthFailure = () => {
+      console.log("Auth failure event received, clearing user.");
+      setUser(null);
+    };
+    window.addEventListener("auth-failure", handleAuthFailure);
+
+    return () => {
+      window.removeEventListener("auth-failure", handleAuthFailure);
+    };
   }, []);
 
   const login = useCallback(() => {

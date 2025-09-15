@@ -1,55 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { useParticipants } from "@livekit/components-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {UserCircle, Users} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Client } from "@stomp/stompjs";
 
-export default function MemberList() {
-    const participants = useParticipants();
-    const [open, setOpen] = useState(false);
+interface Member {
+    username: string;
+}
+
+interface MemberPayload {
+    count: number;
+    members: Member[];
+}
+
+interface MemberListProps {
+    roomId: string;
+    stompClient: Client;
+}
+
+export default function MemberList({ roomId, stompClient }: MemberListProps) {
+    const [members, setMembers] = useState<Member[]>([]);
+    const [count, setCount] = useState<number>(0);
+
+    useEffect(() => {
+        if (!stompClient.connected) return;
+
+        const subscription = stompClient.subscribe(
+            `/topic/rooms.${roomId}.members`,
+            (msg) => {
+                if (msg.body) {
+                    const payload: MemberPayload = JSON.parse(msg.body);
+                    setMembers(payload.members);
+                    setCount(payload.count);
+                }
+            }
+        );
+
+        // join room ngay khi mount
+        stompClient.publish({
+            destination: `/app/rooms.members.${roomId}`,
+            body: JSON.stringify({ username: "" })
+        });
+
+        return () => {
+            // leave room khi unmount
+            stompClient.publish({
+                destination: `/app/rooms.members.leave.${roomId}`,
+                body: JSON.stringify({ username: "" })
+            });
+            subscription.unsubscribe();
+        };
+    }, [stompClient, roomId]);
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1"
-                >
-                    <Users className="w-4 h-4" />
-                    {participants.length}
-                </Button>
-            </DialogTrigger>
-
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Participants ({participants.length})</DialogTitle>
-                </DialogHeader>
-
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                    {participants.map((p) => (
-                        <div
-                            key={p.identity}
-                            className="p-2 border rounded-md text-sm flex items-center justify-between"
-                        >
-                            <div className="flex items-center gap-2">
-                                <UserCircle className="w-4 h-4 text-neutral-500" />
-                                <span>{p.name || p.identity}</span>
-                            </div>
-                            {p.isLocal && <span className="text-xs text-blue-500">(You)</span>}
-                        </div>
-                    ))}
-
-                </div>
-            </DialogContent>
-        </Dialog>
+        <div className="mb-4">
+            <div className="font-semibold mb-1">Members ({count}):</div>
+            <ul className="text-sm space-y-1">
+                {members.map((m) => (
+                    <li key={m.username}>{m.username}</li>
+                ))}
+            </ul>
+        </div>
     );
 }

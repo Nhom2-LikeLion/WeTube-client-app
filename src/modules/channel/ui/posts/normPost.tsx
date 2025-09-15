@@ -5,6 +5,7 @@ import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/api/likeApi";
 import {useEffect, useState} from "react";
 import CommentPanel from "@/components/comments/commentPanel";
 import PostMenu from "@/modules/channel/ui/posts/postMenu";
+import Image from "next/image";
 
 interface NormalPostCardProps {
     id: string;
@@ -95,7 +96,7 @@ export default function NormalPostCard({
 
             {imageUrl && (
                 <div className="rounded-lg overflow-hidden border border-neutral-800">
-                    <img src={imageUrl} alt="post" width={600} height={400} className="w-full object-cover"/>
+                    <img src={imageUrl} alt="image" width={600} height={400} className="w-full object-cover"/>
                 </div>
             )}
 

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import VideoPlayer from "../video/videoPlayer";
 import UpcomingList, { VideoItem } from "./upcomingList";
 import MemberList from "./membersList";
-import RoomChat from "@/modules/rooms/ui/components/room/roomChat";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import axios from "axios";
+import RoomChat from "./roomChat";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 const initialVideos: VideoItem[] = [
     {
@@ -24,70 +23,48 @@ const initialVideos: VideoItem[] = [
     },
 ];
 
-export default function WatchRoomLayout() {
-    const { roomId } = useParams<{ roomId: string }>();
-    const [roomName, setRoomName] = useState("");
+interface WatchRoomLayoutProps {
+    roomId: string;
+    username: string;
+}
+
+export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutProps) {
     const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
-    const [currentVideoId, setCurrentVideoId] = useState<number>(
-        videos[0]?.id ?? -1
-    );
-    const [livekitToken, setLivekitToken] = useState("");
-    const [livekitUrl, setLivekitUrl] = useState("");
-    const [userId] = useState("user-" + Math.floor(Math.random() * 1000));
+    const [currentVideoId, setCurrentVideoId] = useState<number>(videos[0]?.id ?? -1);
+    const [stompClient, setStompClient] = useState<Client | null>(null);
 
-    // fetch room info
     useEffect(() => {
-        const fetchRoom = async () => {
-            try {
-                const res = await axios.get(`http://localhost:8080/api/rooms/${roomId}`);
-                setRoomName(res.data.roomName);
-            } catch (e) {
-                console.error("❌ Cannot fetch room info", e);
-            }
-        };
-        if (roomId) fetchRoom();
-    }, [roomId]);
+        const socket = new SockJS("http://localhost:8080/ws");
+        const client = new Client({
+            webSocketFactory: () => socket,
+            debug: (str) => console.log("[STOMP]", str),
+            reconnectDelay: 5000,
+        });
 
-    // join room (only once per roomId)
-    useEffect(() => {
-        if (!roomId) return;
-        if (livekitToken) return; // tránh gọi lặp
+        client.onConnect = (frame) => {
+            console.log("✅ Connected STOMP to room", roomId);
+            console.log("STOMP frame:", frame);
 
-        const joinRoom = async () => {
-            try {
-                const res = await axios.post(
-                    `http://localhost:8080/api/rooms/${roomId}/join`,
-                    {
-                        userId,
-                        username: userId,
-                    }
-                );
-
-                setLivekitToken(res.data.token);
-                setLivekitUrl(res.data.livekitUrl);
-
-                console.log("✅ Joined room:", roomId);
-                console.log("🔗 LiveKit URL:", res.data.livekitUrl);
-                console.log("🔑 Token:", res.data.token);
-            } catch (e) {
-                console.error("❌ Cannot join room", e);
-            }
+            // Gửi sự kiện JOIN ngay sau khi connect
+            client.publish({
+                destination: `/app/chat.${roomId}`,
+                body: JSON.stringify({ type: "JOIN", sender: username }),
+            });
         };
 
-        joinRoom();
-    }, [roomId, livekitToken, userId]);
+        client.activate();
+        setStompClient(client);
 
-    const handleCopy = async () => {
-        if (!roomId) return;
-        await navigator.clipboard.writeText(roomId);
-    };
+        return () => {
+            client.deactivate();
+        };
+    }, [roomId, username]);
 
     return (
         <div className="flex flex-col w-full h-full bg-white text-black">
             <div className="flex flex-1 overflow-hidden">
                 {/* Left: Video + Playlist */}
                 <div className="flex flex-col flex-[3] border-r border-neutral-300">
-                    {/* Video */}
                     <div className="w-full max-w-5xl aspect-video">
                         <VideoPlayer
                             videos={videos}
@@ -96,27 +73,8 @@ export default function WatchRoomLayout() {
                         />
                     </div>
 
-                    {/* Playlist */}
                     <div className="p-3 space-y-3 overflow-y-auto">
-                        <div className="flex items-center justify-between">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <button
-                                            onClick={handleCopy}
-                                            className="text-sm text-neutral-700 font-medium hover:underline"
-                                        >
-                                            {roomName || "Untitled Room"}
-                                        </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Room ID: {roomId}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-
-                            <MemberList />
-                        </div>
+                        {stompClient && <MemberList roomId={roomId} stompClient={stompClient} />}
                         <UpcomingList
                             videos={videos}
                             setVideos={setVideos}
@@ -128,8 +86,8 @@ export default function WatchRoomLayout() {
 
                 {/* Right: Chat */}
                 <div className="flex-[1.2] flex flex-col">
-                    {livekitToken && livekitUrl && (
-                        <RoomChat roomId={roomId} token={livekitToken} livekitUrl={livekitUrl} />
+                    {stompClient && (
+                        <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
                     )}
                 </div>
             </div>
