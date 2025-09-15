@@ -1,7 +1,7 @@
-import { commentApi } from "@/api/commentApi";
-import { likesApi } from "@/api/likeApi";
-import { postsApi } from "@/api/postApi";
-import { videoApi } from "@/api/videoApi";
+import { commentApi } from "@/app/api/commentApi";
+import { likesApi } from "@/app/api/likeApi";
+import { postsApi } from "@/app/api/postApi";
+import { videoApi } from "@/app/api/videoApi";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const store = configureStore({

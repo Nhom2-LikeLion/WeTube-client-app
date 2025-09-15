@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter } from "next/navigation"; // <-- từ next/navigation
 import type { VideoItem } from "./mockVideo";
 import { timeAgo } from "@/lib/utils";
 
@@ -10,26 +10,31 @@ const formatViews = (num: number) => {
 };
 
 const VideoCard = ({
+  id, // cần có id
   title,
   channelName,
   thumbnail,
   avatar,
   views,
   uploadedAt,
-  videoUrl, 
+  videoUrl,
 }: VideoItem) => {
+  const router = useRouter(); // từ next/navigation
   const displayTime = timeAgo(uploadedAt);
 
+  const handleClick = () => {
+    router.push(`/watch?id=${id}`); // push sang trang watch
+  };
+
   return (
-    <div 
+    <div
       className="w-full flex flex-col cursor-pointer transform transition duration-300 hover:scale-105 hover:shadow-xl"
+      onClick={handleClick}
     >
-      {/* Thumbnail */}
       <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
         <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
       </div>
 
-      {/* Info */}
       <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
         <Image
           src={avatar}
