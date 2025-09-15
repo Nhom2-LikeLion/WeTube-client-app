@@ -1,58 +1,84 @@
 "use client";
-import { ExternalLink, GraduationCap, User, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const plans = [
-  {
-    icon: <User className="w-6 h-6 text-blue-600" />,
-    title: "Cá nhân",
-    price: "79.000 ₫/tháng",
-    description: "Dùng thử 1 tháng với giá 0 ₫ • Không bao gồm thuế GTGT",
-    extra: "Chưa bao gồm thuế GTGT. Có áp dụng quy định hạn chế.",
-    button: "Dùng thử 1 tháng với giá 0 ₫",
-    active: true,
-  },
-  {
-    icon: <Users className="w-6 h-6 text-blue-600" />,
-    title: "Gia đình",
-    price: "149.000 ₫/tháng",
-    description: "Dùng thử 1 tháng với giá 0 ₫ • Không bao gồm thuế GTGT",
-    extra:
-      "Thêm tối đa 5 thành viên gia đình (từ 13 tuổi trở lên). Có áp dụng quy định hạn chế.",
-    button: "Dùng thử 1 tháng với giá 0 ₫",
-    active: false,
-  },
-  {
-    icon: <GraduationCap className="w-6 h-6 text-blue-600" />,
-    title: "Sinh viên",
-    price: "49.000 ₫/tháng",
-    description: "Dùng thử 1 tháng với giá 0 ₫ • Không bao gồm thuế GTGT",
-    extra:
-      "Chỉ cho sinh viên đủ điều kiện. Yêu cầu xác minh hằng năm. Có áp dụng quy định hạn chế.",
-    button: (
-      <>
-        <ExternalLink className="w-4 h-4 mr-1 inline" />
-        Dùng thử 1 tháng với giá 0 ₫
-      </>
-    ),
-    active: false,
-  },
-];
+type SubPack = {
+  id: string;
+  name: string;
+  description: string;
+  durationDays: number;
+  price: number;
+  active?: boolean;
+};
 
 export default function PremiumFeatures() {
+  const [plans, setPlans] = useState<SubPack[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [payLoading, setPayLoading] = useState<string | null>(null); 
+
+  useEffect(() => {
+    const fetchSubPacks = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/subpacks");
+        const data: SubPack[] = await res.json();
+
+        const updatedData = data.map((plan, index) => ({
+          ...plan,
+          active: index === 0,
+        }));
+
+        setPlans(updatedData);
+      } catch (err) {
+        console.error("Error fetching subpacks:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubPacks();
+  }, []);
+
+  if (loading) return <p className="text-center">Loading...</p>;
+
+  const handlePayment = async (subPackId: string) => {
+    setPayLoading(subPackId);
+    try {
+      const res = await fetch("http://localhost:8080/api/payment/momo/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: "e11ca899-6463-4706-90ff-63135fc4b6dd", 
+          subPackId,
+          returnUrl: "http://localhost:3000/",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Payment API failed");
+
+      const data = await res.json();
+      console.log("MoMo response:", data);
+
+      if (data.payUrl) window.location.href = data.payUrl;
+      else alert("Payment link from MoMo not received");
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while creating the payment");
+    } finally {
+      setPayLoading(null);
+    }
+  };
+
   return (
     <section className="py-20 px-4 bg-gray-50">
-      {/* Heading */}
       <div className="text-center mb-16">
         <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight text-gray-900">
-          Tham gia cùng hơn 125 triệuthành viên Premium
+          Join Premium and enjoy all features
         </h2>
       </div>
 
-      {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {plans.map((plan, index) => (
+        {plans.map((plan) => (
           <div
-            key={index}
+            key={plan.id}
             className={`rounded-2xl p-6 transition-all duration-300 shadow-sm hover:shadow-lg hover:scale-[1.02] ${
               plan.active
                 ? "border border-blue-500 bg-white"
@@ -60,24 +86,29 @@ export default function PremiumFeatures() {
             }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              {plan.icon}
-              <h3 className="text-xl font-semibold">{plan.title}</h3>
+              <h3 className="text-xl font-semibold">{plan.name}</h3>
             </div>
 
             <p className="text-lg font-bold text-gray-900 mb-2">
-              {plan.price}
+              {plan.price.toLocaleString("en-US", { style: "currency", currency: "VND" })}
             </p>
             <p className="text-sm text-gray-700 mb-1">{plan.description}</p>
-            <p className="text-xs text-gray-500 mb-4">{plan.extra}</p>
+            <p className="text-xs text-gray-500 mb-4">
+              Duration: {plan.durationDays} days
+            </p>
 
             <button
+              onClick={() => handlePayment(plan.id)}
+              disabled={payLoading === plan.id}
               className={`w-full rounded-full px-4 py-2 text-sm font-medium transition ${
                 plan.active
                   ? "bg-blue-600 text-white hover:bg-blue-700"
                   : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-              }`}
+              } disabled:opacity-50`}
             >
-              {plan.button}
+              {payLoading === plan.id
+                ? "Processing..."
+                : `Select ${plan.name}`}
             </button>
           </div>
         ))}
@@ -85,6 +116,3 @@ export default function PremiumFeatures() {
     </section>
   );
 }
-
-
-
