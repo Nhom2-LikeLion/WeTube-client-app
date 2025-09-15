@@ -733,7 +733,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -824,7 +823,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -915,7 +913,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -1006,7 +1003,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -1097,7 +1093,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -1188,7 +1183,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -1279,7 +1273,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
@@ -1370,7 +1363,6 @@ export const videos: VideoItem[] = [
     views: 980,
     uploadedAt: "2022-06-10T10:00:00", // vài năm trước
   },
-  ,
   {
     id: generateId(),
     title: "How To Use CSS Dev Tools Like a Senior Developer",
