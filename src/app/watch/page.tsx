@@ -1,11 +1,12 @@
 "use client";
+import { CommentsProvider } from "@/contexts/comment-context";
+import { ControlsProvider } from "@/contexts/controls-context";
+import { RelatedVideosProvider } from "@/contexts/related-videos-context";
+import { ShortsProvider } from "@/contexts/shorts-context";
+import { ThemeProvider } from "@/contexts/theme-context";
+import { VideoProvider } from "@/contexts/video-context";
 import App from "@/modules/watch/app";
-import { CommentsProvider } from "@/modules/watch/context/comment-context";
-import { ControlsProvider } from "@/modules/watch/context/controls-context";
-import { RelatedVideosProvider } from "@/modules/watch/context/related-videos-context";
-import { ShortsProvider } from "@/modules/watch/context/shorts-context";
-import { ThemeProvider } from "@/modules/watch/context/theme-context";
-import { VideoProvider } from "@/modules/watch/context/video-context";
+
 
 
 export default function Home() {
