@@ -12,7 +12,7 @@ import React, {
 import apiClient from "@/lib/apiClient";
 
 interface User {
-  id: string;
+  sub: string;
   name: string;
   email: string;
   picture: string;
@@ -30,7 +30,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     const fetchUser = async () => {
       try {

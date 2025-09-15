@@ -44,7 +44,7 @@ export const postsApi = createApi({
         createPost: builder.mutation<Post, {
             userId: string;
             content: string;
-            imageUrl?: string;
+            imageUrl?: string | null;
             poll?: { options: { optionText: string }[] }
         }>({
             query: (body) => ({

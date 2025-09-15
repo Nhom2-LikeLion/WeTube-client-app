@@ -39,8 +39,8 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
                 const res = await uploadImage(file).unwrap();
                 if (res.url) {
                     setImageUrl(res.url);
+                    console.log("📸 Uploaded imageUrl:", res.url);
                 }
-                console.log("📸 Uploaded imageUrl:", imageUrl);
             } catch (err) {
                 console.error("Upload failed:", err);
                 setPreview(null);
