@@ -15,6 +15,7 @@ import apiClient from "@/lib/apiClient";
 import toast from "react-hot-toast";
 import { Clock, Film, Loader2, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { AxiosError } from "axios";
 
 const formatDuration = (seconds: number) => {
   if (isNaN(seconds) || seconds < 0) return "00:00";
@@ -37,6 +38,11 @@ interface VideoDetailsModalProps {
   onUploadComplete: () => void;
 }
 
+interface ApiErrorResponse {
+  error?: string;
+  message?: string;
+}
+
 export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   file,
   onClose,
@@ -44,8 +50,11 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 }) => {
   const { user } = useAuth();
 
-  const [title, setTitle] = useState(file.name.replace(/\.[^/.]+$/, ""));
+  const [title, setTitle] = useState(
+    file.name.replace(/\.[^/.]+$/, "")
+  );
   const [description, setDescription] = useState("");
+  const [tags, setTags] = useState("");
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -97,22 +106,27 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     formData.append("description", description);
     formData.append("usersId", user.sub);
     formData.append("duration", duration.toString());
+    formData.append("tags", tags);
 
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
-      const response = await apiClient.post("/api/videos/uploadFile", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
-          );
-          setUploadProgress(percentCompleted);
-        },
-      });
+      const response = await apiClient.post(
+        "/api/videos/uploadFile",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
+            );
+            setUploadProgress(percentCompleted);
+          },
+        }
+      );
 
       console.log("✅ Video uploaded, server response:", response.data);
 
@@ -120,7 +134,29 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       onUploadComplete();
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("Upload error, please try again.");
+
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          console.error("Backend Error Data:", error.response.data);
+          console.error("Backend Error Status:", error.response.status);
+
+          const errorData = error.response.data as ApiErrorResponse;
+          const serverMessage =
+            errorData?.message || "Error not defined from the server.";
+          toast.error(`Upload failed: ${serverMessage}`);
+        } else if (error.request) {
+          console.error("No response received:", error.request);
+          toast.error(
+            "No response from the server. Please check the network connection."
+          );
+        } else {
+          console.error("Error setting up request:", error.message);
+          toast.error("Error of Request Setting.");
+        }
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setIsUploading(false);
     }
@@ -175,6 +211,24 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
               rows={8}
               disabled={isUploading}
             />
+          </div>
+          <div>
+            <label
+              htmlFor="tags"
+              className="font-semibold mb-2 block"
+            >
+              Tags (thẻ)
+            </label>
+            <Input
+              id="tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="Enter the tags, starting with #"
+              disabled={isUploading}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Tags help others easily find your video.
+            </p>
           </div>
         </div>
 
@@ -235,7 +289,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
           {isUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Handling...
+              Uploading...
             </>
           ) : (
             "Upload"
