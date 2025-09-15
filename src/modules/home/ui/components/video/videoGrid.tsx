@@ -1,55 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import VideoCard from "./videoCard";
-import { getMockVideos } from "./mockVideo";
+import { videos as mockVideos } from "./mockVideo";
 
 const VideoGrid = () => {
-  const videos = getMockVideos();
-  const [visibleCount, setVisibleCount] = useState(6);
+  const videos = mockVideos;
+  const LOAD_COUNT = 12; // mỗi lần load 12 video
+  const [visibleCount, setVisibleCount] = useState(LOAD_COUNT);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 6);
+  const loadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
+      setIsLoadingMore(false);
+    }, 500); // giả lập loading
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.innerHeight + window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight;
+      const threshold = 100; // load thêm khi còn cách cuối trang 100px
+
+      if (scrollPosition + threshold >= pageHeight && visibleCount < videos.length && !isLoadingMore) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [visibleCount, videos.length, isLoadingMore]);
 
   return (
     <div className="p-4">
-      <div className="flex flex-wrap gap-4 justify-between">
-        <AnimatePresence initial={false}>
-          {videos.slice(0, visibleCount).map((video) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full sm:w-[calc(33.3333%-1rem)]"
-            >
-              <VideoCard
-                key={video.id}
-                id={video.id}
-                title={video.title}
-                channelName={video.channelName}
-                thumbnail={video.thumbnail}
-                avatar={video.avatar}
-                views={video.views}
-                uploadedAt={video.uploadedAt}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      {/* Grid video */}
+      <div className="flex flex-wrap gap-4">
+        {videos.slice(0, visibleCount).map((video) => (
+          <div key={video.id} className="w-full sm:w-[calc(33.333%-1rem)]">
+            <VideoCard {...video} />
+          </div>
+        ))}
       </div>
 
-      {visibleCount < videos.length && (
+      {/* Spinner Tailwind */}
+      {isLoadingMore && (
         <div className="flex justify-center mt-6">
-          <button
-            onClick={handleLoadMore}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-          >
-            More
-          </button>
+          <div className="w-10 h-10 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
         </div>
+      )}
+
+      {/* Hết video */}
+      {visibleCount >= videos.length && !isLoadingMore && (
+        <p className="text-center mt-6 text-gray-500">Đã hết video</p>
       )}
     </div>
   );
