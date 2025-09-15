@@ -36,7 +36,7 @@ export default function RootLayout({
         <AuthProvider>
         <Providers>{children}</Providers>
         </AuthProvider>
-        <PaymentResult/>
+       
       </body>
     </html>
   );
