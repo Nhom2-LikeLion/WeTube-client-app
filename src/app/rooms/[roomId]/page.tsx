@@ -1,7 +1,10 @@
 import WatchRoomPageClient from "@/modules/rooms/watchRoomPageClient";
 
-export default async function Page({ params }: { params: Promise<{ roomId: string }> }) {
-    const { roomId } = await params; // unwrap Promise
+interface RoomPageProps {
+    params: { roomId: string };
+}
 
-    return <WatchRoomPageClient initialRoomId={roomId} />;
+export default async function RoomPage({ params }: RoomPageProps) {
+    const {roomId} = params;
+    return <WatchRoomPageClient initialRoomId={roomId}/>;
 }

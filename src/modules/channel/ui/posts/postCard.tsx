@@ -34,11 +34,7 @@ export default function PostCard({post, userId}: PostCardProps) {
         });
     };
 
-    const author = post.author ?? {
-        id: "mock-user",
-        name: "Người dùng test",
-        avatarUrl: "https://yt3.googleusercontent.com/B7cKgmonzWyahNmf1g3jDhQyb-5DadDQk02SlFvC00Y8JpBSNnQ0QZ_UuUJKUebSrbdsMrOzI-c=w544-c-h544-k-c0x00ffffff-no-l90-rj",
-    };
+    const author = post.author!;
 
     return (
         <>
@@ -46,8 +42,8 @@ export default function PostCard({post, userId}: PostCardProps) {
                 <PollPostCard
                     id={post.id}
                     userId={userId}
-                    avatar={author.avatarUrl} //{post.author.avatarUrl}
-                    channelName={author.name} //{post.author.name}
+                    avatar={author.avatarUrl}
+                    channelName={author.name}
                     timestamp={post.createdAt}
                     content={post.content}
                     poll={{

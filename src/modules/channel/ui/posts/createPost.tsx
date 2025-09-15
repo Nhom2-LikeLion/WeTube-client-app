@@ -5,11 +5,13 @@ import { ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import {useUploadImageMutation} from "@/api/postApi";
 
 interface CreatePostFormProps {
     userId: string;
-    onSubmit: (data: { content: string;
-        image?: File | null;
+    onSubmit: (data: {
+        content: string;
+        imageUrl?: string;
         poll?: {
             options: { optionText: string }[];
         } | null;
@@ -18,22 +20,36 @@ interface CreatePostFormProps {
 
 export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps) {
     const [content, setContent] = useState("");
-    const [image, setImage] = useState<File | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
     const [pollOptions, setPollOptions] = useState<string[]>([]);
     const [newOption, setNewOption] = useState("");
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+
+    const handleImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = e.target.files?.[0];
         if (file) {
-            setImage(file);
             setPreview(URL.createObjectURL(file));
+
+            try {
+                const res = await uploadImage(file).unwrap();
+                if (res.url) {
+                    setImageUrl(res.url);
+                    console.log("📸 Uploaded imageUrl:", res.url);
+                }
+            } catch (err) {
+                console.error("Upload failed:", err);
+                setPreview(null);
+            }
         }
     };
 
     const handleRemoveImage = () => {
-        setImage(null);
+        setImageUrl(null);
         setPreview(null);
     };
 
@@ -50,16 +66,16 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!content.trim() && !image && pollOptions.length === 0) return;
+        if (!content.trim() && !imageUrl && pollOptions.length === 0) return;
 
         const poll =
             pollOptions.length > 0
                 ? { options: pollOptions.map(opt => ({ optionText: opt })) }
                 : null;
 
-        onSubmit({ content, image, poll });
+        onSubmit({ content, imageUrl: imageUrl ?? undefined, poll });
         setContent("");
-        setImage(null);
+        setImageUrl(null);
         setPreview(null);
         setPollOptions([]);
     };
@@ -148,7 +164,7 @@ export default function CreatePostForm({ userId, onSubmit }: CreatePostFormProps
 
                         <Button
                             type="submit"
-                            disabled={!content.trim() && !image && pollOptions.length === 0}
+                            disabled={!content.trim() && !imageUrl && pollOptions.length === 0}
                             className="rounded-xl px-4"
                         >
                             Post

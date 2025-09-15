@@ -1,43 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import LiveKitRoomWrapper from "@/modules/rooms/ui/components/room/liveKitRoom";
-import WatchRoomLayout from "@/modules/rooms/ui/components/room/watchRoomLayout";
+import { useRouter, useSearchParams } from "next/navigation";
 import RoomModal from "@/modules/rooms/ui/components/room/roomModal";
+import WatchRoomLayout from "@/modules/rooms/ui/components/room/watchRoomLayout";
 
 export default function WatchRoomPageClient({ initialRoomId }: { initialRoomId?: string }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [modalOpen, setModalOpen] = useState(!initialRoomId);
     const [roomId, setRoomId] = useState(initialRoomId || "");
-    const [userId, setUserId] = useState("");
+
+    const [username, setUsername] = useState(() => searchParams.get("username") || "");
+
+    const handleRoomCreated = (newRoomId: string, newUsername: string) => {
+        router.push(`/rooms/${newRoomId}?username=${encodeURIComponent(newUsername)}`);
+        setRoomId(newRoomId);
+        setUsername(newUsername);
+        setModalOpen(false);
+    };
 
     useEffect(() => {
-        // tạo userId cố định cho session
-        const userId = "user-" + Math.floor(Math.random() * 1000);
-        setUserId(userId);
-    }, []);
+        if (initialRoomId && !username) {
+            setModalOpen(true);
+        }
+    }, [initialRoomId, username]);
 
-    const handleRoomCreated = (newRoomId: string) => {
-        setRoomId(newRoomId);
-        setModalOpen(false);
-        router.push(`/rooms/${newRoomId}`);
-    };
 
     return (
         <div className="h-screen w-screen">
-            {/* Modal tạo hoặc join room */}
             <RoomModal
                 open={modalOpen}
                 onOpenChange={setModalOpen}
                 onRoomCreated={handleRoomCreated}
             />
 
-            {/* Khi đã có roomId và userId thì render LiveKit + layout */}
-            {roomId && userId && (
-                <LiveKitRoomWrapper roomId={roomId} userId={userId}>
-                    <WatchRoomLayout />
-                </LiveKitRoomWrapper>
+            {roomId && username && (
+                <WatchRoomLayout roomId={roomId} username={username} />
             )}
         </div>
     );
