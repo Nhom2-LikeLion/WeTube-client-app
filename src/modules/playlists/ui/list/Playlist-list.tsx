@@ -1,16 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import Link from "next/link";
-import React from "react";
 
-interface playlists {
-  id: String;
-    title: String;
-    videoCount:String;
-    privacy: String;
-    lastUpdated: String;
-    thumbnail:String;
-    taglist :String;
-}
+
 const playlists = [
   {
     id: 1,
@@ -63,18 +54,18 @@ export default function Playlistlist() {
   return (
     <div className="flex-1">
       <div className="flex-1 px-6">
-      <h1 className="text-2xl font-bold mb-6">Danh sách phát</h1>
+        <h1 className="text-2xl font-bold mb-6">Danh sách phát</h1>
 
-      <Tabs defaultValue="Playlist" className="mb-0">
-     <TabsList className="flex justify-start border-none p-0 h-auto gap-2 px-6 w-full">
-        {["Recently Added", "Playlist", "Music", "Your", "Saved"].map((tab) => (
-          <TabsTrigger
-            key={tab}
-            value={tab}
-            className="bg-gray-200 text-black hover:bg-gray-400 
-                      data-[state=active]:bg-black data-[state=active]:text-white 
-                      rounded-md px-3 py-1.5 text-sm"
-          >
+        <Tabs defaultValue="Playlist" className="mb-0">
+          <TabsList className="flex justify-start border-none p-0 h-auto gap-2 px-6 w-full">
+            {["Recently Added", "Playlist", "Music", "Your", "Saved"].map((tab) => (
+              <TabsTrigger
+                key={tab}
+                value={tab}
+                className="bg-gray-200 text-black hover:bg-gray-400 
+                          data-[state=active]:bg-black data-[state=active]:text-white 
+                          rounded-md px-3 py-1.5 text-sm"
+              >
             {tab === "Recently Added"
               ? "Recently Added"
               : tab === "Playlist"
@@ -84,9 +75,9 @@ export default function Playlistlist() {
               : tab === "Your"
               ? "Your"
               : "Saved"}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+              </TabsTrigger>
+            ))}
+          </TabsList>
             <TabsContent value="Recently Added" className="mt-8">
             </TabsContent>
             <TabsContent value="Playlist" className="mt-8">
@@ -98,121 +89,117 @@ export default function Playlistlist() {
             <TabsContent value="Saved" className="mt-8">
             </TabsContent>
 
-            <TabsContent value="Playlist" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TabsContent value="Playlist" className="mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {playlists
                   .map((playlist) => (
                     <div key={playlist.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative aspect-video">
+                  <div className="relative aspect-video">
                         <img src={playlist.thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
-                          {playlist.videoCount} video
-                        </div>
-                      </div>
-                      <div className="p-4">
+                    <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
+                      {playlist.videoCount} video
+                    </div>
+                  </div>
+                  <div className="p-4">
                         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{playlist.title}</h3>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          <p>{playlist.privacy} • Danh sách phát</p>
-                          <p className="text-xs text-gray-500">{playlist.lastUpdated}</p>
-                          <p className="text-xs text-black hover:underline">
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <p>{playlist.privacy} • Danh sách phát</p>
+                      <p className="text-xs text-black hover:underline">
                             <Link href="/playlists/seelater">
                               {playlist.lastUpdated}
                             </Link>
-                          </p>
-                        </div>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="Music" className="mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {playlists
+                .filter((p) => p.taglist === "Music")
+                .map((playlist) => (
+                    <div key={playlist.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="relative aspect-video">
+                        <img src={playlist.thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
+                        {playlist.videoCount} video
                       </div>
                     </div>
-                  ))}
-              </div>
-            </TabsContent>
-         
-            <TabsContent value="Music" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {playlists
-                  .filter((p) => p.taglist === "Music") 
-                  .map((playlist) => (
-                    <div key={playlist.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative aspect-video">
-                        <img src={playlist.thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
-                          {playlist.videoCount} video
-                        </div>
-                      </div>
-                      <div className="p-4">
+                    <div className="p-4">
                         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{playlist.title}</h3>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          <p>{playlist.privacy} • Danh sách phát</p>
-                          <p className="text-xs text-gray-500">{playlist.lastUpdated}</p>
-                          <p className="text-xs text-black hover:underline">
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p>{playlist.privacy} • Danh sách phát</p>
+                        <p className="text-xs text-black hover:underline">
                             <Link href="/playlists/seelater">
                               {playlist.lastUpdated}
                             </Link>
-                          </p>
-                        </div>
+                        </p>
                       </div>
                     </div>
-                  ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="Your" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {playlists
-                  .filter((p) => p.taglist === "Your") 
-                  .map((playlist) => (
+                  </div>
+                ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="Your" className="mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {playlists
+                .filter((p) => p.taglist === "Your")
+                .map((playlist) => (
                     <div key={playlist.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative aspect-video">
+                    <div className="relative aspect-video">
                         <img src={playlist.thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
-                          {playlist.videoCount} video
-                        </div>
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
+                        {playlist.videoCount} video
                       </div>
-                      <div className="p-4">
+                    </div>
+                    <div className="p-4">
                         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{playlist.title}</h3>
-                        <div className="text-xs text-gray-600 space-y-1">
-                          <p>{playlist.privacy} • Danh sách phát</p>
-                          <p className="text-xs text-gray-500">{playlist.lastUpdated}</p>
-                          <p className="text-xs text-black hover:underline">
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p>{playlist.privacy} • Danh sách phát</p>
+                        <p className="text-xs text-black hover:underline">
                             <Link href="/playlists/seelater">
                               {playlist.lastUpdated}
                             </Link>
-                          </p>
-                        </div>
+                        </p>
                       </div>
                     </div>
-                  ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="Saved" className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {playlists
-                  .filter((p) => p.taglist === "Saved") 
-                  .map((playlist) => (
+                  </div>
+                ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="Saved" className="mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {playlists
+                .filter((p) => p.taglist === "Saved")
+                .map((playlist) => (
                     <div key={playlist.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="relative aspect-video">
+                    <div className="relative aspect-video">
                         <img src={playlist.thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
-                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
-                          {playlist.videoCount} video
-                        </div>
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-sm px-2 py-1 rounded">
+                        {playlist.videoCount} video
                       </div>
-                      <div className="p-4">
+                    </div>
+                    <div className="p-4">
                         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{playlist.title}</h3>
-                        <div className="text-xs text-gray-600 space-y-1">
+                      <div className="text-xs text-gray-600 space-y-1">
                           <p>{playlist.privacy} • Danh sách phá</p>
-                          <p className="text-xs text-gray-500">{playlist.lastUpdated}</p>
-                          <p className="text-xs text-black hover:underline">
+                        <p className="text-xs text-black hover:underline">
                             <Link href="/playlists/seelater">
                               {playlist.lastUpdated}
                             </Link>
-                          </p>
-                        </div>
+                        </p>
                       </div>
                     </div>
-                  ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div> 
+                  </div>
+                ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
 
   );
 }
