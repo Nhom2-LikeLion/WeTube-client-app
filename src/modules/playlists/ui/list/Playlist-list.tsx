@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import Link from "next/link";
 import React from "react";
 
