@@ -19,16 +19,15 @@ export const recommendApi = createApi({
   endpoints: (builder) => ({
   getRecommendVideos: builder.query<Video[], string>({
   query: (userId) => `/${userId}`,
-  // 👇 ép backend response về đúng kiểu array
   transformResponse: (response: any) => {
     if (Array.isArray(response)) {
-      return response; // backend trả array đúng
+      return response; 
     }
     if (response?.videos && Array.isArray(response.videos)) {
-      return response.videos; // backend gói trong { videos: [...] }
+      return response.videos; 
     }
     console.warn("Unexpected recommend API response:", response);
-    return []; // fallback an toàn
+    return []; 
   },
   providesTags: (result) =>
     result
