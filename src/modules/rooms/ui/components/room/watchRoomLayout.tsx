@@ -7,6 +7,7 @@ import MemberList from "./membersList";
 import RoomChat from "./roomChat";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { useRouter } from "next/navigation";
 
 const initialVideos: VideoItem[] = [
     {
@@ -32,6 +33,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
     const [currentVideoId, setCurrentVideoId] = useState<number>(videos[0]?.id ?? -1);
     const [stompClient, setStompClient] = useState<Client | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws");
@@ -45,7 +47,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
             console.log("✅ Connected STOMP to room", roomId);
             console.log("STOMP frame:", frame);
 
-            // Gửi sự kiện JOIN ngay sau khi connect
             client.publish({
                 destination: `/app/chat.${roomId}`,
                 body: JSON.stringify({ type: "JOIN", sender: username }),
@@ -60,12 +61,25 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
         };
     }, [roomId, username]);
 
+    const handleLeaveRoom = () => {
+        if (stompClient?.connected) {
+            stompClient.publish({
+                destination: `/app/chat.${roomId}`,
+                body: JSON.stringify({ type: "LEAVE", sender: username }),
+            });
+        }
+        router.push("/");
+    };
+
     return (
-        <div className="flex flex-col w-full h-full bg-white text-black">
-            <div className="flex flex-1 overflow-hidden">
-                {/* Left: Video + Playlist */}
-                <div className="flex flex-col flex-[3] border-r border-neutral-300">
-                    <div className="w-full max-w-5xl aspect-video">
+        <div className="flex flex-col h-screen bg-white text-black p-4 space-y-4 md:space-y-0">
+            {/* Main container - flex-col on mobile, flex-row on larger screens */}
+            <div className="flex flex-col md:flex-row w-full flex-1 gap-4 overflow-hidden">
+
+                {/* Left section: Video Player & Upcoming List */}
+                <div className="flex flex-col flex-auto md:flex-[3] space-y-4">
+                    {/* Video Player Card */}
+                    <div className="bg-gray-100 rounded-lg shadow-lg overflow-hidden border border-gray-200 aspect-video">
                         <VideoPlayer
                             videos={videos}
                             currentVideoId={currentVideoId}
@@ -73,23 +87,38 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         />
                     </div>
 
-                    <div className="p-3 space-y-3 overflow-y-auto">
-                        {stompClient && <MemberList roomId={roomId} stompClient={stompClient} />}
+                    {/* Upcoming List & Members Card */}
+                    <div className="bg-gray-100 rounded-lg shadow-lg p-4 space-y-4 flex flex-col flex-1 border border-gray-200">
+                        {stompClient && (
+                            <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0 md:space-x-4">
+                                <h2 className="text-xl font-semibold text-gray-800">Upcoming Videos</h2>
+                                <button
+                                    onClick={handleLeaveRoom}
+                                    className="px-4 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors"
+                                >
+                                    Leave Room
+                                </button>
+                            </div>
+                        )}
                         <UpcomingList
                             videos={videos}
                             setVideos={setVideos}
                             currentVideoId={currentVideoId}
                             onPlay={setCurrentVideoId}
                         />
+                        {stompClient && (
+                            <MemberList roomId={roomId} stompClient={stompClient} />
+                        )}
                     </div>
                 </div>
 
-                {/* Right: Chat */}
-                <div className="flex-[1.2] flex flex-col">
+                {/* Right section: Room Chat */}
+                <div className="flex flex-col md:flex-[1.2] min-h-[40vh] md:min-h-0 bg-gray-100 rounded-lg shadow-lg border border-gray-200">
                     {stompClient && (
                         <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
                     )}
                 </div>
+
             </div>
         </div>
     );

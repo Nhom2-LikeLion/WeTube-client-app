@@ -65,8 +65,10 @@ export default function NormalPostCard({
                 userId,
             }).unwrap();
 
-            setLiked(res.liked ?? false);
-            setLikeCount(res.likeCount ?? 0);
+            if (res) {
+                setLiked(res.liked ?? false);
+                setLikeCount(res.likeCount ?? 0);
+            }
             refetch();
         } catch (err) {
             console.error("Toggle like failed", err);
@@ -136,7 +138,6 @@ export default function NormalPostCard({
             <CommentPanel
                 targetId={id}
                 targetType="POST"
-                userId={userId}
                 isOpen={showComment}
                 onClose={() => {
                     setShowComment(false);
