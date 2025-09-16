@@ -8,6 +8,7 @@ import RoomChat from "./roomChat";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useRouter } from "next/navigation";
+import { API_PREFIX } from "@/constants/appConstant";
 
 const initialVideos: VideoItem[] = [
     {
@@ -36,7 +37,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     const router = useRouter();
 
     useEffect(() => {
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS(`${API_PREFIX}/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
             debug: (str) => console.log("[STOMP]", str),

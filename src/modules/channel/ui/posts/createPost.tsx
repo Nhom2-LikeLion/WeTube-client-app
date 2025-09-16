@@ -5,7 +5,7 @@ import { ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import {useUploadImageMutation} from "@/api/postApi";
+import {useUploadImageMutation} from "@/app/api/postApi";
 
 interface CreatePostFormProps {
     userId: string;

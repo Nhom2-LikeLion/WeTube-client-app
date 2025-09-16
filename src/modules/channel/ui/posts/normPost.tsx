@@ -1,7 +1,7 @@
 "use client";
 
 import { Heart, MessageCircle, Share2 } from "lucide-react";
-import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/api/likeApi";
+import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/app/api/likeApi";
 import {useEffect, useState} from "react";
 import CommentPanel from "@/components/comments/commentPanel";
 import PostMenu from "@/modules/channel/ui/posts/postMenu";

@@ -3,7 +3,7 @@
 import NormalPostCard from "./normPost";
 import PollPostCard from "./pollPost";
 import {Post} from "@/types/post";
-import {useDeletePostMutation, useUpdatePostMutation} from "@/api/postApi";
+import {useDeletePostMutation, useUpdatePostMutation} from "@/app/api/postApi";
 import EditPostModal from "@/modules/channel/ui/posts/editPostModal";
 import {useState} from "react";
 
