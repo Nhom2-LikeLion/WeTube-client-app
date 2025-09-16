@@ -8,20 +8,14 @@ import App from "@/modules/watch/app";
 import { useParams } from "next/navigation";
 
 export default function Home() {
-    const params = useParams<{ videoId: string }>(); // <-- Lấy videoId từ URL
+    const params = useParams<{ videoId: string }>();
     const videoId = params.videoId;
 
     return (
-        <VideoProvider>
           <ShortsProvider>
-            <RelatedVideosProvider>
-              <CommentsProvider>
                 <ControlsProvider>
                     <App videoId={videoId} />
                 </ControlsProvider>
-              </CommentsProvider>
-            </RelatedVideosProvider>
           </ShortsProvider>
-        </VideoProvider>
   );
 }

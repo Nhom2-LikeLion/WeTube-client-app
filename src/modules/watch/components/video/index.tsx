@@ -10,11 +10,9 @@ import PlayerLoader from "./player-loader";
 import PreviewGrid from "./preview-grid";
 import SliderControls from "./slider-controls";
 import { useControls } from "@/hooks/use-controls";
-import{useGetVideoDetailQuery} from "@/app/api/videoApi";
-interface ActiveVideoProps {
-  videoId: string;
-}
-export default function ActiveVideo({ videoId }: ActiveVideoProps) {
+import { useVideoStore } from "@/store/zustand/videoStore";
+
+export default function ActiveVideo() {
   const {
     percentage,
     loaded,
@@ -38,7 +36,8 @@ export default function ActiveVideo({ videoId }: ActiveVideoProps) {
 
   const reactPlayerRef = useRef<ReactPlayer | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const { data, isLoading, error } = useGetVideoDetailQuery(videoId);
+  const videoDetail = useVideoStore((state) => state.videoDetail);
+  const videoUrl = videoDetail?.detail.videoUrl;
 
   useEffect(() => {
     setIsClient(true);
@@ -62,7 +61,7 @@ export default function ActiveVideo({ videoId }: ActiveVideoProps) {
   };
 
   const renderPlayer = () => {
-    if (!data) return null;
+    if (!videoUrl) return null;
     return (
         <ReactPlayer
             ref={reactPlayerRef}
@@ -73,7 +72,7 @@ export default function ActiveVideo({ videoId }: ActiveVideoProps) {
             volume={pipMode ? 0 : volume / 100}
             controls={false}
             progressInterval={500}
-            url={data.detail.videoUrl} // ✅ lấy từ API
+            url={videoUrl}
             height="100%"
             width="100%"
             playbackRate={playbackSpeed}
@@ -96,9 +95,6 @@ export default function ActiveVideo({ videoId }: ActiveVideoProps) {
   };
 
   const renderVideoPlayer = () => {
-    if (isLoading) return <PlayerLoader />;
-    if (error) return <div className="text-red-500">Lỗi tải video</div>;
-
     if (percentage < 100) {
       return isClient ? renderPlayer() : <PlayerLoader />;
     }
