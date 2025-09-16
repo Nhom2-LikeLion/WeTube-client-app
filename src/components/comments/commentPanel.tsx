@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/auth-context";
 import {
     useCreateCommentMutation,
     useGetCommentsByTargetQuery,
-} from "@/api/commentApi";
+} from "@/app/api/commentApi";
 import { X } from "lucide-react";
 import CommentItem from "@/components/comments/commentItem";
 

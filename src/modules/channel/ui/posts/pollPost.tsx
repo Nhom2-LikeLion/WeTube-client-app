@@ -1,10 +1,10 @@
 "use client";
 
 import {useEffect, useState} from "react";
-import { useVotePollMutation } from "@/api/postApi";
+import { useVotePollMutation } from "@/app/api/postApi";
 import CommentPanel from "@/components/comments/commentPanel";
 import {Heart, MessageCircle, Share2} from "lucide-react";
-import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/api/likeApi";
+import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/app/api/likeApi";
 import PostMenu from "@/modules/channel/ui/posts/postMenu";
 import {PollOption} from "@/types/post"
 

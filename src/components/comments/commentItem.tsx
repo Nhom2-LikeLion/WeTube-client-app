@@ -7,10 +7,10 @@ import {
     useUpdateCommentMutation,
     useDeleteCommentMutation,
     useGetRepliesQuery,
-} from "@/api/commentApi";
+} from "@/app/api/commentApi";
 import CommentActions from "@/components/ui/commentActions";
 import { Heart, MessageCircle } from "lucide-react";
-import { useGetLikeInfoQuery, useToggleLikeMutation } from "@/api/likeApi";
+import { useGetLikeInfoQuery, useToggleLikeMutation } from "@/app/api/likeApi";
 
 interface CommentItemProps {
     comment: Comment;
