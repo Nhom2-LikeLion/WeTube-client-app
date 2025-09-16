@@ -13,7 +13,7 @@ export interface Video {
 
 export const videoApi = createApi({
   reducerPath: "videoApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }), // hoặc URL server của bạn
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
     getVideos: builder.query<
       Video[],
