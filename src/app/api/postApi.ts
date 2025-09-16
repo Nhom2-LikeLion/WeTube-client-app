@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Post } from "@/types/post";
+import { API_PREFIX } from "@/constants/appConstant";
 
 export interface PollOptionDto {
   optionId: string;
@@ -27,7 +28,7 @@ export interface UploadResponse {
 
 export const postsApi = createApi({
   reducerPath: "postsApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}` }),
   tagTypes: ["Post"],
   endpoints: (builder) => ({
     getPostsByUser: builder.query<Post[], string>({

@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_PREFIX } from "@/constants/appConstant";
 
 export interface LikeInfo {
     targetId: string;
@@ -16,7 +17,7 @@ export interface ToggleLikeRequest {
 
 export const likesApi = createApi({
     reducerPath: "likesApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/likes" }),
+    baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/likes` }),
     tagTypes: ["Like"],
     endpoints: (builder) => ({
         getLikeInfo: builder.query<

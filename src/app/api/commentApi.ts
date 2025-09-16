@@ -1,5 +1,5 @@
-// src/api/commentApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_PREFIX } from "@/constants/appConstant";
 
 export type TargetType = "POST" | "VIDEO" | "COMMENT";
 
@@ -17,7 +17,7 @@ export interface Comment {
     user?: {
         id: string;
         name: string;
-        avatarUrl?: string;
+        picture?: string;
     };
 }
 
@@ -39,7 +39,7 @@ export interface UpdateCommentRequest {
 
 export const commentApi = createApi({
     reducerPath: "commentApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api/comments" }),
+    baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/comments` }),
     tagTypes: ["Comment"],
     endpoints: (builder) => ({
         getCommentsByTarget: builder.query<Comment[], { targetId: string; targetType: TargetType }>({

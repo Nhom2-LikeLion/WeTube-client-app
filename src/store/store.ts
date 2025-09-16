@@ -17,9 +17,9 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
-            postsApi.middleware, 
-            likesApi.middleware, 
-            commentApi.middleware, 
+            postsApi.middleware,
+            likesApi.middleware,
+            commentApi.middleware,
             recommendApi.middleware,
             videoApi.middleware),
 });
