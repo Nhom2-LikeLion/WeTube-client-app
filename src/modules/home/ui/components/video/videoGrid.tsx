@@ -1,58 +1,66 @@
-"use client";
-
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useGetRecommendVideosQuery } from "@/app/api/recommentApi";
+import { useAuth } from "@/contexts/auth-context";
+import { useEffect, useState } from "react";
 import VideoCard from "./videoCard";
-import { getMockVideos } from "./mockVideo";
 
-const VideoGrid = () => {
-  const videos = getMockVideos();
-  const [visibleCount, setVisibleCount] = useState(6);
+const LOAD_COUNT = 12;
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 6);
-  };
+export default function VideoGrid() {
+  const { user } = useAuth();
+  const userId = user?.sub;
+  const [visibleCount, setVisibleCount] = useState(LOAD_COUNT);
+
+  const {
+    data: videos = [],
+    isLoading,
+    isFetching,
+    error,
+  } = useGetRecommendVideosQuery("bc7d3d56-921d-11f0-8118-98fa9b3ea470", {
+    skip: !userId,
+  });
+
+  const loadMore = () =>
+    setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY + 100 >=
+          document.documentElement.scrollHeight &&
+        visibleCount < videos.length &&
+        !isFetching
+      ) {
+        loadMore();
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [visibleCount, videos.length, isFetching]);
+
+  if (!userId)
+    return <p className="p-4">Bạn cần đăng nhập để xem video gợi ý.</p>;
+  if (isLoading) return <p className="p-4">Đang tải video...</p>;
+  if (error) return <p className="p-4 text-red-500">Lỗi tải video!</p>;
 
   return (
     <div className="p-4">
-      <div className="flex flex-wrap gap-4 justify-between">
-        <AnimatePresence initial={false}>
-          {videos.slice(0, visibleCount).map((video) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full sm:w-[calc(33.3333%-1rem)]"
-            >
-              <VideoCard
-                key={video.id}
-                id={video.id}
-                title={video.title}
-                channelName={video.channelName}
-                thumbnail={video.thumbnail}
-                avatar={video.avatar}
-                views={video.views}
-                uploadedAt={video.uploadedAt}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div className="flex flex-wrap gap-4">
+        {videos.slice(0, visibleCount).map((video) => (
+          <div key={video.id} className="w-full sm:w-[calc(33.333%-1rem)]">
+            <VideoCard {...video} />
+          </div>
+        ))}
       </div>
 
-      {visibleCount < videos.length && (
+      {isFetching && (
         <div className="flex justify-center mt-6">
-          <button
-            onClick={handleLoadMore}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-          >
-            More
-          </button>
+          <div className="w-10 h-10 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
         </div>
+      )}
+
+      {visibleCount >= videos.length && !isFetching && (
+        <p className="text-center mt-6 text-gray-500">Đã hết video</p>
       )}
     </div>
   );
-};
-
-export default VideoGrid;
+}

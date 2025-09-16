@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import React from "react";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
+import PaymentResult from "@/modules/otherservices/premium/ui/layouts/payment-result";
 import { LoadingBarProvider } from "@/contexts/loading-bar-context";
 import { LoadingBar } from "@/components/LoadingBar";
 import { NavigationEvents } from "@/components/NavigationEvents";
