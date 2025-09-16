@@ -13,7 +13,7 @@ export interface Channel {
 export interface SubscriptionRequest {
     subscriberId: string;
     channelId: string;
-    tierId?: string;
+    tierId: string;
 }
 
 export interface UnsubscribeRequest {

@@ -24,6 +24,8 @@ export default function ChannelHeader({ channelId }: ChannelHeaderProps) {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [subCount, setSubCount] = useState(0);
 
+    const tierId = channel?.membershipTiers?.[0]?.id;
+
     useEffect(() => {
         if (channel) {
             setSubCount(channel.totalSubscribers);
@@ -36,13 +38,23 @@ export default function ChannelHeader({ channelId }: ChannelHeaderProps) {
             return;
         }
 
+        if (!tierId) {
+            alert("Channel has no subscription tiers.");
+            return;
+        }
+
         try {
             if (isSubscribed) {
-                await unsubscribe({ subscriberId: user.sub, channelId }).unwrap();
+                await unsubscribe({ subscriberId: user.sub, tierId }).unwrap();
                 setIsSubscribed(false);
-                setSubCount((c) => c - 1);
+                setSubCount((c) => Math.max(0, c - 1));
             } else {
-                await subscribe({ subscriberId: user.sub, channelId }).unwrap();
+                await subscribe({
+                    subscriberId: user.sub,
+                    channelId: channelId,
+                    tierId,
+                }).unwrap();
+
                 setIsSubscribed(true);
                 setSubCount((c) => c + 1);
             }
