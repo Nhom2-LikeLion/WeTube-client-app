@@ -4,6 +4,7 @@ import { postsApi } from "@/app/api/postApi";
 import { recommendApi } from "@/app/api/recommentApi";
 import { videoApi } from "@/app/api/videoApi";
 import { subscriptionsApi } from "@/app/api/subscriptionsApi";
+import { channelApi } from "@/app/api/channelApi";
 import { configureStore } from "@reduxjs/toolkit";
 
 
@@ -15,7 +16,7 @@ export const store = configureStore({
         [recommendApi.reducerPath]: recommendApi.reducer,
         [videoApi.reducerPath]: videoApi.reducer,
         [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
-
+        [channelApi.reducerPath]: channelApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
@@ -24,7 +25,8 @@ export const store = configureStore({
             commentApi.middleware,
             recommendApi.middleware,
             videoApi.middleware,
-            subscriptionsApi.middleware),
+            subscriptionsApi.middleware,
+            channelApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
