@@ -3,6 +3,7 @@ import { postsApi } from "@/api/postApi";
 import { likesApi } from "@/api/likeApi";
 import {commentApi} from "@/api/commentApi";
 import { recommendApi } from "@/api/recommentApi";
+// import { userApi } from "@/api/userApi";
 
 export const store = configureStore({
     reducer: {
@@ -12,7 +13,11 @@ export const store = configureStore({
         [recommendApi.reducerPath]: recommendApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(postsApi.middleware, likesApi.middleware, commentApi.middleware, recommendApi.middleware),
+        getDefaultMiddleware().concat(
+            postsApi.middleware,
+            likesApi.middleware,
+            commentApi.middleware,
+            recommendApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -9,14 +9,13 @@ import {
     useGetRepliesQuery,
 } from "@/api/commentApi";
 import CommentActions from "@/components/ui/commentActions";
-import {Heart, MessageCircle} from "lucide-react";
-import {useGetLikeInfoQuery, useToggleLikeMutation} from "@/api/likeApi";
+import { Heart, MessageCircle } from "lucide-react";
+import { useGetLikeInfoQuery, useToggleLikeMutation } from "@/api/likeApi";
 
 interface CommentItemProps {
     comment: Comment;
     targetId: string;
-    targetType: "POST" | "VIDEO";
-    userId: string;
+    targetType: "POST" | "VIDEO" | "COMMENT";
     parentId?: string;
     currentUserId: string;
     isOwnerOfPost?: boolean;
@@ -28,7 +27,6 @@ export default function CommentItem({
                                         comment,
                                         targetId,
                                         targetType,
-                                        userId,
                                         parentId,
                                         currentUserId,
                                         isOwnerOfPost = false,
@@ -55,16 +53,13 @@ export default function CommentItem({
 
     const [showReplies, setShowReplies] = useState(false);
 
-    const { data: replies, isFetching: loadingReplies } = useGetRepliesQuery(
-        comment.id,
-        { skip: !showReplies }
-    );
+    const { data: replies } = useGetRepliesQuery(comment.id, { skip: !showReplies });
 
     const handleUpdate = async () => {
         if (!editContent.trim()) return;
         await updateComment({
             id: comment.id,
-            userId,
+            userId: currentUserId,
             content: editContent,
             targetId,
             targetType,
@@ -81,7 +76,7 @@ export default function CommentItem({
         await createComment({
             targetId,
             targetType,
-            userId,
+            userId: currentUserId,
             content: replyContent,
             parentCommentId: parentId ?? comment.id,
         });
@@ -110,13 +105,17 @@ export default function CommentItem({
     return (
         <li className="bg-[#1a1a1a] p-3 rounded-lg">
             <div className="flex items-start space-x-2">
+                {/* Avatar */}
                 <img
-                    src={comment.user?.avatarUrl || "/default-avatar.png"}
-                    alt="avatar"
+                    src={comment.user?.picture || "/default-avatar.png"}
+                    alt={comment.user?.name || "avatar"}
                     className="w-8 h-8 rounded-full"
                 />
                 <div className="flex-1">
-                    <p className="font-semibold">{comment.user?.name}</p>
+                    {/* User name */}
+                    <p className="font-semibold">{comment.user?.name || "Người dùng"}</p>
+
+                    {/* Content */}
                     {isEditing ? (
                         <div className="space-y-2">
                             <input
@@ -125,14 +124,19 @@ export default function CommentItem({
                                 className="w-full px-2 py-1 bg-[#222] rounded"
                             />
                             <div className="space-x-2">
-                                <button onClick={handleUpdate} className="text-green-400">Lưu</button>
-                                <button onClick={() => setIsEditing(false)} className="text-gray-400">Hủy</button>
+                                <button onClick={handleUpdate} className="text-green-400">
+                                    Lưu
+                                </button>
+                                <button onClick={() => setIsEditing(false)} className="text-gray-400">
+                                    Hủy
+                                </button>
                             </div>
                         </div>
                     ) : (
                         <p className="text-gray-200">{comment.content}</p>
                     )}
 
+                    {/* Actions: Like, Reply, Edit/Delete/Pin */}
                     <div className="flex items-center space-x-6 text-neutral-400 text-sm mt-1">
                         {/* Like */}
                         <div
@@ -158,7 +162,7 @@ export default function CommentItem({
                             <span>Trả lời</span>
                         </div>
 
-                        {/* CommentActions gom Edit/Delete/Pin */}
+                        {/* Edit/Delete/Pin */}
                         <CommentActions
                             canPin={isOwnerOfPost}
                             canEdit={comment.userId === currentUserId}
@@ -179,7 +183,7 @@ export default function CommentItem({
                         ) : null}
                     </div>
 
-                    {/* reply input */}
+                    {/* Reply input */}
                     {showReplyInput && (
                         <div className="mt-2">
                             <input
@@ -188,20 +192,21 @@ export default function CommentItem({
                                 placeholder="Viết phản hồi..."
                                 className="w-full px-2 py-1 bg-[#222] rounded"
                             />
-                            <button onClick={handleReply} className="text-blue-400 mt-1">Gửi</button>
+                            <button onClick={handleReply} className="text-blue-400 mt-1">
+                                Gửi
+                            </button>
                         </div>
                     )}
 
-                    {/* replies */}
-                    {showReplies && replies && replies.length > 0 && (
+                    {/* Replies */}
+                    {showReplies && comment.replies && comment.replies.length > 0 && (
                         <ul className="mt-2 space-y-2 ml-6 border-l border-gray-700 pl-3">
-                            {replies.map((r) => (
+                            {comment.replies.map((r) => (
                                 <CommentItem
                                     key={r.id}
                                     comment={r}
                                     targetId={targetId}
                                     targetType={targetType}
-                                    userId={userId}
                                     parentId={comment.id}
                                     currentUserId={currentUserId}
                                     isOwnerOfPost={isOwnerOfPost}

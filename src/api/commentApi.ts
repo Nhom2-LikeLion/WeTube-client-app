@@ -17,7 +17,7 @@ export interface Comment {
     user?: {
         id: string;
         name: string;
-        avatarUrl?: string;
+        picture?: string;
     };
 }
 
