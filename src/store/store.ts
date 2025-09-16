@@ -2,6 +2,7 @@ import { commentApi } from "@/app/api/commentApi";
 import { likesApi } from "@/app/api/likeApi";
 import { postsApi } from "@/app/api/postApi";
 import { recommendApi } from "@/app/api/recommentApi";
+import { searchApi } from "@/app/api/searchApi";
 import { videoApi } from "@/app/api/videoApi";
 import { configureStore } from "@reduxjs/toolkit";
 
@@ -13,6 +14,7 @@ export const store = configureStore({
         [commentApi.reducerPath]: commentApi.reducer,
         [recommendApi.reducerPath]: recommendApi.reducer,
         [videoApi.reducerPath]: videoApi.reducer,
+        [searchApi.reducerPath]: searchApi.reducer,
 
     },
     middleware: (getDefaultMiddleware) =>
@@ -21,7 +23,9 @@ export const store = configureStore({
             likesApi.middleware,
             commentApi.middleware,
             recommendApi.middleware,
-            videoApi.middleware),
+            videoApi.middleware,
+            searchApi.middleware),
+            
 });
 
 export type RootState = ReturnType<typeof store.getState>;
