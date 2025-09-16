@@ -108,12 +108,18 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     formData.append("duration", duration.toString());
     formData.append("tags", tags);
 
+    console.log("--- Inspecting FormData before sending ---");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    console.log("--------------------------------------");
+
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
       const response = await apiClient.post(
-        "/api/videos/uploadFile",
+        "/videos/uploadFile",
         formData,
         {
           headers: {

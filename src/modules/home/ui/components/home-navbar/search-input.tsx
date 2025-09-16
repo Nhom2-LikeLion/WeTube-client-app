@@ -1,11 +1,12 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useSearchVideosQuery } from "@/app/api/searchApi"; // 👈 import từ RTK query
+import { useSearchVideosQuery } from "@/app/api/searchApi";
 import { RecommendedVideoItem } from "@/types/video";
 
 interface SearchInputProps {
@@ -13,10 +14,16 @@ interface SearchInputProps {
   onAddToUpcoming?: (v: RecommendedVideoItem) => void;
 }
 
-export const SearchInput = ({ mode = "home", onAddToUpcoming }: SearchInputProps) => {
+export const SearchInput = ({
+  mode = "home",
+  onAddToUpcoming,
+}: SearchInputProps) => {
   return (
     <Suspense fallback={<Skeleton className="h-10 w-full" />}>
-      <SearchInputSuspense mode={mode} onAddToUpcoming={onAddToUpcoming} />
+      <SearchInputSuspense
+        mode={mode}
+        onAddToUpcoming={onAddToUpcoming}
+      />
     </Suspense>
   );
 };
@@ -27,30 +34,58 @@ const SearchInputSuspense = ({ mode, onAddToUpcoming }: SearchInputProps) => {
   const query = searchParams.get("query") || "";
   const categoryId = searchParams.get("categoryId") || "";
   const [value, setValue] = useState(query);
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // gọi API khi user nhập
+  // Call API when user types
   const { data: results = [], isFetching } = useSearchVideosQuery(
-    { title: value },
+    { query: value },
     { skip: !value.trim() }
   );
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const url = new URL("/search", window.location.origin);
     const newQuery = value.trim();
-    if (newQuery) url.searchParams.set("query", encodeURIComponent(newQuery));
+    if (!newQuery) return; // Prevent empty searches
+    const url = new URL("/search", window.location.origin);
+    url.searchParams.set("query", newQuery);
     if (categoryId) url.searchParams.set("categoryId", categoryId);
     setValue(newQuery);
     router.push(url.toString());
+    setIsOpen(false); // Close dropdown
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
   return (
-    <div className="relative w-full max-w-[600px]">
-      <form className="flex w-full" onSubmit={handleSearch}>
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-[600px]"
+    >
+      <form
+        className="flex w-full"
+        onSubmit={handleSearch}
+      >
         <div className="relative w-full">
           <input
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setIsOpen(true); // Open dropdown when typing
+            }}
+            onFocus={() => setIsOpen(true)}
             type="text"
             placeholder="Search"
             className="w-full pl-4 py-2 pr-12 rounded-l-full border focus:outline-none focus:border-blue-500"
@@ -76,19 +111,24 @@ const SearchInputSuspense = ({ mode, onAddToUpcoming }: SearchInputProps) => {
         </button>
       </form>
 
-      {/* dropdown gợi ý */}
-      {isFetching && (
+      {/* Dropdown suggestions */}
+      {isOpen && isFetching && (
         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow p-2 text-sm text-gray-500">
           Đang tìm kiếm...
         </div>
       )}
-
-      {!isFetching && results.length > 0 && (
+      {isOpen && !isFetching && results.length > 0 && (
         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-72 overflow-y-auto">
           {results.slice(0, 5).map((video) => (
-            <div
+            <button
               key={video.id}
-              className={`flex items-center gap-2 p-2 hover:bg-gray-100 relative ${
+              type="button"
+              onClick={() => {
+                const url = `/search?query=${encodeURIComponent(video.title)}`;
+                router.push(url);
+                setIsOpen(false); 
+              }}
+              className={`flex w-full items-center gap-2 p-2 hover:bg-gray-100 relative text-left ${
                 mode === "home" ? "cursor-default" : "cursor-pointer"
               }`}
             >
@@ -104,20 +144,25 @@ const SearchInputSuspense = ({ mode, onAddToUpcoming }: SearchInputProps) => {
               <div className="flex-1 flex flex-col overflow-hidden">
                 <span className="font-medium truncate">{video.title}</span>
                 {mode === "watchTogether" && (
-                  <>
-                    <span className="text-xs text-gray-400">{video.totalView} views</span>
-                  </>
+                  <span className="text-xs text-gray-400">
+                    {video.totalView} views
+                  </span>
                 )}
               </div>
               {mode === "watchTogether" && onAddToUpcoming && (
                 <button
-                  onClick={() => onAddToUpcoming(video)}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToUpcoming(video);
+                    setIsOpen(false); // Close dropdown
+                  }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                 >
                   +
                 </button>
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}
