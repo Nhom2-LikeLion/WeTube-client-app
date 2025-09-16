@@ -1,8 +1,12 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
-    withCredentials: true, 
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  withCredentials: true,
 });
 
 interface FailedRequest {
@@ -27,22 +31,18 @@ const processQueue = (error: Error | null) => {
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    const originalRequest = error.config as InternalAxiosRequestConfig;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest.url !== "/api/auth/refresh-login"
+    ) {
       if (isRefreshing) {
-        return new Promise<AxiosResponse>((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        })
-          .then(() => apiClient(originalRequest))
-          .catch((err) =>
-            Promise.reject(err instanceof Error ? err : new Error(String(err)))
-          );
+        }).then(() => apiClient(originalRequest));
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
@@ -50,15 +50,15 @@ apiClient.interceptors.response.use(
         processQueue(null);
         return apiClient(originalRequest);
       } catch (refreshError) {
-        const err =
+        const errorToReject =
           refreshError instanceof Error
             ? refreshError
-            : new Error("Refresh failed");
-        processQueue(err);
-        console.error("Session expired, logging out.", err);
+            : new Error(String(refreshError));
+        
+        processQueue(refreshError as Error);
 
         window.dispatchEvent(new Event("auth-failure"));
-        return Promise.reject(err);
+        return Promise.reject(errorToReject);
       } finally {
         isRefreshing = false;
       }

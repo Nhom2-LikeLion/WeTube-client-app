@@ -10,7 +10,8 @@ export function ReactionBar() {
   const { send: sendChat } = useChat();
 
   const onSend = (emoji: string) => {
-      send(encoder.encode(emoji), false as any);
+    // send(encoder.encode(emoji), false as any);
+    send(encoder.encode(emoji), { reliable: false });
     if (sendChat) {
       sendChat(emoji);
     }

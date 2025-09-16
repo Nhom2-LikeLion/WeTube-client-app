@@ -11,9 +11,8 @@ const VideoCard = ({
   totalView,
   createAt,
   name,
-  duration,
+  // duration,
   picture,
-  uploadedAgo
 }: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
@@ -28,10 +27,12 @@ const VideoCard = ({
       onClick={handleClick}
     >
       <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-        <img
+        <Image
           src={thumbnailUrl}
           alt={title}
-          className="w-full h-full object-cover"
+          fill
+          // className="w-full h-full object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
 
@@ -45,9 +46,9 @@ const VideoCard = ({
         />
         <div>
           <h3 className="text-lg text-black font-bold leading-tight break-words">
-            {name}
+            {title}
           </h3>
-          <p className="text-sm text-gray-300">{title}</p>
+          <p className="text-sm text-gray-300">{name}</p>
           <p className="text-sm text-gray-400">
             {formatViews(totalView)} • {displayTime}
           </p>

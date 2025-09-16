@@ -10,6 +10,7 @@ import {
     useSensor,
     useSensors,
     useDndMonitor,
+    DragEndEvent,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -152,15 +153,15 @@ export default function UpcomingList({
         useSensor(KeyboardSensor, {coordinateGetter: sortableKeyboardCoordinates})
     );
 
-    const handleDragEnd = (event: any) => {
-        const {active, over} = event;
-        if (!over) return;
+    const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
 
-        if (active.id !== over.id) {
-            const oldIndex = videos.findIndex((v) => v.id === active.id);
-            const newIndex = videos.findIndex((v) => v.id === over.id);
-            setVideos(arrayMove(videos, oldIndex, newIndex));
-        }
+      if (active.id !== over.id) {
+        const oldIndex = videos.findIndex((v) => v.id === active.id);
+        const newIndex = videos.findIndex((v) => v.id === over.id);
+        setVideos(arrayMove(videos, oldIndex, newIndex));
+      }
     };
 
     return (

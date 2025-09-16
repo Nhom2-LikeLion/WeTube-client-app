@@ -1,5 +1,5 @@
 import { HomeActions } from "@/modules/stream/components/home-actions";
-import { Container, Flex, Kbd, Link, Separator, Text } from "@radix-ui/themes";
+import { Container, Flex, Link, Separator, Text } from "@radix-ui/themes";
 import Image from "next/image";
 
 export default function Home() {

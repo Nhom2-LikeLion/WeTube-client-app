@@ -1,6 +1,8 @@
+"use client";
+
 import { useGetRecommendVideosQuery } from "@/app/api/recommentApi";
 import { useAuth } from "@/contexts/auth-context";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import VideoCard from "./videoCard";
 
 const LOAD_COUNT = 12;
@@ -15,12 +17,16 @@ export default function VideoGrid() {
     isLoading,
     isFetching,
     error,
-  } = useGetRecommendVideosQuery("bc7d3d56-921d-11f0-8118-98fa9b3ea470", {
+  } = useGetRecommendVideosQuery("b3ab5345-929c-11f0-a713-00a55433269b", {
     skip: !userId,
   });
 
-  const loadMore = () =>
+  // const loadMore = () =>
+  //   setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
+
+  const loadMore = useCallback(() => {
     setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
+  }, [videos.length]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,7 +41,7 @@ export default function VideoGrid() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [visibleCount, videos.length, isFetching]);
+  }, [visibleCount, videos.length, isFetching, loadMore]);
 
   if (!userId)
     return <p className="p-4">Bạn cần đăng nhập để xem video gợi ý.</p>;

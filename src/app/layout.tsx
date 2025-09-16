@@ -1,11 +1,12 @@
-import { LoadingBar } from "@/components/LoadingBar";
 import Providers from "@/providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import React from "react";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
-import PaymentResult from "@/modules/otherservices/premium/ui/layouts/payment-result";
+import { LoadingBarProvider } from "@/contexts/loading-bar-context";
+import { LoadingBar } from "@/components/LoadingBar";
+import { NavigationEvents } from "@/components/NavigationEvents";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,15 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="mdl-js">
+    <html
+      lang="en"
+      className="mdl-js"
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LoadingBar />
-        <AuthProvider>
-        <Providers>{children}</Providers>
-        </AuthProvider>
-       
+        <LoadingBarProvider>
+          <AuthProvider>
+            <Providers>
+              <LoadingBar />
+              <NavigationEvents />
+              {children}
+            </Providers>
+          </AuthProvider>
+        </LoadingBarProvider>
       </body>
     </html>
   );
