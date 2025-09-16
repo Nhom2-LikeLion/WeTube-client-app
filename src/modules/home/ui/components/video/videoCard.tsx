@@ -11,7 +11,7 @@ const VideoCard = ({
   totalView,
   createAt,
   name,
-  duration,
+  // duration,
   picture,
 }: RecommendedVideoItem) => {
   const router = useRouter();

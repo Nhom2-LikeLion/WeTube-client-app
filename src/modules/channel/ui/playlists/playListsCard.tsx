@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Play } from "lucide-react";
 import Link from "next/link";
 import { PlaylistItem } from "./mockPL";
+import Image from 'next/image';
 
 export default function PlaylistCard({ playlist }: { playlist: PlaylistItem }) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -18,10 +19,12 @@ export default function PlaylistCard({ playlist }: { playlist: PlaylistItem }) {
         {playlist.stackThumbnails.map((thumb, index) => {
           const isHovered = hoverIndex === index;
           return (
-            <img
+            <Image
               key={index}
               src={thumb}
               alt={`Thumb ${index}`}
+              fill
+              sizes="280px"
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(null)}
               className={`

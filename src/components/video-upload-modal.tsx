@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import Lottie from "lottie-react";

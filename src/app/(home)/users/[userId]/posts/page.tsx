@@ -1,7 +1,11 @@
 import CommunityPosts from "@/modules/channel/ui/posts/communityPosts";
 
-export default function ChannelPostsPage({ params }: { params: { userId: string } }) {
-    const { userId } = params;
+interface ChannelPostsPageProps {
+  readonly params: { readonly userId: string };
+}
 
-    return <CommunityPosts userId={userId}/>;
+export default function ChannelPostsPage({ params }: ChannelPostsPageProps) {
+  const { userId } = params;
+
+  return <CommunityPosts userId={userId} />;
 }

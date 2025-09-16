@@ -13,7 +13,7 @@ import {
   Video,
 } from "lucide-react";
 import { CreateButton } from "@/modules/home/ui/components/home-navbar/create-button";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { VideoUploadModal } from "@/components/video-upload-modal";

@@ -6,6 +6,7 @@ import CommentPanel from "@/components/comments/commentPanel";
 import PostMenu from "@/modules/channel/ui/posts/postMenu";
 import { PollOption } from "@/types/post";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
+import Image from 'next/image';
 import { useEffect, useState } from "react";
 
 interface PollPostCardProps {
@@ -40,7 +41,8 @@ export default function PollPostCard({
   onEdit,
   onDelete,
 }: PollPostCardProps) {
-  const { data: likeInfo, refetch } = useGetLikeInfoQuery({
+  // const { data: likeInfo, refetch } = useGetLikeInfoQuery({
+  const { data: likeInfo } = useGetLikeInfoQuery({
     targetId: id,
     targetType: "POST",
     userId,
@@ -126,9 +128,9 @@ export default function PollPostCard({
                 mx-auto overflow-hidden"
     >
       <div className="flex items-start space-x-3">
-        <img
+        <Image
           src={avatar}
-          alt="avatar"
+          alt={channelName || "avatar"}
           width={40}
           height={40}
           className="rounded-full"
@@ -137,7 +139,10 @@ export default function PollPostCard({
           <div className="font-semibold">{channelName}</div>
           <div className="text-neutral-400">{timestamp}</div>
         </div>
-        <PostMenu onEdit={() => onEdit(id)} onDelete={() => onDelete(id)} />
+        <PostMenu
+          onEdit={() => onEdit(id)}
+          onDelete={() => onDelete(id)}
+        />
       </div>
 
       <div className="text-black text-sm whitespace-pre-line">{content}</div>

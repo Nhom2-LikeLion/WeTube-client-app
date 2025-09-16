@@ -10,6 +10,7 @@ import {
 import { useGetLikeInfoQuery, useToggleLikeMutation } from "@/app/api/likeApi";
 import CommentActions from "@/components/ui/commentActions";
 import { Heart, MessageCircle } from "lucide-react";
+import Image from 'next/image';
 import { useState } from "react";
 
 interface CommentItemProps {
@@ -110,10 +111,17 @@ export default function CommentItem({
   return (
     <li className="bg-[#1a1a1a] p-3 rounded-lg">
       <div className="flex items-start space-x-2">
-        <img
+        {/* <img
           src={comment.user?.avatarUrl || "/default-avatar.png"}
           alt="avatar"
           className="w-8 h-8 rounded-full"
+        /> */}
+        <Image
+          src={comment.user?.avatarUrl || "/default-avatar.png"}
+          alt={comment.user?.name || "avatar"}
+          width={32}
+          height={32}
+          className="rounded-full"
         />
         <div className="flex-1">
           <p className="font-semibold">{comment.user?.name}</p>
@@ -125,7 +133,10 @@ export default function CommentItem({
                 className="w-full px-2 py-1 bg-[#222] rounded"
               />
               <div className="space-x-2">
-                <button onClick={handleUpdate} className="text-green-400">
+                <button
+                  onClick={handleUpdate}
+                  className="text-green-400"
+                >
                   Lưu
                 </button>
                 <button
@@ -199,13 +210,20 @@ export default function CommentItem({
                 placeholder="Viết phản hồi..."
                 className="w-full px-2 py-1 bg-[#222] rounded"
               />
-              <button onClick={handleReply} className="text-blue-400 mt-1">
+              <button
+                onClick={handleReply}
+                className="text-blue-400 mt-1"
+              >
                 Gửi
               </button>
             </div>
           )}
 
           {/* replies */}
+          {showReplies && loadingReplies && (
+            <p className="ml-6 pl-3 mt-2 text-gray-400">Đang tải phản hồi...</p>
+          )}
+
           {showReplies && replies && replies.length > 0 && (
             <ul className="mt-2 space-y-2 ml-6 border-l border-gray-700 pl-3">
               {replies.map((r) => (
