@@ -1,9 +1,11 @@
 "use client";
 
+import { useAuth } from '@/contexts/auth-context';
 import React, { useState } from 'react'
 
 export default function PaymentButton() {
   const [loading, setLoading] = useState(false);
+  const {user}=useAuth();
 
   const handlePayment = async () => {
     setLoading(true);
@@ -14,7 +16,7 @@ export default function PaymentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: "e11ca899-6463-4706-90ff-63135fc4b6dd", 
+          userId: user?.sub, 
           subPackId: "550e8400-e29b-41d4-a716-446655440000", 
         }),
       });

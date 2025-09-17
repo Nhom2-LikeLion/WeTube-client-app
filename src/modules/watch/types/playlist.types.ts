@@ -21,9 +21,13 @@ export interface Playlist {
   isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
+  privacy: string;
+  lastUpdated: string;
+  taglist: string;
   currentIndex: number;
   isShuffled: boolean;
   repeatMode: 'none' | 'one' | 'all';
+  type: "NONE" | "LIKED" | "WATCH_LATER" | "USER_PLAYLIST" | "USER_UPLOADED" | "HISTORY";
 }
 
 export interface PlaylistControls {
