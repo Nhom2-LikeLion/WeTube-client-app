@@ -1,17 +1,15 @@
-"use client";
-
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import {
-    useGetCommentsByTargetQuery,
     useCreateCommentMutation,
-} from "@/api/commentApi";
-import {X} from "lucide-react";
+    useGetCommentsByTargetQuery,
+} from "@/app/api/commentApi";
+import { X } from "lucide-react";
 import CommentItem from "@/components/comments/commentItem";
 
 interface CommentsProps {
     targetId: string;
-    targetType: "POST" | "VIDEO";
-    userId: string;
+    targetType: "POST" | "VIDEO" | "COMMENT";
     isOpen: boolean;
     onClose: () => void;
     isOwnerOfPost?: boolean;
@@ -22,40 +20,42 @@ interface CommentsProps {
 export default function CommentPanel({
                                          targetId,
                                          targetType,
-                                         userId,
                                          isOpen,
                                          onClose,
                                          isOwnerOfPost,
                                          isAdmin,
                                          onPin,
                                      }: CommentsProps) {
-    const {data: comments, isLoading} = useGetCommentsByTargetQuery({
+    const { user } = useAuth();
+    const currentUserId = user?.sub;
+
+    const { data: comments = [], isLoading, refetch } = useGetCommentsByTargetQuery({
         targetId,
         targetType,
     });
+
     const [createComment] = useCreateCommentMutation();
-
     const [newComment, setNewComment] = useState("");
-
     const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (commentsEndRef.current) {
-            commentsEndRef.current.scrollIntoView({behavior: "smooth"});
+            commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [comments]);
 
-    if (isLoading) return null;
+    if (!currentUserId || isLoading) return null;
 
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
         await createComment({
             targetId,
             targetType,
-            userId,
+            userId: currentUserId,
             content: newComment,
         });
         setNewComment("");
+        refetch();
     };
 
     return (
@@ -64,17 +64,15 @@ export default function CommentPanel({
         ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}`}
         >
             <div className="flex flex-col h-full">
-                {/* Header */}
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="font-bold text-lg">Bình luận</h2>
                     <button onClick={onClose}>
-                        <X className="w-5 h-5"/>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* List comments */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                    {comments && comments.length > 0 ? (
+                    {comments.length > 0 ? (
                         <ul className="space-y-3">
                             {comments.map((c) => (
                                 <CommentItem
@@ -82,21 +80,19 @@ export default function CommentPanel({
                                     comment={c}
                                     targetId={targetId}
                                     targetType={targetType}
-                                    userId={userId}
-                                    currentUserId={userId}
+                                    currentUserId={currentUserId}
                                     isOwnerOfPost={isOwnerOfPost}
                                     isAdmin={isAdmin}
                                     onPin={onPin}
                                 />
                             ))}
-                            <div ref={commentsEndRef}/>
+                            <div ref={commentsEndRef} />
                         </ul>
                     ) : (
                         <p className="text-gray-400">Chưa có bình luận nào.</p>
                     )}
                 </div>
 
-                {/* Input new root comment */}
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();

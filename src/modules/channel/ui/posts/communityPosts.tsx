@@ -1,7 +1,7 @@
 "use client";
 
 import PostCard from "@/modules/channel/ui/posts/postCard";
-import {useCreatePostMutation, useGetPostsByUserQuery} from "@/api/postApi";
+import {useCreatePostMutation, useGetPostsByUserQuery} from "@/app/api/postApi";
 import CreatePostForm from "@/modules/channel/ui/posts/createPost";
 import {useAuth} from "@/contexts/auth-context";
 

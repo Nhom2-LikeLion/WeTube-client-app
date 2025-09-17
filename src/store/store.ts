@@ -1,8 +1,11 @@
+import { commentApi } from "@/app/api/commentApi";
+import { likesApi } from "@/app/api/likeApi";
+import { postsApi } from "@/app/api/postApi";
+import { recommendApi } from "@/app/api/recommentApi";
+import { videoApi } from "@/app/api/videoApi";
+import { subscriptionsApi } from "@/app/api/subscriptionsApi";
 import { configureStore } from "@reduxjs/toolkit";
-import { postsApi } from "@/api/postApi";
-import { likesApi } from "@/api/likeApi";
-import {commentApi} from "@/api/commentApi";
-import { recommendApi } from "@/api/recommentApi";
+
 
 export const store = configureStore({
     reducer: {
@@ -10,9 +13,18 @@ export const store = configureStore({
         [likesApi.reducerPath]: likesApi.reducer,
         [commentApi.reducerPath]: commentApi.reducer,
         [recommendApi.reducerPath]: recommendApi.reducer,
+        [videoApi.reducerPath]: videoApi.reducer,
+        [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
+
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(postsApi.middleware, likesApi.middleware, commentApi.middleware, recommendApi.middleware),
+        getDefaultMiddleware().concat(
+            postsApi.middleware,
+            likesApi.middleware,
+            commentApi.middleware,
+            recommendApi.middleware,
+            videoApi.middleware,
+            subscriptionsApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

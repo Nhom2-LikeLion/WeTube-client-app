@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Client, IMessage } from "@stomp/stompjs";
+import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 
 interface ChatMessage {
     type: "CHAT" | "JOIN" | "LEAVE";
@@ -23,9 +23,8 @@ export default function RoomChat({ roomId, username, stompClient }: RoomChatProp
     useEffect(() => {
         if (!stompClient) return;
 
-        let subscription: any;
+        let subscription: StompSubscription | undefined;
 
-        // subscribe khi connect thành công
         stompClient.onConnect = () => {
             console.log("📌 Subscribing to topic:", `/topic/rooms.${roomId}.chat`);
 
@@ -38,7 +37,6 @@ export default function RoomChat({ roomId, username, stompClient }: RoomChatProp
                 }
             );
 
-            // gửi join khi subscribe xong
             stompClient.publish({
                 destination: `/app/chat.${roomId}`,
                 body: JSON.stringify({ type: "JOIN", sender: username }),

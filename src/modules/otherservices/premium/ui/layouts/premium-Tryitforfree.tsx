@@ -1,7 +1,6 @@
 "use client";
 
 import Image from 'next/image';
-import { useState } from 'react';
 import PaymentButton from './PaymentButton';
 
 const features = [
