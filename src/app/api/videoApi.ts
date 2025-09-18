@@ -15,8 +15,11 @@ export const videoApi = createApi({
         `?categoryId=${categoryId}&page=${page}&limit=${limit}`,
     }),
 
-    getVideoDetail: builder.query<VideoDetailResponseDto, string>({
-      query: (videoId) => `/${videoId}/detail`,
+    getVideoDetail: builder.query<
+        VideoDetailResponseDto,
+        { videoId: string; userId: string }
+    >({
+      query: ({ videoId, userId }) => `/${videoId}/detail?userId=${userId}`,
     }),
   }),
 });
