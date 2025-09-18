@@ -29,7 +29,7 @@ export default function WatchRoomPageClient({ initialRoomId }: { initialRoomId?:
 
 
     return (
-        <div className="h-screen w-screen">
+        <div className="relative h-full w-full">
             <RoomModal
                 open={modalOpen}
                 onOpenChange={setModalOpen}

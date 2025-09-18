@@ -23,6 +23,12 @@ const initialVideos: VideoItem[] = [
         thumbnail: "/thumb4.jpg",
         url: "https://res.cloudinary.com/demo/video/upload/travel.mp4",
     },
+    {
+        id: 3,
+        title: "Travel Vlog",
+        thumbnail: "/thumb4.jpg",
+        url: "https://res.cloudinary.com/demo/video/upload/travel.mp4",
+    },
 ];
 
 interface WatchRoomLayoutProps {
@@ -73,14 +79,13 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     };
 
     return (
-        <div className="flex flex-col h-screen bg-white text-black p-4 space-y-4 md:space-y-0">
-            {/* Main container - flex-col on mobile, flex-row on larger screens */}
-            <div className="flex flex-col md:flex-row w-full flex-1 gap-4 overflow-hidden">
-
-                {/* Left section: Video Player & Upcoming List */}
-                <div className="flex flex-col flex-auto md:flex-[3] space-y-4">
-                    {/* Video Player Card */}
-                    <div className="bg-gray-100 rounded-lg shadow-lg overflow-hidden border border-gray-200 aspect-video">
+        <div className="flex flex-col flex-1 w-full h-full bg-white text-black p-4 overflow-hidden">
+            {/* Main container */}
+            <div className="flex flex-col md:flex-row w-full flex-1 gap-3 overflow-hidden min-w-0">
+                {/* Left section */}
+                <div className="flex flex-col flex-1 flex-auto md:flex-[2] gap-3 overflow-hidden">
+                    {/* Video Player */}
+                    <div className="w-full max-w-4xl mx-auto aspect-video bg-black rounded-lg shadow-lg overflow-hidden border border-gray-200">
                         <VideoPlayer
                             videos={videos}
                             currentVideoId={currentVideoId}
@@ -88,10 +93,10 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         />
                     </div>
 
-                    {/* Upcoming List & Members Card */}
-                    <div className="bg-gray-100 rounded-lg shadow-lg p-4 space-y-4 flex flex-col flex-1 border border-gray-200">
+                    {/* Upcoming + Members */}
+                    <div className="bg-gray-100 rounded-lg shadow-lg p-4 flex flex-col border border-gray-200 overflow-hidden">
                         {stompClient && (
-                            <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0 md:space-x-4">
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-2">
                                 <h2 className="text-xl font-semibold text-gray-800">Upcoming Videos</h2>
                                 <button
                                     onClick={handleLeaveRoom}
@@ -101,26 +106,42 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                                 </button>
                             </div>
                         )}
-                        <UpcomingList
-                            videos={videos}
-                            setVideos={setVideos}
-                            currentVideoId={currentVideoId}
-                            onPlay={setCurrentVideoId}
-                        />
+
+                        <div className="flex-1 overflow-x-auto overflow-y-hidden">
+                            <div className="flex gap-3">
+                                <UpcomingList
+                                    videos={videos}
+                                    setVideos={setVideos}
+                                    currentVideoId={currentVideoId}
+                                    onPlay={setCurrentVideoId}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Member list - không cần flex chiếm chỗ */}
                         {stompClient && (
-                            <MemberList roomId={roomId} stompClient={stompClient} />
+                            <div className="mt-2">
+                                <MemberList roomId={roomId} stompClient={stompClient} />
+                            </div>
                         )}
                     </div>
+
                 </div>
 
                 {/* Right section: Room Chat */}
-                <div className="flex flex-col md:flex-[1.2] min-h-[40vh] md:min-h-0 bg-gray-100 rounded-lg shadow-lg border border-gray-200">
+                <div className="flex flex-col md:flex-[1.1] bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                     {stompClient && (
-                        <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
+                        <div className="flex-1 overflow-y-auto">
+                            <RoomChat
+                                roomId={roomId}
+                                username={username}
+                                stompClient={stompClient}
+                            />
+                        </div>
                     )}
                 </div>
-
             </div>
         </div>
+
     );
 }
