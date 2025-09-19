@@ -5,36 +5,35 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import PlaylistCard, { Playlists } from "./playlist-card";
 import { playlistService } from "./playlist-API";
 
-export default function Playlistlist({ userId, token }: { userId: string; token?: string }) {
+export default function Playlistlist({ userId }: { userId: string }) {
   const [playlists, setPlaylists] = useState<Playlists[]>([]);
   const [recentPlaylists, setRecentPlaylists] = useState<Playlists[]>([]);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
-        if (!userId || !token) {
-          console.error("Missing userId or token!");
+        if (!userId) {
+          console.error("Missing userId!");
           return;
         }
 
-        const data = await playlistService.getByUser(userId, token);
+        const data = await playlistService.getByUser(userId);
         setPlaylists(data);
-        
       } catch (err) {
         console.error("Failed to fetch playlists:", err);
       }
     };
 
     fetchPlaylists();
-  }, [userId, token]);
+  }, [userId]);
 
   const tabs = [
-    { label: "Playlists", value: "playlists", playlistType: null}, 
+    { label: "Playlists", value: "playlists", playlistType: null },
     { label: "Watch Later", value: "watchlater", playlistType: "WATCH_LATER" },
     { label: "Music", value: "music", playlistType: "MUSIC" },
     { label: "Saved", value: "saved", playlistType: "SAVED" },
-    { label: "Your", value: "your", playlistType: "USER_SAVED"},
-    { label: "Liked", value: "liked", playlistType: "LIKED"},
+    { label: "Your", value: "your", playlistType: "USER_SAVED" },
+    { label: "Liked", value: "liked", playlistType: "LIKED" },
   ];
 
   return (
