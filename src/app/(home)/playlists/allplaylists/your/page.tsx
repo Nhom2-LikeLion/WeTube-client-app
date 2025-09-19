@@ -1,9 +1,0 @@
-"use client";
-
-import Seelater from "@/modules/playlists/ui/view/watchlater-view";
-
-const Page = () => {
-  return <div><Seelater/></div>;
-};
-
-export default Page;

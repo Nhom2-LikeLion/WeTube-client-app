@@ -62,7 +62,7 @@ export default function Playlistlist({ userId }: { userId: string }) {
                 ? recentPlaylists.map((playlist) => (
                     <PlaylistCard
                       key={playlist.playlistId}
-                      playlists={playlist}
+                      playlist={playlist}
                       category={tab.value}
                     />
                   ))
@@ -72,14 +72,14 @@ export default function Playlistlist({ userId }: { userId: string }) {
                     .map((playlist) => (
                       <PlaylistCard
                         key={playlist.playlistId}
-                        playlists={playlist}
+                        playlist={playlist}
                         category={tab.value}
                       />
                     ))
                 : playlists.map((playlist) => (
                     <PlaylistCard
                       key={playlist.playlistId}
-                      playlists={playlist}
+                      playlist={playlist}
                       category={tab.value}
                     />
                   ))}

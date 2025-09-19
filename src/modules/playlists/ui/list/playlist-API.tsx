@@ -7,9 +7,12 @@ function jsonHeaders() {
 }
 
 export const playlistService = {
-  create: async (
-    data: { userId: string; title: string; description?: string; type: string }
-  ) => {
+  create: async (data: {
+    userId: string;
+    title: string;
+    description?: string;
+    type: string;
+  }) => {
     if (!data.userId) throw new Error("UserId is required");
 
     const res = await fetch(`${API_BASE}/create`, {
@@ -21,35 +24,30 @@ export const playlistService = {
     return res.json();
   },
 
+
   getByUser: async (userId: string) => {
     if (!userId) throw new Error("UserId is required");
 
-    const response = await fetch(`${API_BASE}/user/${userId}`, {
+    const res = await fetch(`${API_BASE}/all/${userId}`, {
       headers: jsonHeaders(),
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status}`);
-    }
-
-    return await response.json();
+    if (!res.ok) throw new Error("Failed to fetch user playlists");
+    return res.json();
   },
 
-  getByType: async (userId: string, playlistType: string) => {
+
+  getCreated: async (userId: string) => {
     if (!userId) throw new Error("UserId is required");
 
-    const res = await fetch(
-      `${API_BASE}/${userId}/playlistType?playlistType=${playlistType}`,
-      { headers: jsonHeaders() }
-    );
-    if (!res.ok) throw new Error("Failed to fetch playlists by type");
-
-    const json = await res.json();
-    return json.data || json.playlists || json || [];
+    const res = await fetch(`${API_BASE}/created/${userId}`, {
+      headers: jsonHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to fetch created playlists");
+    return res.json();
   },
 
   getDetail: async (playlistId: string) => {
-    if (!playlistId) throw new Error("PlaylistVideoId is required");
+    if (!playlistId) throw new Error("PlaylistId is required");
 
     const res = await fetch(`${API_BASE}/detail/${playlistId}`, {
       headers: jsonHeaders(),
@@ -58,10 +56,25 @@ export const playlistService = {
     return res.json();
   },
 
+  getDetailByChannelAndName: async (channelId: string, playlistName: string) => {
+    if (!channelId || !playlistName)
+      throw new Error("channelId and playlistName are required");
+
+    const res = await fetch(
+      `${API_BASE}/detail?channelId=${channelId}&playlistName=${encodeURIComponent(
+        playlistName
+      )}`,
+      { headers: jsonHeaders() }
+    );
+    if (!res.ok) throw new Error("Failed to fetch playlist detail by channelId and name");
+    return res.json();
+  },
+
+  // POST /add
   addVideo: async (playlistId: string, videoId: string) => {
     if (!playlistId || !videoId) throw new Error("PlaylistId and VideoId required");
 
-    const res = await fetch(`${API_BASE}/videos/add`, {
+    const res = await fetch(`${API_BASE}/add`, {
       method: "POST",
       headers: jsonHeaders(),
       body: JSON.stringify({ playlistId, videoId }),
@@ -70,10 +83,11 @@ export const playlistService = {
     return res.json();
   },
 
-  removeVideo: async (videoId: string, playlistVideoId: string) => {
-    if (!videoId || !playlistVideoId) throw new Error("VideoId and PlaylistVideoId required");
+  // DELETE /{playlistId}/{videoId}
+  removeVideo: async (playlistId: string, videoId: string) => {
+    if (!playlistId || !videoId) throw new Error("PlaylistId and VideoId required");
 
-    const res = await fetch(`${API_BASE}/${videoId}/${playlistVideoId}`, {
+    const res = await fetch(`${API_BASE}/${playlistId}/${videoId}`, {
       method: "DELETE",
       headers: jsonHeaders(),
     });
@@ -81,6 +95,7 @@ export const playlistService = {
     return res.json();
   },
 
+  // DELETE /{playlistId}
   removePlaylist: async (playlistId: string) => {
     if (!playlistId) throw new Error("PlaylistId is required");
 
@@ -90,17 +105,5 @@ export const playlistService = {
     });
     if (!res.ok) throw new Error("Failed to remove playlist");
     return res.json();
-  },
-
-  getRecentlyAdded: async (userId: string, limit: number = 5) => {
-    if (!userId) throw new Error("UserId is required");
-
-    const res = await fetch(`${API_BASE}/recentlyadded/${userId}?limit=${limit}`, {
-      headers: jsonHeaders(),
-    });
-    if (!res.ok) throw new Error("Failed to fetch recently added playlists");
-
-    const json = await res.json();
-    return json.data || json.playlists || json || [];
   },
 };

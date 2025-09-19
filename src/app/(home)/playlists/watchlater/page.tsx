@@ -1,13 +1,12 @@
 "use client";
 
-import Watchlaterview from '@/modules/playlists/ui/view/watchlater-view';
-import { useParams } from 'next/navigation';
+import PlaylistDetail from '@/modules/playlists/ui/list/seelater-list';
 import React from 'react'
 
-export default function watchlaterpage() {
-  const params = useParams();
-  
-  return (
-    <Watchlaterview Params={{playlistId:"60d31431-e456-4c04-bf3e-fc07af0390be"}} />
-  );
+export default function watchlater({
+  params,
+}: {
+  params: { playlistId: string };
+}) {
+  return <PlaylistDetail playlistId={params.playlistId} />;
 }
