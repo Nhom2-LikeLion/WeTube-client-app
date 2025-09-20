@@ -1,12 +1,7 @@
 "use client";
 
-import PlaylistDetail from '@/modules/playlists/ui/list/seelater-list';
-import React from 'react'
+import Watchlaterview from "@/modules/playlists/ui/view/watchlater-view";
 
-export default function watchlater({
-  params,
-}: {
-  params: { playlistId: string };
-}) {
-  return <PlaylistDetail playlistId={params.playlistId} />;
+export default function WatchLater() {
+  return <Watchlaterview/>
 }

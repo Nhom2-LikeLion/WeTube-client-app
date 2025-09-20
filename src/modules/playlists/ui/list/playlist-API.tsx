@@ -55,6 +55,16 @@ export const playlistService = {
     if (!res.ok) throw new Error("Failed to fetch playlist detail");
     return res.json();
   },
+  getByUserAndType: async (userId: string, playlistType: string) => {
+    if (!userId || !playlistType) throw new Error("UserId and playlistType are required");
+
+    const res = await fetch(
+      `${API_BASE}/${userId}/playlistType`,
+      { headers: jsonHeaders() }
+    );
+    if (!res.ok) throw new Error("Failed to fetch playlist by user and type");
+    return res.json();
+  },
 
   getDetailByChannelAndName: async (channelId: string, playlistName: string) => {
     if (!channelId || !playlistName)

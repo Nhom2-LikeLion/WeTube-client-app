@@ -1,12 +1,6 @@
-import React from 'react'
-import PlaylistDetail from '../list/seelater-list'
-import { Params } from 'next/dist/server/request/params';
+import React from "react";
+import PlaylistWatch from "../list/playlistwatch";
 
-export default function Watchlaterview({
-  Params,
-}:{ 
-  Params: {playlistId:string };
-}) {
-  return <PlaylistDetail playlistId={Params.playlistId} />;
+export default function Watchlaterview() {
+  return <PlaylistWatch />;
 }
-

@@ -1,11 +1,4 @@
 import Link from "next/link";
-import { useState, useEffect } from "react";
-
-export interface Video {
-  videoId: string;
-  thumbnailUrl: string;
-  createdAt: string;
-}
 
 export interface Playlists {
   playlistId: string;
@@ -14,56 +7,62 @@ export interface Playlists {
   totalVideos: number;
   createdAt: string;
   privacy: string;
-  lastUpdatedLabel: string | null;
-  videos: Video[];
+  lastUpdatedLabel: string;
+  thumbnailUrl: string;
+  videos?: Video[];
+}
+export interface Video {
+  videoId: string;
+  thumbnailUrl: string;
+  createdAt: string;
 }
 
 export default function PlaylistCard({
-  playlist,
+  playlists,
   category,
 }: {
-  playlist: Playlists;
+  playlists: Playlists;
   category: string;
 }) {
-  const [latestVideo, setLatestVideo] = useState<Video | null>(null);
-
-  useEffect(() => {
-    if (playlist.videos?.length) {
-      // Lấy video mới nhất
-      const newest = playlist.videos.reduce(
-        (latest, current) =>
-          new Date(current.createdAt) > new Date(latest.createdAt)
-            ? current
-            : latest,
-        playlist.videos[0]
-      );
-      setLatestVideo(newest);
-    }
-  }, [playlist.videos]);
-
-  const thumbnail = latestVideo?.thumbnailUrl || "/default-thumbnail.jpg";
-
   const href =
     category === "watchlater"
       ? "/playlists/watchlater"
       : category === "liked"
       ? "/playlists/liked"
-      : `/playlists/${playlist.playlistId}?category=${category.toLowerCase()}`;
+      : `/playlists/${playlists.playlistId}?category=${category.toLowerCase()}`;
+
+      const latestThumbnail =
+      playlists.videos?.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )[0]?.thumbnailUrl ||
+      playlists.thumbnailUrl ||
+      "/images/default-thumbnail.jpg";
+
+
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div className="relative aspect-video">
-        <img src={thumbnail} alt={playlist.playlistTitle} className="w-full h-full object-cover" />
+        <img
+          src={latestThumbnail || "/images/default-thumbnail.jpg"}
+          alt={playlists.playlistTitle}
+          className="w-full h-full object-cover"
+        />
         <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-          {playlist.totalVideos} video
+          {playlists.totalVideos} video
         </div>
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{playlist.playlistTitle}</h3>
+        <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">
+          {playlists.playlistTitle}
+        </h3>
+
         <div className="text-xs text-gray-600 space-y-1">
-          <p>{playlist.privacy || "Public"} • Danh sách phát</p>
-          {playlist.lastUpdatedLabel && <p className="text-gray-500">{playlist.lastUpdatedLabel}</p>}
+          <p>{playlists.privacy} • Danh sách phát</p>
+          <p className="text-gray-500">{playlists.lastUpdatedLabel}</p>
+
           <Link href={href} className="text-xs text-black hover:underline font-medium">
             Xem toàn bộ danh sách
           </Link>

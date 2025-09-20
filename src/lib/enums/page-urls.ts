@@ -6,8 +6,6 @@ export const pageUrls = {
     LIKED_VIDEOS: "/playlists/liked",
     ALL_PLAYLISTS: "/playlists/allplaylists",
     MUSICPLAYLIST: "/allplaylists/music",
-    SAVED: "/allplaylists/saved",
-    YOURD: "/allplaylists/yourd",
     STUDIO: "/studio",
     PREMIUM:"/otherservices/premium",
     // MUSIC:"/otherservices/musicwetube",

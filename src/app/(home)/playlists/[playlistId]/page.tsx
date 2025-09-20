@@ -1,6 +1,6 @@
 "use client";
 
-import PlaylistDetail from "@/modules/playlists/ui/list/seelater-list";
+import PlaylistDetail from "@/modules/playlists/ui/list/playlistdetail-list";
 
 export default function Page({
   params,
