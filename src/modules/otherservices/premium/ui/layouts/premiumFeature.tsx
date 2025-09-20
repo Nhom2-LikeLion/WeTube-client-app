@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
 
 type SubPack = {
@@ -15,6 +16,7 @@ export default function PremiumFeatures() {
   const [loading, setLoading] = useState(true);
   const [payLoading, setPayLoading] = useState<string | null>(null); 
 
+  const {user}=useAuth();
   useEffect(() => {
     const fetchSubPacks = async () => {
       try {
@@ -46,7 +48,7 @@ export default function PremiumFeatures() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: "e11ca899-6463-4706-90ff-63135fc4b6dd", 
+          userId: user?.sub, 
           subPackId,
           returnUrl: "http://localhost:3000/",
         }),

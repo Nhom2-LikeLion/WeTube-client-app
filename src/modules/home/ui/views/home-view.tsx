@@ -10,28 +10,25 @@ type HomeViewProps = {
 export default function HomeView({categoryId }: HomeViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryId );
 
-  // Giả lập dữ liệu categories
   const categories = [
-    { value: "music", label: "Âm nhạc" },
-    { value: "games", label: "Trò chơi" },
-    { value: "news", label: "Tin tức" },
-    { value: "sports", label: "Thể thao" },
-    { value: "education", label: "Giáo dục" },
-    { value: "entertainment", label: "Giải trí" },
-    { value: "technology", label: "Công nghệ" },
-    { value: "lifestyle", label: "Đời sống" },
-    { value: "travel", label: "Du lịch" },
-    { value: "food", label: "Ẩm thực" },
-    { value: "fashion", label: "Thời trang" },
-    { value: "finance", label: "Tài chính" },
-    { value: "health", label: "Sức khỏe" },
-    { value: "science", label: "Khoa học" },
-    { value: "automotive", label: "Ô tô - Xe máy" },
-    { value: "movies", label: "Phim ảnh" },
-    { value: "kids", label: "Thiếu nhi" },
+    { value: "music", label: "Music" },
+    { value: "games", label: "Games" },
+    { value: "news", label: "News" },
+    { value: "sports", label: "Sports" },
+    { value: "education", label: "Education" },
+    { value: "entertainment", label: "Entertainment" },
+    { value: "technology", label: "Technology" },
+    { value: "lifestyle", label: "Lifestyle" },
+    { value: "travel", label: "Travel" },
+    { value: "food", label: "Food" },
+    { value: "fashion", label: "Fashion" },
+    { value: "finance", label: "Finance" },
+    { value: "health", label: "Health" },
+    { value: "science", label: "Science" },
+    { value: "automotive", label: "Automotive" },
+    { value: "movies", label: "Movies" },
     ];
     
-
   return (
     <div className="p-6">
       <FilterCarousel
@@ -40,16 +37,6 @@ export default function HomeView({categoryId }: HomeViewProps) {
         data={categories}
         isLoading={false}
       />
-
-      {/* Hiển thị kết quả chọn */}
-      <div className="mt-6">
-        <p>
-          Đã chọn danh mục:{" "}
-          <span className="font-semibold text-blue-600">
-            {selectedCategory || "Tất cả"}
-          </span>
-        </p>
-      </div>
     </div>
   );
 }
