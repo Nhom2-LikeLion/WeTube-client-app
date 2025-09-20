@@ -43,7 +43,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     const router = useRouter();
 
     useEffect(() => {
-        const socket = new SockJS(`${API_PREFIX}/ws`);
+        const socket = new SockJS(`http://localhost:8080/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
             debug: (str) => console.log("[STOMP]", str),
@@ -90,6 +90,8 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                             videos={videos}
                             currentVideoId={currentVideoId}
                             onChangeVideo={setCurrentVideoId}
+                            roomId={roomId}
+                            username={username}
                         />
                     </div>
 
@@ -121,7 +123,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         {/* Member list - không cần flex chiếm chỗ */}
                         {stompClient && (
                             <div className="mt-2">
-                                <MemberList roomId={roomId} stompClient={stompClient} />
+                                <MemberList roomId={roomId} stompClient={stompClient} username={username}/>
                             </div>
                         )}
                     </div>

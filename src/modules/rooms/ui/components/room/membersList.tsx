@@ -15,9 +15,10 @@ interface MemberPayload {
 interface MemberListProps {
     roomId: string;
     stompClient: Client;
+    username: string;
 }
 
-export default function MemberList({ roomId, stompClient }: MemberListProps) {
+export default function MemberList({ roomId, stompClient, username }: MemberListProps) {
     const [members, setMembers] = useState<Member[]>([]);
     const [count, setCount] = useState<number>(0);
 
@@ -38,18 +39,18 @@ export default function MemberList({ roomId, stompClient }: MemberListProps) {
         // join room ngay khi mount
         stompClient.publish({
             destination: `/app/rooms.members.${roomId}`,
-            body: JSON.stringify({ username: "" })
+            body: JSON.stringify({ username })
         });
 
         return () => {
             // leave room khi unmount
             stompClient.publish({
                 destination: `/app/rooms.members.leave.${roomId}`,
-                body: JSON.stringify({ username: "" })
+                body: JSON.stringify({ username })
             });
             subscription.unsubscribe();
         };
-    }, [stompClient, roomId]);
+    }, [stompClient, roomId, username]);
 
     return (
         <div className="mb-4">
