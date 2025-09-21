@@ -8,7 +8,7 @@ import RoomChat from "./roomChat";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useRouter } from "next/navigation";
-import { MessageCircle } from "lucide-react"; // icon chat
+import { MessageCircle } from "lucide-react";
 
 const initialVideos: VideoItem[] = [
     {
@@ -82,9 +82,9 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     return (
         <div className="flex flex-col flex-1 w-full h-full bg-white text-black p-3 md:p-4 overflow-hidden">
             <div className="flex flex-col lg:flex-row w-full h-full gap-4 overflow-hidden">
-                {/* Left section */}
+
                 <div className="flex flex-col flex-1 gap-4 min-w-0">
-                    {/* Video Player */}
+
                     <div className="flex-1 w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
                         <VideoPlayer
                             videos={videos}
@@ -95,7 +95,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         />
                     </div>
 
-                    {/* Upcoming + Members */}
                     <div className="bg-gray-100 rounded-lg shadow-lg p-4 flex flex-col border border-gray-200 overflow-hidden">
                         {stompClient && (
                             <div className="flex flex-col md:flex-row justify-between items-center mb-3 gap-2">
@@ -132,7 +131,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                     </div>
                 </div>
 
-                {/* Right section: Chat (desktop only) */}
                 <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
                     {stompClient && (
                         <div className="flex-1 overflow-y-auto">
@@ -142,7 +140,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                 </div>
             </div>
 
-            {/* Floating chat button (mobile only) */}
             <button
                 onClick={() => setChatOpen(true)}
                 className="lg:hidden fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg"
@@ -150,7 +147,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                 <MessageCircle className="w-6 h-6" />
             </button>
 
-            {/* Chat modal (mobile) */}
             {chatOpen && (
                 <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end z-50">
                     <div className="bg-white w-full h-3/4 rounded-t-lg shadow-lg flex flex-col">
