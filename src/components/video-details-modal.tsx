@@ -10,16 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import apiClient from "@/lib/apiClient";
 import toast from "react-hot-toast";
 import { Clock, Film, Loader2, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { AxiosError } from "axios";
 import { ThumbnailSelector } from "./ThumbnailSelector";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUploadVideoMutation, videoApi } from "@/app/api/videoApi";
+import { useDispatch } from "react-redux";
+import { playlistApi } from "@/app/api/playlistApi";
 
 const MAX_VIDEO_SIZE_MB = 100;
 const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
@@ -31,7 +31,7 @@ const videoUploadSchema = z.object({
     .string()
     .trim()
     .min(1, { message: "Title is required." })
-    .max(250, { message: "Title must be 250 characters or fewer." }),
+    .max(100, { message: "Title must be 100 characters or fewer." }),
   description: z
     .string()
     .max(5000, { message: "Description must be 5000 characters or fewer." })
@@ -84,19 +84,18 @@ interface VideoDetailsModalProps {
   onUploadComplete: () => void;
 }
 
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-}
-
 export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   file,
   onClose,
   onUploadComplete,
 }) => {
   const { user } = useAuth();
+  const dispatch = useDispatch();
 
-  const [isUploading, setIsUploading] = useState(false);
+  // RTK Query mutation
+  const [uploadVideo, { isLoading: isUploading }] = useUploadVideoMutation();
+
+  // Progress tracking states
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const [videoSrc, setVideoSrc] = useState("");
@@ -116,7 +115,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     resolver: zodResolver(videoUploadSchema),
     mode: "onBlur",
     defaultValues: {
-      title: file.name.replace(/\.[^/.]+$/, ""),
+      title: file.name.replace(/\.[^/.]+$/, "").slice(0, 100), // Auto truncate title to 100 chars
       description: "",
       tags: "",
       videoFile: file,
@@ -257,53 +256,55 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     formData.append("usersId", user.sub);
     formData.append("duration", duration.toString());
 
-    setIsUploading(true);
     setUploadProgress(0);
 
-    try {
-      const response = await apiClient.post("/videos/uploadFile", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
-          );
-          setUploadProgress(percentCompleted);
-        },
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return Math.round(prev + Math.random() * 15);
       });
+    }, 200);
 
-      console.log("✅ Video uploaded, server response:", response.data);
+    try {
+      const result = await uploadVideo(formData).unwrap();
+
+      setUploadProgress(100);
+      clearInterval(progressInterval);
+
+      console.log("✅ Video uploaded, server response:", result);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       toast.success("Video upload successfully!");
-      onUploadComplete();
-    } catch (error) {
-      console.error("Upload failed:", error);
 
-      if (error instanceof AxiosError) {
-        if (error.response) {
-          console.error("Backend Error Data:", error.response.data);
-          console.error("Backend Error Status:", error.response.status);
-
-          const errorData = error.response.data as ApiErrorResponse;
-          const serverMessage =
-            errorData?.message || "Error not defined from the server.";
-          toast.error(`Upload failed: ${serverMessage}`);
-        } else if (error.request) {
-          console.error("No response received:", error.request);
-          toast.error(
-            "No response from the server. Please check the network connection."
-          );
-        } else {
-          console.error("Error setting up request:", error.message);
-          toast.error("Error of Request Setting.");
-        }
-      } else {
-        console.error("Unexpected error:", error);
-        toast.error("An unexpected error occurred.");
+      if (user) {
+        dispatch(
+          playlistApi.util.invalidateTags([
+            { type: "Playlist", id: `USER_${user.sub}` },
+          ])
+        );
       }
-    } finally {
-      setIsUploading(false);
+      dispatch(videoApi.util.invalidateTags(["VideoList"]));
+
+      onUploadComplete();
+
+      setTimeout(() => {
+        onUploadComplete();
+      }, 300);
+    } catch (error: any) {
+      console.error("Upload failed:", error);
+      setUploadProgress(0);
+      clearInterval(progressInterval);
+
+      // Handle RTK Query error format
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "Upload failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
@@ -337,6 +338,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
           <Button
             variant="ghost"
             className="absolute right-4 top-4 rounded-sm opacity-70"
+            disabled={isUploading}
           >
             <X className="h-7 w-7" />
             <span className="sr-only">Close</span>
@@ -395,6 +397,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
                 thumbnailPreview={thumbnailPreview}
                 onThumbnailChange={handleThumbnailChange}
                 isGenerating={isGeneratingThumbnail}
+                disabled={isUploading}
               />
               <div className="flex-1 pt-1">
                 {errors.thumbnailFile && (
@@ -439,42 +442,65 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
               />
             )}
 
-            <div className="p-3 bg-gray-100 rounded text-sm space-y-2 flex-shrink-0">
+            <div className="p-4 space-y-2 bg-gray-300 rounded-2xl flex-shrink-0">
               <div>
-                <p className="font-semibold">File name</p>
-                <p className="text-gray-600 whitespace-normal break-words">
+                <p className="text-xs text-muted-foreground">File name</p>
+                <p className="text-sm text-gray-600 whitespace-normal break-words">
                   {file.name}
                 </p>
               </div>
+
+              {/* Progress Bar - Same position and style as FormSection */}
+              {isUploading && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Upload progress...
+                    </span>
+                    <span className="font-medium">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  {uploadProgress === 100 && (
+                    <div className="flex items-center justify-center text-sm text-green-600 mt-2">
+                      <span>✓ Uploaded successfully!</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {duration > 0 && (
                 <div className="flex items-center gap-4 pt-2">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span>{formatDuration(duration)}</span>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Duration</p>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatDuration(duration)}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Film className="w-4 h-4 text-gray-500" />
-                    <span>{resolution}</span>
-                  </div>
+                  {resolution && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Resolution
+                      </p>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Film className="w-4 h-4" />
+                        <span>{resolution}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+
             {errors?.videoFile && (
               <p className="text-sm text-red-500 -mt-2 px-1">
                 {errors.videoFile.message}
               </p>
-            )}
-
-            {isUploading && (
-              <div className="pt-2 flex-shrink-0">
-                <p className="text-sm text-center text-gray-600 mb-2">
-                  Uploading... {uploadProgress}%
-                </p>
-                <Progress
-                  value={uploadProgress}
-                  className="w-full"
-                />
-              </div>
             )}
           </div>
         </div>

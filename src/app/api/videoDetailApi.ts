@@ -6,19 +6,11 @@ export const VideoDetailApi = createApi({
   reducerPath: "VideoDetailApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_PREFIX}/videos`,
-    prepareHeaders: (headers) => {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-      }
-      return headers;
-    },
+    credentials: "include",
   }),
   endpoints: (builder) => ({
     getVideoDetail: builder.query<VideoDetailResponse, string>({
-      query: (videoId) => `/${videoId}/detail`, 
+      query: (videoId) => `/${videoId}/detail`,
     }),
   }),
 });

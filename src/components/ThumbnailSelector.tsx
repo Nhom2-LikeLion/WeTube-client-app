@@ -9,17 +9,19 @@ interface ThumbnailSelectorProps {
   thumbnailPreview: string;
   onThumbnailChange: (file: File) => void;
   isGenerating?: boolean;
+  disabled?: boolean;
 }
 
 export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
   thumbnailPreview,
   onThumbnailChange,
   isGenerating = false,
+  disabled = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
-    if (!isGenerating) {
+    if (!isGenerating && !disabled) {
       inputRef.current?.click();
     }
   };
@@ -31,6 +33,8 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
     }
   };
 
+  const isDisabled = isGenerating || disabled;
+
   return (
     <div className="flex flex-col space-y-2">
       <label
@@ -38,7 +42,7 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
         className="font-semibold mb-2 block text-md"
       >
         Thumbnail
-        {thumbnailPreview && !isGenerating && (
+        {thumbnailPreview && !isGenerating && !disabled && (
           <span className="text-sm text-gray-500 block font-normal">
             (Auto-generated - Click to change)
           </span>
@@ -46,6 +50,11 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
         {isGenerating && (
           <span className="text-xs text-gray-500 block font-normal">
             (Generating...)
+          </span>
+        )}
+        {disabled && !isGenerating && (
+          <span className="text-xs text-gray-500 block font-normal">
+            (Saving...)
           </span>
         )}
       </label>
@@ -56,7 +65,7 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
           onClick={handleButtonClick}
           disabled={isGenerating}
           className={`relative w-full p-0 border-none bg-transparent ${
-            isGenerating ? "cursor-wait" : "cursor-pointer"
+            isDisabled ? "cursor-wait" : "cursor-pointer"
           } group`}
         >
           {thumbnailPreview ? (
@@ -80,7 +89,7 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
             </div>
           )}
 
-          {!isGenerating && thumbnailPreview && (
+          {!isDisabled && thumbnailPreview && (
             <div className="absolute inset-0 bg-white/20 backdrop-blur-sm group-hover:backdrop-blur-md flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
               <Pencil className="w-6 h-6 text-white drop-shadow-lg" />
             </div>
@@ -100,7 +109,7 @@ export const ThumbnailSelector: React.FC<ThumbnailSelectorProps> = ({
           accept="image/png, image/jpeg"
           onChange={handleFileChange}
           className="hidden"
-          disabled={isGenerating}
+          disabled={isDisabled}
         />
       </div>
     </div>

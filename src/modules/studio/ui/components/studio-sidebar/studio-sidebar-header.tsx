@@ -56,7 +56,7 @@ export const StudioSidebarHeader = () => {
         href="/users/current"
       >
         <UserAvatar
-          imageUrl={user?.picture ?? ""}
+          imageUrl={user?.picture}
           name={user?.name ?? "User"}
           className="size-[112px] hover:opacity-80 transition-opacity"
         />

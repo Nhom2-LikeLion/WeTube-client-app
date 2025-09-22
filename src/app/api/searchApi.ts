@@ -15,15 +15,7 @@ export const searchApi = createApi({
   reducerPath: "searchApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_PREFIX}/videos/db`,
-    prepareHeaders: (headers) => {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-      }
-      return headers;
-    },
+    credentials: "include",
   }),
   endpoints: (builder) => ({
     searchVideosSuggest: builder.query<
@@ -47,9 +39,9 @@ export const searchApi = createApi({
     searchVideos: builder.query<RecommendedVideoItem[], { query: string }>({
       // query: ({ title }) => `/name?title=${encodeURIComponent(title)}`,
       query: ({ query }) => ({
-        url: "/search", 
+        url: "/search",
         method: "GET",
-        params: { q: query }, 
+        params: { q: query },
       }),
     }),
   }),

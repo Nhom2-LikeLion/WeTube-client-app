@@ -55,3 +55,16 @@ export interface VideoDetailResponse {
   detail: VideoDetail;
   recommend: RecommendResponse;
 }
+
+export interface VideoFormDetail {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  status: "ACTIVE" | "PRIVATE" | "UNLISTED" | "PENDING" | "INACTIVE";
+  createdAt: string;
+  updatedAt: string;
+  tags: Tag[];
+  duration: number;
+}

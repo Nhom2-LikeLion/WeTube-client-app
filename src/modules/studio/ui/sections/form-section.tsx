@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -20,426 +19,508 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
-import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  CopyCheckIcon,
-  CopyIcon,
-  Globe2Icon,
-  ImagePlusIcon,
-  LockIcon,
-  MoreVerticalIcon,
-  RotateCwIcon,
-  SparklesIcon,
-  TrashIcon,
-} from "lucide-react";
-import Image from "next/image";
+import { Globe2Icon, Clock, Film, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { DUMMY_VIDEOS } from "@/modules/studio/ui/sections/video-section"; // Adjust path as necessary
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import toast from "react-hot-toast";
+import {
+  useGetVideoFormDetailsQuery,
+  useUpdateVideoDetailsMutation,
+} from "@/app/api/videoApi";
+import { ThumbnailSelector } from "@/components/ThumbnailSelector";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { playlistApi } from "@/app/api/playlistApi";
+import { useAuth } from "@/contexts/auth-context";
 
-const DUMMY_CATEGORIES = [
-  { id: "cat-1", name: "Category A" },
-  { id: "cat-2", name: "Category B" },
-  { id: "cat-3", name: "Category C" },
-];
+const MAX_THUMBNAIL_SIZE_MB = 5;
+const MAX_THUMBNAIL_SIZE_BYTES = MAX_THUMBNAIL_SIZE_MB * 1024 * 1024;
 
-const snakeCaseToTitle = (str: string) => {
-  return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+const formSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: "Title is required." })
+    .max(250, { message: "Title must be 250 characters or fewer." }),
+  description: z
+    .string()
+    .max(5000, { message: "Description must be 5000 characters or fewer." })
+    .optional(),
+  status: z.enum(["ACTIVE", "PRIVATE", "UNLISTED", "PENDING", "INACTIVE"]),
+  tags: z
+    .string()
+    .max(200, { message: "Tags must be 200 characters or fewer." })
+    .refine((value) => value === "" || /^(#\w+(\s+#\w+)*)$/.test(value), {
+      message: 'Tags must be in the format "#tag1 #tag2"',
+    })
+    .optional(),
+  thumbnailFile: z
+    .instanceof(File)
+    .refine(
+      (file) => file.size <= MAX_THUMBNAIL_SIZE_BYTES,
+      `Thumbnail file must be ${MAX_THUMBNAIL_SIZE_MB}MB or less.`
+    )
+    .optional(),
+});
+type VideoFormValues = z.infer<typeof formSchema>;
+
+const formatDuration = (seconds: number) => {
+  if (isNaN(seconds) || seconds < 0) return "00:00";
+  const h = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, "0");
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+  if (h === "00") return `${m}:${s}`;
+  return `${h}:${m}:${s}`;
 };
 
 interface FormSectionProps {
-  videoId: string;
+  readonly videoId: string;
 }
 
-const FormSection = ({ videoId }: FormSectionProps) => {
-  return (
-    <Suspense fallback={<FormSectionSkeleton />}>
-      <ErrorBoundary fallback={<p>Error loading video details.</p>}>
-        <FormSectionSuspense videoId={videoId} />
-      </ErrorBoundary>
-    </Suspense>
+export default function FormSection({ videoId }: FormSectionProps) {
+  const {
+    data: video,
+    isLoading,
+    error,
+  } = useGetVideoFormDetailsQuery(videoId);
+  const [updateVideo, { isLoading: isUpdating }] =
+    useUpdateVideoDetailsMutation();
+
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { user } = useAuth();
+
+  // Thumbnail states
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+  const [resolution, setResolution] = useState<string>("");
+
+  // Progress bar states
+  const [progress, setProgress] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track form changes manually for file uploads
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const form = useForm<VideoFormValues>({
+    resolver: zodResolver(formSchema),
+    mode: "onChange",
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "ACTIVE",
+      tags: "",
+      thumbnailFile: undefined,
+    },
+  });
+
+  // Watch for form changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name && video) {
+        // Check if any field has changed from original values
+        const titleChanged = value.title !== video.title;
+        const descriptionChanged = value.description !== video.description;
+        const statusChanged = value.status !== video.status;
+        const tagsChanged =
+          value.tags !== video.tags.map((t) => `#${t.name}`).join(" ");
+        const thumbnailChanged = !!value.thumbnailFile;
+
+        setHasChanges(
+          titleChanged ||
+            descriptionChanged ||
+            statusChanged ||
+            tagsChanged ||
+            thumbnailChanged
+        );
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, video]);
+
+  useEffect(() => {
+    if (video) {
+      form.reset({
+        title: video.title,
+        description: video.description,
+        status: video.status,
+        tags: video.tags.map((t) => `#${t.name}`).join(" "),
+      });
+
+      // Set initial thumbnail preview
+      if (video.thumbnailUrl) {
+        setThumbnailPreview(video.thumbnailUrl);
+      }
+
+      // Load video metadata
+      const videoElement = document.createElement("video");
+      videoElement.src = video.videoUrl;
+      videoElement.crossOrigin = "anonymous";
+
+      const handleMetadataLoaded = () => {
+        setResolution(
+          `${videoElement.videoWidth} x ${videoElement.videoHeight}`
+        );
+      };
+      videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
+
+      return () => {
+        videoElement.removeEventListener(
+          "loadedmetadata",
+          handleMetadataLoaded
+        );
+      };
+    }
+  }, [video, form]);
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailPreview && thumbnailPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(thumbnailPreview);
+      }
+    };
+  }, [thumbnailPreview]);
+
+  const handleThumbnailChange = useCallback(
+    (selectedFile: File) => {
+      if (thumbnailPreview && thumbnailPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(thumbnailPreview);
+      }
+      const newPreviewUrl = URL.createObjectURL(selectedFile);
+      setThumbnailPreview(newPreviewUrl);
+      form.setValue("thumbnailFile", selectedFile, { shouldValidate: true });
+      setHasChanges(true); // Manually set changes for file upload
+    },
+    [form, thumbnailPreview]
   );
-};
+
+  const onSubmit = async (values: VideoFormValues) => {
+    setIsSubmitting(true);
+    setProgress(0);
+
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 200);
+
+    try {
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description || "");
+      formData.append("status", values.status);
+      formData.append("tags", values.tags || "");
+
+      if (values.thumbnailFile) {
+        formData.append("thumbnailFile", values.thumbnailFile);
+      }
+
+      await updateVideo({ videoId, formData }).unwrap();
+
+      // Force invalidate playlist cache manually với user-specific tag
+      if (user?.sub) {
+        dispatch(
+          playlistApi.util.invalidateTags([
+            "Playlist",
+            { type: "Playlist", id: `USER_${user.sub}` },
+          ])
+        );
+      }
+
+      // Complete progress
+      setProgress(100);
+
+      // Wait a bit to show 100% progress
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      toast.success("Update successfully!");
+
+      // Navigate after showing success
+      setTimeout(() => {
+        router.push("/studio");
+      }, 300);
+    } catch (err) {
+      console.error("Failed to update video:", err);
+      toast.error("Failed to update video!");
+      setProgress(0);
+      setIsSubmitting(false);
+      clearInterval(progressInterval);
+    }
+  };
+
+  const renderButtonContent = () => {
+    if (isSubmitting) {
+      return (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Saving...
+        </>
+      );
+    }
+    return "Save";
+  };
+
+  if (isLoading) return <FormSectionSkeleton />;
+  if (error || !video)
+    return <p className="text-red-500">Failed to load video details.</p>;
+
+  return (
+    <div className="flex flex-col h-full max-h-[calc(100vh-80px)] relative">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0"
+        >
+          <div className="flex items-center justify-between pb-4 border-b flex-shrink-0">
+            <h1 className="text-2xl font-bold">Video Details</h1>
+            <Button
+              type="submit"
+              disabled={
+                isSubmitting || (!form.formState.isDirty && !hasChanges)
+              }
+            >
+              {renderButtonContent()}
+            </Button>
+          </div>
+
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-x-8 pt-6 overflow-hidden">
+            <div className="lg:col-span-3 space-y-8 overflow-y-auto pr-6 pb-12">
+              <FormField
+                name="title"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Title</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Input video title"
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="description"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        rows={12}
+                        placeholder="Describe your video..."
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="thumbnailFile"
+                control={form.control}
+                render={() => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="w-full max-w-xs">
+                        <ThumbnailSelector
+                          thumbnailPreview={thumbnailPreview}
+                          onThumbnailChange={handleThumbnailChange}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="tags"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Tags</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter tags, starting with #"
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    <p className="text-xs text-muted-foreground">
+                      Tags help others find your video.
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-muted/30 rounded-2xl overflow-hidden">
+                <div className="aspect-video">
+                  <video
+                    src={video.videoUrl}
+                    controls
+                    className="w-full rounded-2xl bg-black aspect-video"
+                  />
+                </div>
+                <div className="p-4 space-y-2 bg-gray-300 mt-4 rounded-2xl">
+                  <p className="text-xs text-muted-foreground">Video link</p>
+                  <Link
+                    href={`/watch/${video.id}`}
+                    className="text-sm text-blue-600 break-all"
+                  >{`${window.location.origin}/watch/${video.id}`}</Link>
+
+                  {/* Progress Bar */}
+                  {isSubmitting && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Saving progress...
+                        </span>
+                        <span className="font-medium">
+                          {Math.round(progress)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div
+                          className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      {progress === 100 && (
+                        <div className="flex items-center justify-center text-sm text-green-600 mt-2">
+                          <span>✓ Saved successfully! Redirecting...</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-x-6">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Duration</p>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatDuration(video.duration)}</span>
+                      </div>
+                    </div>
+
+                    {resolution && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Resolution
+                        </p>
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <Film className="w-4 h-4" />
+                          <span>{resolution}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <FormField
+                name="status"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-semibold">Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ACTIVE">
+                          <div className="flex items-center gap-2">
+                            <Globe2Icon className="size-4" /> Active
+                          </div>
+                        </SelectItem>
+                        {/* <SelectItem value="PRIVATE">
+                          <div className="flex items-center gap-2">
+                            <LockIcon className="size-4" /> Private
+                          </div>
+                        </SelectItem> */}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}
 
 const FormSectionSkeleton = () => {
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-32" />
-          <Skeleton className="h-4 w-40" />
-        </div>
-        <Skeleton className="h-9 w-24" />
+    <div className="flex flex-col h-full max-h-[calc(100vh-80px)]">
+      <div className="flex items-center justify-between mb-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-20" />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="space-y-8 lg:col-span-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1">
+        <div className="space-y-6 lg:col-span-2">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="aspect-video w-full" />
+            </div>
+          </div>
           <div className="space-y-2">
             <Skeleton className="h-5 w-16" />
             <Skeleton className="h-10 w-full" />
           </div>
           <div className="space-y-2">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-[220px] w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-20" />
-            <Skeleton className="h-[84px] w-[153px]" />
-          </div>
-          <div className="space-y-2">
             <Skeleton className="h-5 w-20" />
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-        <div className="flex flex-col gap-y-8 lg:col-span-2">
-          <div className="flex flex-col gap-4 bg-[#F9F9F9] rounded-xl overflow-hidden">
-            <Skeleton className="aspect-video" />
-            <div className="space-y-2 p-4">
-              {" "}
+        <div className="flex flex-col gap-4 lg:col-span-1">
+          <Skeleton className="aspect-video w-full" />
+          <div className="p-3 bg-gray-100 rounded space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-full" />
+            <div className="flex gap-4 pt-2">
+              <Skeleton className="h-4 w-16" />
               <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-5 w-full" />
-            </div>
-            <div className="space-y-2 p-4">
-              {" "}
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-5 w-full" />
-            </div>
-            <div className="space-y-2 p-4">
-              {" "}
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-5 w-full" />
             </div>
           </div>
-        </div>
-        <div className="space-y-2 lg:col-span-3">
-          {" "}
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-5 w-full" />
         </div>
       </div>
     </div>
   );
 };
-
-const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
-  const video = DUMMY_VIDEOS.find((v) => v.id === videoId);
-
-  const form = useForm({
-    defaultValues: {
-      title: video?.title ?? "",
-      description: video?.description ?? "",
-      thumbnailUrl: video?.thumbnailUrl ?? "",
-      categoryId: DUMMY_CATEGORIES[0]?.id, 
-      visibility: video?.visibility ?? "public",
-    },
-    mode: "onChange",
-  });
-
-  if (!video) {
-    return (
-      <div className="flex justify-center items-center h-60 text-lg text-red-500">
-        Video with ID &quot;{videoId}&quot; not found.
-      </div>
-    );
-  }
-
-  const fullUrl = `http://localhost:3000/studio/videos/${video.id}`;
-  const isCopied = false; 
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(() => {})}>
-        {" "}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Video details</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your video details
-            </p>
-          </div>
-          <div className="flex items-center gap-x-2">
-            <Button
-              type="submit"
-              disabled={true}
-            >
-              {" "}
-              Save
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                >
-                  <MoreVerticalIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                side="left"
-              >
-                <DropdownMenuItem>
-                  <RotateCwIcon className="size-4 mr-2" />
-                  Revalidate
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <TrashIcon className="size-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="space-y-8 lg:col-span-3">
-            <FormField
-              name="title"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    <div className="flex items-center gap-x-2">
-                      Title
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        type="button"
-                        className="rounded-full size-6 [&_svg]:size-3"
-                        disabled={true}
-                      >
-                        {" "}
-                        <SparklesIcon />
-                      </Button>
-                    </div>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Add a title to your video"
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    <div className="flex items-center gap-x-2">
-                      Description
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        type="button"
-                        className="rounded-full size-6 [&_svg]:size-3"
-                        disabled={true}
-                      >
-                        {" "}
-                        <SparklesIcon />
-                      </Button>
-                    </div>
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      rows={10}
-                      className="resize-none pr-10"
-                      placeholder="Add a description to your video"
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="thumbnailUrl"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Thumbnail</FormLabel>
-                  <FormControl>
-                    <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
-                      <Image
-                        src={field.value ?? THUMBNAIL_FALLBACK}
-                        alt="Thumbnail"
-                        fill
-                        className="object-cover"
-                      />
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            size="icon"
-                            className="bg-black/50 hover:bg-black/50 absolute top-1 right-1 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 duration-100 size-7"
-                          >
-                            <MoreVerticalIcon className="size-4 text-white" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="start"
-                          side="right"
-                        >
-                          <DropdownMenuItem>
-                            <ImagePlusIcon className="size-4 mr-1" />
-                            Change
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <SparklesIcon className="size-4 mr-1" />
-                            AI-Generated
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <RotateCwIcon className="size-4 mr-1" />
-                            Restore
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={true}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {DUMMY_CATEGORIES.map((category, index) => (
-                        <SelectItem
-                          key={index}
-                          value={category.id}
-                        >
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex flex-col gap-y-8 lg:col-span-2">
-            <div className="flex flex-col gap-4 bg-[#F9F9F9] rounded-xl overflow-hidden h-fit">
-              <div className="aspect-video overflow-hidden relative">
-                <VideoPlayer
-                  playbackId={undefined}
-                  thumbnailUrl={video.thumbnailUrl ?? undefined}
-                />
-              </div>
-              <div className="p-4 flex flex-col gap-y-6">
-                <div className="flex justify-between items-center gap-x-2">
-                  <div className="flex flex-col gap-y-1">
-                    <p className="text-muted-foreground text-xs">Video link</p>
-                    <div className="flex items-center gap-x-2">
-                      <Link
-                        prefetch={false}
-                        href={fullUrl}
-                      >
-                        {" "}
-                        <p className="line-clamp-1 text-sm text-blue-500">
-                          {fullUrl}
-                        </p>
-                      </Link>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0"
-                        disabled={true}
-                      >
-                        {" "}
-                        {isCopied ? <CopyCheckIcon /> : <CopyIcon />}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-y-1">
-                    <p className="text-muted-foreground text-xs">
-                      Video status
-                    </p>
-                    <p className="text-sm">
-                      {snakeCaseToTitle(video.muxStatus || "preparing")}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-y-1">
-                    <p className="text-muted-foreground text-xs">
-                      Subtitles status
-                    </p>
-                    <p className="text-sm">
-                      {snakeCaseToTitle("no_subtitles")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <FormField
-              control={form.control}
-              name="visibility"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Visibility</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={true}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select visibility" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="public">
-                        <div className="flex items-center">
-                          <Globe2Icon className="size-4 mr-2" />
-                          Public
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="private">
-                        <div className="flex items-center">
-                          <LockIcon className="size-4 mr-2" />
-                          Private
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-      </form>
-    </Form>
-  );
-};
-
-export default FormSection;
