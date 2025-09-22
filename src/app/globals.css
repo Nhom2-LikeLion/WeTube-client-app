@@ -143,3 +143,30 @@ body[data-scroll-locked] {
     padding-right: 0 !important;
     margin-right: 0 !important;
 }
+
+.neon-line {
+    position: absolute;
+    left: -200px;
+    height: 4px;
+    border-radius: 9999px;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px currentColor);
+    animation: moveLine 6s linear forwards;
+}
+
+@keyframes moveLine {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(120vw);
+        opacity: 0;
+    }
+}
