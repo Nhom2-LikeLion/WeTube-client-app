@@ -23,7 +23,9 @@ export default function PremiumFeatures() {
         const res = await fetch("http://localhost:8080/api/subpacks");
         const data: SubPack[] = await res.json();
 
-        const updatedData = data.map((plan, index) => ({
+        const updatedData = data
+        .filter(plan => plan.id !== "550e8400-e29b-41d4-a716-446655440000")
+        .map((plan, index) => ({
           ...plan,
           active: index === 0,
         }));

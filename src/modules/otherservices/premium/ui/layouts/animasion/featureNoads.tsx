@@ -1,23 +1,23 @@
-import Image from 'next/image';
+import Image from "next/image";
+import React from "react";
 
-export default function FeatureNoAds() {
+export default function FeatureOffline() {
   return (
     <section className="py-20 px-6 bg-white">
       <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-16">
-        Tiếp tục phát nội dung yêu thích — không gián đoạn
+        Watch your favorite videos — without internet
       </h2>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Text content */}
         <div>
           <h3 className="text-2xl font-bold mb-4">
-            Video không QC, không giới hạn
+            Watch offline anytime, anywhere
           </h3>
           <p className="text-gray-600 leading-relaxed">
-            Xem thêm nhiều video yêu thích mà không phải chờ hết quảng cáo.{" "}
-            <br />
-            Tìm video hướng dẫn, thử công thức nấu ăn mới hoặc tập thể dục khi
-            xem các nhà sáng tạo bạn yêu thích, hoàn toàn không bị gián đoạn.
+            Download your favorite videos to watch anytime, without an internet
+            connection. <br />
+            Enjoy content from your favorite creators, even when you’re offline.
           </p>
         </div>
 
@@ -25,16 +25,11 @@ export default function FeatureNoAds() {
         <div className="relative flex items-center justify-center">
           <div className="relative w-72 h-72 rounded-full p-[4px] bg-gradient-to-tr from-blue-500 via-purple-500 to-green-500">
             <div className="w-full h-full rounded-full overflow-hidden bg-white">
-              {/* <img
-                src="/image/video-thumbnail.png"
-                alt="Không quảng cáo"
-                className="object-cover w-full h-full"
-              /> */}
               <Image
                 src="/image/video-thumbnail.png"
-                alt="Không quảng cáo"
-                fill 
-                sizes="288px" 
+                alt="Watch offline"
+                fill
+                sizes="288px"
                 className="object-cover"
               />
             </div>
