@@ -30,10 +30,18 @@ export default function NeonLinesBackground() {
             const speed = 2 + Math.random() * 4;
             const color = colors[Math.floor(Math.random() * colors.length)];
             const delay = Math.random() * 2000;
-            lines.push({x: -width, y, width, speed, color, delay});
+            lines.push({ x: -width, y, width, speed, color, delay });
         }
-
         setInterval(createLine, 400);
+
+        const text = "Welcome";
+        ctx.font = "90px 'Pacifico', cursive";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const dashLen = 220;
+        let offset = dashLen;
+        const speed = 1;
 
         function draw() {
             ctx.fillStyle = "rgba(10, 0, 25, 0.3)";
@@ -62,7 +70,7 @@ export default function NeonLinesBackground() {
                     lines.splice(i, 1);
                 }
             }
-            opacity = Math.min(opacity + 0.01, 1);
+
             const gradient = ctx.createLinearGradient(
                 canvas.width / 2 - 200,
                 canvas.height / 2,
@@ -74,15 +82,27 @@ export default function NeonLinesBackground() {
             gradient.addColorStop(1, "#a855f7");
 
             ctx.save();
-            ctx.globalAlpha = opacity;
-            ctx.font = "bold 80px 'Segoe UI', sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = gradient;
-            ctx.shadowBlur = 30;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = gradient;
+            ctx.shadowBlur = 25;
             ctx.shadowColor = "#ff4ecd";
-            ctx.fillText("WETUBE", canvas.width / 2, canvas.height / 2);
+
+            ctx.setLineDash([dashLen - offset, offset - speed]);
+            ctx.lineDashOffset = -offset;
+
+            ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
             ctx.restore();
+
+            if (offset > 0) {
+                offset -= speed * 0.5;
+            } else {
+                ctx.save();
+                ctx.fillStyle = gradient;
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = "#ff4ecd";
+                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+                ctx.restore();
+            }
 
             requestAnimationFrame(draw);
         }

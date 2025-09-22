@@ -16,28 +16,13 @@ export default function Home() {
                         height="120"
                         className="invert dark:invert-0 mt-8 mb-2"
                     />
-                    <Text as="p">
+                    <Text as="p" align="center" className="text-white">
                         Welcome to the WeTube livestream. You can join or start
                         your own stream. Hosted on{" "}
-                        <Link href="https://livekit.io/cloud" target="_blank">
-                            LiveKit Cloud
-                        </Link>
                     </Text>
                     <HomeActions/>
-                    <Separator orientation="horizontal" size="4" className="my-2"/>
-                    <Text as="p" size="2">
-                        Be shining and be confident with WeTube{" "}
-                        .
-                        {/* And also be sure to check out clone our{" "}
-            <Link
-              href="https://github.com/livekit-examples/swift-livestream"
-              target="_blank"
-            >
-              iOS
-            </Link>{" "}
-            and <Link href="https://github.com/livekit-examples/android-livestream" target="_blank">Android</Link> clients, which are compatible with
-            this web app! */}
-                    </Text>
+                    {/*<Separator orientation="horizontal" size="4" className="my-2"/>*/}
+
                 </Flex>
             </Container>
         </main>
