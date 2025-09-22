@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUploadVideoMutation, videoApi } from "@/app/api/videoApi";
 import { useDispatch } from "react-redux";
 import { playlistApi } from "@/app/api/playlistApi";
+import { formatDuration } from '@/lib/utils';
 
 const MAX_VIDEO_SIZE_MB = 100;
 const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
@@ -62,21 +63,6 @@ const videoUploadSchema = z.object({
 });
 
 type VideoFormData = z.infer<typeof videoUploadSchema>;
-
-const formatDuration = (seconds: number) => {
-  if (isNaN(seconds) || seconds < 0) return "00:00";
-  const h = Math.floor(seconds / 3600)
-    .toString()
-    .padStart(2, "0");
-  const m = Math.floor((seconds % 3600) / 60)
-    .toString()
-    .padStart(2, "0");
-  const s = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
-  if (h === "00") return `${m}:${s}`;
-  return `${h}:${m}:${s}`;
-};
 
 interface VideoDetailsModalProps {
   file: File;

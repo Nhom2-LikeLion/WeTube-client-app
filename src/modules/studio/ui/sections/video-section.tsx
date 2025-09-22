@@ -12,9 +12,17 @@ import {
 import { VideoThumbnail } from "@/modules/videos/ui/components/video-thumbnail";
 import Link from "next/link";
 import React, { useEffect } from "react";
-import { useAuth } from '@/contexts/auth-context';
-import { useGetPlaylistDetailsQuery, useGetPlaylistsByUserIdQuery } from '@/app/api/playlistApi';
-import { VideoFromPlaylist } from '@/types/playlistSummary';
+import { useAuth } from "@/contexts/auth-context";
+import {
+  useGetPlaylistDetailsQuery,
+  useGetPlaylistsByUserIdQuery,
+} from "@/app/api/playlistApi";
+import { VideoFromPlaylist } from "@/types/playlistSummary";
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString("vi-VN"); 
+};
 
 export default function VideosSection() {
   const { user } = useAuth();
@@ -55,7 +63,6 @@ export default function VideosSection() {
     }
   }, [allPlaylists, playlistDetail, error]);
 
-
   if (isLoading) {
     return <VideosSectionSkeleton />;
   }
@@ -77,31 +84,24 @@ export default function VideosSection() {
   }
 
   return (
-    // <Suspense fallback={<VideosSectionSkeleton />}>
-    //   <ErrorBoundary fallback={<div>Error</div>}>
-    //     <VideosSectionSuspense />
-    //   </ErrorBoundary>
-    // </Suspense>
     <div className="border-y">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="pl-6 w-[510px]">Video</TableHead>
+            <TableHead className="pl-6 w-[480px]">Video</TableHead>
             <TableHead className="text-center">Created at</TableHead>
+            <TableHead className="text-center">Updated at</TableHead>
             <TableHead className="text-center">Views</TableHead>
-            <TableHead className="text-center">Comments</TableHead>
-            <TableHead className="text-center pr-6">Likes</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {videos.map((video) => (
             <TableRow
-              className="cursor-pointer"
+              className="cursor-pointer hover:bg-muted/50"
               key={video.videoId}
             >
               <TableCell className="pl-6">
                 <Link
-                  prefetch
                   href={`/studio/videos/${video.videoId}`}
                   className="flex items-center gap-4"
                 >
@@ -110,22 +110,26 @@ export default function VideosSection() {
                       imageUrl={video.thumbnailUrl}
                       previewUrl={video.videoUrl}
                       title={video.videoTitle}
-                      duration={0}
+                      duration={video.duration}
                     />
                   </div>
                   <div className="flex flex-col overflow-hidden gap-y-1">
-                    <span className="text-md line-clamp-1">
+                    <span className="text-md font-medium line-clamp-1">
                       {video.videoTitle}
                     </span>
                     <span className="text-sm text-muted-foreground line-clamp-1">
-                      No description
+                      {video.description || "No description"}
                     </span>
                   </div>
                 </Link>
               </TableCell>
-              <TableCell className="text-center">0</TableCell>
-              <TableCell className="text-center">0</TableCell>
-              <TableCell className="text-center pr-6">0</TableCell>
+              <TableCell className="text-center">
+                {formatDate(video.createdAt)}
+              </TableCell>
+              <TableCell className="text-center">
+                {formatDate(video.updatedAt)}
+              </TableCell>
+              <TableCell className="text-center">{video.totalView}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -140,13 +144,10 @@ const VideosSectionSkeleton = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="pl-6 w-[510px]">Video</TableHead>
-            <TableHead>Visibility</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead className="text-right">Views</TableHead>
-            <TableHead className="text-right">Comments</TableHead>
-            <TableHead className="text-right pr-6">Likes</TableHead>
+            <TableHead className="pl-6 w-[480px]">Video</TableHead>
+            <TableHead className="text-center">Created at</TableHead>
+            <TableHead className="text-center">Updated at</TableHead>
+            <TableHead className="text-center">Views</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

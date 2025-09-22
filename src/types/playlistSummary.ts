@@ -15,12 +15,17 @@ export interface VideoFromApi {
 }
 
 export interface PlaylistDetail extends PlaylistSummary {
-  videos: VideoFromApi[];
+  videos: VideoFromPlaylist[];
 }
 
 export interface VideoFromPlaylist {
   videoId: string;
   videoTitle: string;
-  videoUrl: string;
   thumbnailUrl: string;
+  videoUrl: string;
+  description: string;
+  duration: number;
+  totalView: number;
+  createdAt: string;
+  updatedAt: string;
 }

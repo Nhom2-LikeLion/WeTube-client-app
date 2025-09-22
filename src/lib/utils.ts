@@ -5,20 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const formatDuration = (duration: number) => {
-  const totalSeconds = Math.floor(duration / 1000); // Convert milliseconds to seconds
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = Math.floor(totalSeconds % 60);
-
-  if (hours > 0) {
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  }
-  return `${minutes.toString().padStart(2, "0")}:${seconds
+export const formatDuration = (seconds: number) => {
+  if (isNaN(seconds) || seconds < 0) return "00:00";
+  const h = Math.floor(seconds / 3600)
     .toString()
-    .padStart(2, "0")}`;
+    .padStart(2, "0");
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+  if (h === "00") return `${m}:${s}`;
+  return `${h}:${m}:${s}`;
 };
 
 export const snakeCaseToTitle = (str: string) => {
