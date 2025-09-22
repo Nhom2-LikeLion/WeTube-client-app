@@ -1,4 +1,3 @@
-// PlaylistWatch.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +11,10 @@ export default function PlaylistWatch() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.sub) return;
+    if (!user?.sub) {
+      setLoading(false);
+      return;
+    }
 
     const fetchWatchLater = async () => {
       try {

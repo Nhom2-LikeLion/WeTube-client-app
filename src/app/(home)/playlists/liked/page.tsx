@@ -4,6 +4,6 @@ import Likedview from '@/modules/playlists/ui/view/liked-view';
 
 import React from 'react'
 
-export default function likedlater() {
+export default function likedlaterpage() {
   return <Likedview />;
 }

@@ -1,4 +1,3 @@
-// PlaylistWatch.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +11,10 @@ export default function Playlistliked() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.sub) return;
+    if (!user?.sub) {
+      setLoading(false);
+      return;
+    }
 
     const fetchWatchLater = async () => {
       try {
@@ -24,10 +26,10 @@ export default function Playlistliked() {
         if (Array.isArray(data) && data.length > 0) {
           setPlaylistId(data[0].playlistId);
         } else {
-          console.warn("Không tìm thấy Watch Later playlist");
+          console.warn("Không tìm thấy playlist liked");
         }
       } catch (err) {
-        console.error("Lỗi fetch Watch Later:", err);
+        console.error("Lỗi fetch playlist liked:", err);
       } finally {
         setLoading(false);
       }
@@ -36,8 +38,8 @@ export default function Playlistliked() {
     fetchWatchLater();
   }, [user?.sub]);
 
-  if (loading) return <p>Đang tải...</p>;
-  if (!playlistId) return <p>Không có playlist liked</p>;
+  if (loading) return <p>Đang tải playlist liked...</p>;
+  if (!playlistId) return <p>Không có playlist Liked</p>;
 
   return <PlaylistDetail playlistId={playlistId} />;
 }
