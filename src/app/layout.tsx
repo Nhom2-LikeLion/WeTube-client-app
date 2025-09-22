@@ -7,8 +7,6 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { LoadingBarProvider } from "@/contexts/loading-bar-context";
 import { LoadingBar } from "@/components/LoadingBar";
 import { NavigationEvents } from "@/components/NavigationEvents";
-import {Bounce, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,20 +42,6 @@ export default function RootLayout({
               <LoadingBar />
               <NavigationEvents />
               {children}
-              <ToastContainer
-                  position="top-center"
-                  autoClose={3000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick={false}
-                  rtl={false}
-                  pauseOnFocusLoss={false}
-                  draggable={false}
-                  pauseOnHover={false}
-                  theme="colored"
-                  transition={Bounce}
-            />
-              
             </Providers>
           </AuthProvider>
         </LoadingBarProvider>

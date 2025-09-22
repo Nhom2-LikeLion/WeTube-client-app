@@ -9,43 +9,44 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRoomAction } from "@/hooks/rooms/useRoomAction";
+import { useState } from "react";
+import { customAlphabet } from "nanoid";
 
-interface RoomProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+const alphabet = "abcdefghijklmnopqrstuvwxyz";
+const nanoid = customAlphabet(alphabet, 4);
+
+function generateMeetStyleId() {
+    return `${nanoid()}-${nanoid()}-${nanoid()}`;
 }
 
-export default function RoomModal({ open, onOpenChange }: RoomProps) {
+export default function RoomModal({
+                                      open,
+                                      onOpenChange,
+                                      onRoomCreated,
+                                  }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onRoomCreated?: (roomId: string, username: string) => void;
+}) {
     const [roomId, setRoomId] = useState("");
+    const [roomName, setRoomName] = useState("");
     const [username, setUsername] = useState("");
     const router = useRouter();
-    const { createRoom } = useRoomAction();
 
-    // -------------------
-    // JOIN ROOM
-    // -------------------
     const handleJoin = () => {
         if (!roomId.trim() || !username.trim()) return;
-
-        // onOpenChange(false);
-        // joinRoom(roomId, username, (roomIdFromServer) => {
-        //     router.push(`/rooms/${roomIdFromServer}?username=${encodeURIComponent(username)}`);
-        // });
+        console.log("Joining room:", roomId, "as", username);
+        onOpenChange(false);
+        onRoomCreated?.(roomId, username);
+        router.push(`/rooms/${roomId}?username=${encodeURIComponent(username)}`);
     };
 
-    // -------------------
-    // CREATE ROOM
-    // -------------------
     const handleCreate = () => {
         if (!username.trim()) return;
-
+        const newRoomId = generateMeetStyleId();
         onOpenChange(false);
-        createRoom(username, (room) => {
-            router.push(`/rooms/${room.roomId}?username=${encodeURIComponent(username)}`);
-        });
+        router.push(`/rooms/${newRoomId}?username=${encodeURIComponent(username)}`);
     };
 
     return (
@@ -88,6 +89,11 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
                     <div>
                         <label className="text-sm font-medium">Create New Room</label>
                         <div className="flex flex-col gap-2 mt-1">
+                            <Input
+                                placeholder="Enter Room Name (optional)"
+                                value={roomName}
+                                onChange={(e) => setRoomName(e.target.value)}
+                            />
                             <Button
                                 variant="secondary"
                                 onClick={handleCreate}
