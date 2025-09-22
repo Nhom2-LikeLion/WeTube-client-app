@@ -20,7 +20,7 @@ export default function FeatureMusic() {
             <div className="h-8 w-60 bg-gray-700 rounded animate-pulse" />
           ) : (
             <h2 className="text-2xl md:text-3xl font-semibold">
-              Ứng dụng Âm nhạc nổi bật
+              Featured Music Apps
             </h2>
           )}
         </div>
@@ -39,9 +39,10 @@ export default function FeatureMusic() {
               >
                 <div className="relative w-full h-40 overflow-hidden">
                   <Image
-                      // src={`https://picsum.photos/400/200?random=${index}`}
-                      src={'https://www.gstatic.com/youtube/img/promos/growth/premium_lp2_large_feature_BackgroundPlay_dark_tablet_632x624.webp'}
-                    alt={`Ảnh ${index + 1}`}
+                    src={
+                      "https://www.gstatic.com/youtube/img/promos/growth/premium_lp2_large_feature_BackgroundPlay_dark_tablet_632x624.webp"
+                    }
+                    alt={`Image ${index + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
@@ -49,9 +50,11 @@ export default function FeatureMusic() {
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-bold mb-1">
-                    Tên ứng dụng {index + 1}
+                    App Name {index + 1}
                   </h3>
-                  <p className="text-sm text-gray-400">Mô tả ngắn gọn ở đây.</p>
+                  <p className="text-sm text-gray-400">
+                    A short description goes here.
+                  </p>
                 </div>
               </div>
             )

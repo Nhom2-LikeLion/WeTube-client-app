@@ -29,11 +29,11 @@ export default function PaymentResult() {
         .catch(() => setStatus({ success: false, orderId }))
         .finally(() => {
           setLoading(false);
-          // Redirect sau 2 giây
+          
           setTimeout(() => router.replace("/"), 2000);
         });
     } else {
-      // Thanh toán thất bại
+  
       setStatus({ success: false, orderId });
       setLoading(false);
       setTimeout(() => router.replace("/"), 2000);
@@ -43,7 +43,7 @@ export default function PaymentResult() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-600">
-        Đang xử lý thanh toán...
+        Processing payment...
       </div>
     );
   }
@@ -51,12 +51,12 @@ export default function PaymentResult() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-gray-700">
       {status?.success ? (
-        <h1 className="text-green-600 text-2xl">Thanh toán thành công!</h1>
+        <h1 className="text-green-600 text-2xl">Payment successful!</h1>
       ) : (
-        <h1 className="text-red-600 text-2xl">Thanh toán thất bại!</h1>
+        <h1 className="text-red-600 text-2xl">Payment failed!</h1>
       )}
       <p>Order ID: {status?.orderId}</p>
-      <p>Trang sẽ tự động chuyển về Home sau vài giây...</p>
+      <p>The page will automatically return to Home after a few seconds....</p>
     </div>
   );
 }
