@@ -17,6 +17,7 @@ interface User {
   name: string;
   email: string;
   picture: string;
+  channelId: string;
 }
 
 interface AuthContextType {

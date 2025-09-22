@@ -7,6 +7,7 @@ import { searchApi } from "@/app/api/searchApi";
 import { videoApi } from "@/app/api/videoApi";
 import { subscriptionsApi } from "@/app/api/subscriptionsApi";
 import { configureStore } from "@reduxjs/toolkit";
+import { channelApi } from '@/app/api/channelApi';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     [searchApi.reducerPath]: searchApi.reducer,
     [playlistApi.reducerPath]: playlistApi.reducer,
     [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
+    [channelApi.reducerPath]: channelApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -28,8 +30,9 @@ export const store = configureStore({
       videoApi.middleware,
       searchApi.middleware,
       playlistApi.middleware,
-      subscriptionsApi.middleware),
-
+      channelApi.middleware,
+      subscriptionsApi.middleware
+    ),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

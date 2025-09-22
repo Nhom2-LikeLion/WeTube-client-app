@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { StudioSidebarHeader } from "./studio-sidebar-header";
 import { pageUrls } from "@/lib/enums/page-urls";
 
-import { LogOutIcon, VideoIcon } from "lucide-react";
+import { LogOutIcon, VideoIcon, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -40,6 +40,21 @@ export default function StudioSidebar() {
                 >
                   <VideoIcon className="size-5" />
                   <span className="text-sm">Content</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={pathname === pageUrls.CUSTOMIZATION}
+                tooltip="Customization"
+                asChild
+              >
+                <Link
+                  prefetch
+                  href={pageUrls.CUSTOMIZATION}
+                >
+                  <SlidersHorizontal className="size-5" />
+                  <span className="text-sm">Customization</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
