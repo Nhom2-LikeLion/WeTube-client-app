@@ -13,7 +13,7 @@ interface AppProps {
 }
 
 export default function App({ videoId }: AppProps) {
-  const { data, isLoading, isError } = useGetVideoDetailQuery(videoId);
+  const { data, isLoading, isError } = useGetVideoDetailQuery({videoId});
   const setVideoDetail = useVideoStore((state) => state.setVideoDetail);
   const clearVideoDetail = useVideoStore((state) => state.clearVideoDetail);
 
