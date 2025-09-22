@@ -43,8 +43,8 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
         if (!username.trim()) return;
 
         onOpenChange(false);
-        createRoom(username, (roomIdFromServer) => {
-            router.push(`/rooms/${roomIdFromServer}?username=${encodeURIComponent(username)}`);
+        createRoom(username, (room) => {
+            router.push(`/rooms/${room.roomId}?username=${encodeURIComponent(username)}`);
         });
     };
 

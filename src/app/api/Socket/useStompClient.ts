@@ -15,16 +15,16 @@ export function useStompClient() {
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
-            debug: (str) => console.log("[STOMP]", str),
+            // debug: (str) => console.log("[STOMP]", str),
         });
 
         stompClient.onConnect = () => {
-            console.log("[STOMP] Connected");
+            // console.log("[STOMP] Connected");
             setConnected(true);
         };
 
         stompClient.onStompError = (frame) => {
-            console.error("[STOMP] Broker Error", frame);
+            // console.error("[STOMP] Broker Error", frame);
         };
 
         setClient(stompClient);
