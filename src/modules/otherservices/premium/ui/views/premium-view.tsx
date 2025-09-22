@@ -11,7 +11,7 @@ export default function PremiumView() {
   return (
     <section className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center text-center px-4 py-20">
       <PremiumTryitforfree/>
-      <PremiumFeatures/>
+      <PremiumFeatures />
 
       <FeatureNoAds/>
       <FeatureOffline/>

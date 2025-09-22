@@ -45,8 +45,8 @@ const items = [
     auth: true,
   },
   {
-    title: "See Later",
-    url: pageUrls.SEELATER,
+    title: "Watch Later",
+    url: pageUrls.WATCHLATER,
     icon: Clock3,
     auth: true,
   },

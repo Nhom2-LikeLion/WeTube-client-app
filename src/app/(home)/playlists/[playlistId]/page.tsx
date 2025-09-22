@@ -1,7 +1,11 @@
 "use client";
 
-const Page = () => {
-  return <div>PlaylistId</div>;
-};
+import PlaylistDetail from "@/modules/playlists/ui/list/playlistdetail-list";
 
-export default Page;
+export default function Page({
+  params,
+}: {
+  params: { playlistId: string };
+}) {
+  return <PlaylistDetail playlistId={params.playlistId} />;
+}

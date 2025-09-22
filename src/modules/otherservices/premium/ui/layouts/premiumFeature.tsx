@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
 
 type SubPack = {
@@ -15,13 +16,16 @@ export default function PremiumFeatures() {
   const [loading, setLoading] = useState(true);
   const [payLoading, setPayLoading] = useState<string | null>(null); 
 
+  const {user}=useAuth();
   useEffect(() => {
     const fetchSubPacks = async () => {
       try {
         const res = await fetch("http://localhost:8080/api/subpacks");
         const data: SubPack[] = await res.json();
 
-        const updatedData = data.map((plan, index) => ({
+        const updatedData = data
+        .filter(plan => plan.id !== "550e8400-e29b-41d4-a716-446655440000")
+        .map((plan, index) => ({
           ...plan,
           active: index === 0,
         }));
@@ -46,7 +50,7 @@ export default function PremiumFeatures() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: "e11ca899-6463-4706-90ff-63135fc4b6dd", 
+          userId: user?.sub, 
           subPackId,
           returnUrl: "http://localhost:3000/",
         }),

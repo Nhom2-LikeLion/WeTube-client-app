@@ -1,9 +1,11 @@
 "use client";
 
+import { useAuth } from '@/contexts/auth-context';
 import React, { useState } from 'react'
 
 export default function PaymentButton() {
   const [loading, setLoading] = useState(false);
+  const {user}=useAuth();
 
   const handlePayment = async () => {
     setLoading(true);
@@ -14,7 +16,7 @@ export default function PaymentButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: "e11ca899-6463-4706-90ff-63135fc4b6dd", 
+          userId: user?.sub, 
           subPackId: "550e8400-e29b-41d4-a716-446655440000", 
         }),
       });
@@ -27,11 +29,11 @@ export default function PaymentButton() {
       if (data.payUrl) {
         window.location.href = data.payUrl;
       } else {
-        alert("Không nhận được link thanh toán từ MoMo");
+        alert("Did not receive payment link from MoMo");
       }
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi tạo thanh toán");
+      alert("An error occurred while creating the payment.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +45,7 @@ export default function PaymentButton() {
       disabled={loading}
       className="bg-blue-600 text-white text-lg font-medium px-6 py-3 rounded-full hover:bg-blue-700 transition disabled:opacity-50"
     >
-      {loading ? "Đang xử lý..." : "Dùng thử 1 tháng với giá 0 ₫"}
+      {loading ? "Processing..." : "Try it for 1 month 0 VND"}
     </button>
   );
 }
