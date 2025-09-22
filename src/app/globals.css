@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@radix-ui/themes/styles.css";
+@import "react-toastify/dist/ReactToastify.css";
 
 @tailwind components;
 @tailwind utilities;

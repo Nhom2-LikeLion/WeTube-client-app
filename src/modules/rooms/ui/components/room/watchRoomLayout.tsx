@@ -47,7 +47,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
         const socket = new SockJS(`http://localhost:8080/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
-            debug: (str) => console.log("[STOMP]", str),
+            // debug: (str) => console.log("[STOMP]", str),
             reconnectDelay: 5000,
         });
 
