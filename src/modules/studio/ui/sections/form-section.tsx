@@ -128,7 +128,8 @@ export default function FormSection({ videoId }: FormSectionProps) {
       if (name && video) {
         // Check if any field has changed from original values
         const titleChanged = value.title !== video.title;
-        const descriptionChanged = value.description !== video.description;
+        const descriptionChanged =
+          value.description !== (video.description || "");
         const statusChanged = value.status !== video.status;
         const tagsChanged =
           value.tags !== video.tags.map((t) => `#${t.name}`).join(" ");
@@ -150,7 +151,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
     if (video) {
       form.reset({
         title: video.title,
-        description: video.description,
+        description: video.description || "",
         status: video.status,
         tags: video.tags.map((t) => `#${t.name}`).join(" "),
       });
