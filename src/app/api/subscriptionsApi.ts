@@ -10,6 +10,17 @@ export interface Channel {
     videoUrl: string;
 }
 
+export interface SubscriptionRequest {
+    subscriberId: string;
+    channelId: string;
+    tierId?: string; // Nullable
+}
+
+export interface UnsubscribeRequest {
+    subscriberId: string;
+    channelId: string;
+}
+
 export const subscriptionsApi = createApi({
     reducerPath: "subscriptionsApi",
     baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/subscriptions` }),
@@ -17,7 +28,24 @@ export const subscriptionsApi = createApi({
         getSubscribedChannels: builder.query<Channel[], string>({
             query: (userId) => `/${userId}`,
         }),
+        subscribe: builder.mutation<string, SubscriptionRequest>({
+            query: (body) => ({
+                url: "/subscribe",
+                method: "POST",
+                body,
+            }),
+        }),
+        unsubscribe: builder.mutation<string, UnsubscribeRequest>({
+            query: (body) => ({
+                url: "/unsubscribe",
+                method: "POST",
+                body,
+            }),
+        }),
     }),
 });
 
-export const { useGetSubscribedChannelsQuery } = subscriptionsApi;
+export const {
+    useGetSubscribedChannelsQuery,
+    useSubscribeMutation,
+    useUnsubscribeMutation, } = subscriptionsApi;

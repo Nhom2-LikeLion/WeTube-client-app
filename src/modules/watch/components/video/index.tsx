@@ -71,7 +71,7 @@ export default function ActiveVideo() {
             playing={isPlaying}
             volume={pipMode ? 0 : volume / 100}
             controls={false}
-            progressInterval={500}
+            progressInterval={250}
             url={videoUrl}
             height="100%"
             width="100%"
