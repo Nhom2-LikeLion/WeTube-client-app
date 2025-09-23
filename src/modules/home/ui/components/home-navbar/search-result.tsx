@@ -3,15 +3,21 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import apiClient from "@/lib/apiClient";
+import apiClient from "@/lib/apiClient"; 
 import { formatDuration } from "@/lib/utils";
 
 import { useAuth } from "@/contexts/auth-context";
 import { useSaveInteractionMutation } from "@/app/api/interactionApi";
-import {
-  useGetHistoryPlaylistQuery,
-  useAddVideoToPlaylistMutation,
-} from "@/app/api/playlistApi";
+import { useAddVideoToPlaylistMutation } from "@/app/api/playlistApi";
+
+// Kiểu dữ liệu backend trả về từ Elasticsearch (PageResponse<VideoDto>)
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
+}
 
 interface VideoDto {
   id: string;
@@ -21,7 +27,7 @@ interface VideoDto {
   duration: number;
   totalView: number;
   createdAt: string;
-  user: {
+  author: {
     id: string;
     name: string;
     picture: string;
@@ -44,45 +50,54 @@ interface VideoResult {
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [results, setResults] = useState<VideoResult[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const query = searchParams.get("query");
-  const router = useRouter();
 
+  // ✅ thêm hooks cho interaction + history
   const { user } = useAuth();
   const [saveInteraction] = useSaveInteractionMutation();
   const [addVideoToPlaylist] = useAddVideoToPlaylistMutation();
 
-  const historyPlaylist = user!.playlists.find(
+  const historyPlaylist = user?.playlists.find(
     (pl) => pl.playlistType === "HISTORY"
   );
   const playlistID = historyPlaylist?.playlistId;
-  console.log(playlistID);
+
   useEffect(() => {
     if (query) {
       setLoading(true);
       const fetchResults = async () => {
         try {
-          const response = await apiClient.get<VideoDto[]>("/videos/db/search", {
-            params: { q: query },
-          });
+          // ✅ gọi Elastic API thay vì DB
+          const response = await apiClient.get<PageResponse<VideoDto>>(
+            "/videos/search/full",
+            {
+              params: { title: query, page: 0, size: 20 },
+            }
+          );
 
-          const mappedResults: VideoResult[] = response.data.map((dto) => ({
-            id: dto.id,
-            title: dto.title,
-            thumbnail: dto.thumbnailUrl,
-            description: dto.description,
-            duration: formatDuration(dto.duration),
-            views: `${dto.totalView ? Number(dto.totalView).toLocaleString() : 0
+          const mappedResults: VideoResult[] =
+            response.data.content.map((dto) => ({
+              id: dto.id,
+              title: dto.title,
+              thumbnail: dto.thumbnailUrl,
+              description: dto.description,
+              duration: formatDuration(dto.duration),
+              views: `${
+                dto.totalView ? Number(dto.totalView).toLocaleString() : 0
               } views`,
-            uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
-            channel: {
-              name: dto.user.name,
-              avatar: dto.user.picture,
-            },
-          }));
+              uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
+              channel: {
+                name: dto.author?.name || "Unknown",
+                avatar: dto.author?.picture || "/default-avatar.png",
+              },
+            }));
+
           setResults(mappedResults);
         } catch (error) {
           console.error("Failed to fetch search results:", error);
@@ -98,7 +113,34 @@ function SearchResultsContent() {
     }
   }, [query]);
 
-  // --- Loading State (Skeleton) ---
+  // ✅ click handler: VIEW + HISTORY + redirect
+  const handleClick = async (videoId: string) => {
+    try {
+      if (user?.sub) {
+        // 1. lưu interaction VIEW
+        await saveInteraction({
+          userId: user.sub,
+          videoId,
+          type: "VIEW",
+        }).unwrap();
+
+        // 2. thêm vào HISTORY playlist
+        if (playlistID) {
+          await addVideoToPlaylist({
+            playlistId: playlistID,
+            videoId,
+          }).unwrap();
+        }
+      }
+    } catch (err) {
+      console.error("❌ Failed to save interaction or add to history:", err);
+    } finally {
+      // 3. luôn redirect sang trang watch
+      router.push(`/watch/${videoId}`);
+    }
+  };
+
+  // --- Loading Skeleton ---
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -116,112 +158,82 @@ function SearchResultsContent() {
         </div>
       </div>
     );
-  } 
+  }
 
   // --- Render Results ---
   return (
     <main className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <p className="text-gray-600">
-          About {results.length} results for {query}
+          About {results.length} results for <b>{query}</b>
         </p>
       </div>
       <div className="space-y-4">
-        {results.map((video) => {
-          const handleClick = async () => {
-            try {
-              if (user?.sub && video.id) {
-                // 1. Ghi interaction VIEW
-                await saveInteraction({
-                  userId: user.sub,
-                  videoId: video.id,
-                  type: "VIEW",
-                }).unwrap();
-
-                // 2. Thêm video vào HISTORY playlist
-                if (playlistID) {
-                  await addVideoToPlaylist({
-                    playlistId: playlistID,
-                    videoId: video.id,
-                  }).unwrap();
-                  console.log(
-                    `✅ Added video ${video.id} to HISTORY playlist ${playlistID}`
-                  );
-                }
-              }
-            } catch (err) {
-              console.error("❌ Failed action:", err);
-            } finally {
-              router.push(`/watch/${video.id}`);
-            }
-          };
-
-          return (
-            <div
-              key={video.id}
-              onClick={handleClick}
-              onMouseEnter={() => setHoveredId(video.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              className="flex gap-4 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer"
-            >
-              {/* Thumbnail */}
-              <div className="relative flex-shrink-0">
-                <div className="relative w-80 h-48 bg-gray-300 rounded-lg overflow-hidden">
-                  <Image
-                    src={video.thumbnail}
-                    alt={video.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 320px"
-                    className="object-cover"
-                  />
-                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1 py-0.5 rounded">
-                    {video.duration}
-                  </div>
+        {results.map((video) => (
+          <div
+            key={video.id}
+            onClick={() => handleClick(video.id)}
+            onMouseEnter={() => setHoveredId(video.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            className="flex gap-4 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer"
+          >
+            {/* Thumbnail */}
+            <div className="relative flex-shrink-0">
+              <div className="relative w-80 h-48 bg-gray-300 rounded-lg overflow-hidden">
+                <Image
+                  src={video.thumbnail}
+                  alt={video.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 320px"
+                  className="object-cover"
+                />
+                <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1 py-0.5 rounded">
+                  {video.duration}
                 </div>
-              </div>
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h3
-                  className={`text-lg font-medium line-clamp-2 mb-1 transition-colors ${hoveredId === video.id ? "text-red-600" : "text-black"
-                    }`}
-                >
-                  {video.title}
-                </h3>
-                <div className="text-gray-600 text-sm mb-2">
-                  <span>{video.views}</span>
-                  <span className="mx-1">•</span>
-                  <span>{video.uploadTime}</span>
-                </div>
-                {/* Channel Info */}
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={video.channel.avatar}
-                      alt={video.channel.name}
-                      width={24}
-                      height={24}
-                      className="object-cover"
-                    />
-                  </div>
-                  <span className="text-gray-600 text-sm hover:text-black cursor-pointer">
-                    {video.channel.name}
-                  </span>
-                </div>
-                {video.description && (
-                  <p className="text-gray-600 text-sm line-clamp-2">
-                    {video.description}
-                  </p>
-                )}
               </div>
             </div>
-          );
-        })}
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h3
+                className={`text-lg font-medium line-clamp-2 mb-1 transition-colors ${
+                  hoveredId === video.id ? "text-red-600" : "text-black"
+                }`}
+              >
+                {video.title}
+              </h3>
+              <div className="text-gray-600 text-sm mb-2">
+                <span>{video.views}</span>
+                <span className="mx-1">•</span>
+                <span>{video.uploadTime}</span>
+              </div>
+              {/* Channel Info */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded-full overflow-hidden">
+                  <Image
+                    src={video.channel.avatar}
+                    alt={video.channel.name}
+                    width={24}
+                    height={24}
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-gray-600 text-sm hover:text-black cursor-pointer">
+                  {video.channel.name}
+                </span>
+              </div>
+              {video.description && (
+                <p className="text-gray-600 text-sm line-clamp-2">
+                  {video.description}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </main>
   );
 }
 
-// Component cha để bọc Suspense
 export default function SearchResults() {
   return (
     <div className="min-h-screen bg-gray-50 text-black">
