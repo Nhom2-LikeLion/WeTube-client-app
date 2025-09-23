@@ -1,9 +1,12 @@
 "use client";
+import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
-import {formatDuration, formatViews, timeAgo } from "@/lib/utils";
+import { useAuth } from "@/contexts/auth-context";
+import { formatDuration, formatViews, timeAgo } from "@/lib/utils";
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+// ✅ import mutation
 
 const VideoCard = ({
   id,
@@ -14,13 +17,29 @@ const VideoCard = ({
   name,
   duration,
   picture,
-  historyDuration
+  historyDuration,
 }: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
   const videoTime = formatDuration(duration);
-  const handleClick = () => {
-    router.push(`/watch/${id}`);
+  const { user } = useAuth();
+
+  const [saveInteraction] = useSaveInteractionMutation();
+
+  const handleClick = async () => {
+    try {
+      if (user?.sub && id) {
+        await saveInteraction({
+          userId: user.sub, // ✅ lấy userId từ auth
+          videoId: id,
+          type: "VIEW",
+        }).unwrap();
+      }
+    } catch (err) {
+      console.error("❌ Ghi nhận VIEW thất bại:", err);
+    } finally {
+      router.push(`/watch/${id}`);
+    }
   };
 
   return (
@@ -33,12 +52,11 @@ const VideoCard = ({
           src={thumbnailUrl}
           alt={title}
           fill
-          // className="w-full h-full object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <VideoOverlay
-            duration={duration}
-            progress={historyDuration ? historyDuration / duration : 0}
+          duration={duration}
+          progress={historyDuration ? historyDuration / duration : 0}
         />
       </div>
 
