@@ -1,11 +1,11 @@
 "use client"
 
-import { useScroll, motion, useMotionValueEvent } from "motion/react";
+import { useScroll, motion, useMotionValueEvent, Variants } from "motion/react";
 import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useVideo } from "@/hooks/use-video";
 
-const container = {
+const container:Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,

@@ -98,3 +98,16 @@ export interface RelatedVideo {
     picture: string;
 }
 
+export interface Short {
+    id: string;
+    title: string;
+    thumbnail: string;
+    videoUrl?: string;
+    views: number;
+    channel?: {
+        id: string;
+        name: string;
+        avatar?: string;
+    };
+}
+
