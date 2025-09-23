@@ -1,7 +1,21 @@
+
+
+export type PlaylistType =
+  | "NONE"
+  | "POPULAR"
+  | "LIKED"
+  | "WATCH_LATER"
+  | "USER_PLAYLIST"
+  | "USER_UPLOADED"
+  | "HISTORY"
+  | "SHORT"
+  | "MEMBERSHIP"
+  | "FOR_YOU";
+
 export interface PlaylistSummary {
   playlistId: string;
   playlistTitle: string;
-  playlistType: string;
+  playlistType: PlaylistType;
   totalVideos: number;
   createdAt: string;
 }
