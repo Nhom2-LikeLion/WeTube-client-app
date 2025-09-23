@@ -6,9 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import apiClient from "@/lib/apiClient";
 import { formatDuration } from "@/lib/utils";
-import { useSearchVideosFullQuery } from "@/app/api/searchApi";
-import { RecommendedVideoItem } from "@/types/video";
 
+// Kiểu dữ liệu backend trả về từ Elasticsearch (PageResponse<VideoDto>)
 interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -48,20 +47,60 @@ interface VideoResult {
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
+  const [results, setResults] = useState<VideoResult[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const query = searchParams.get("query");
 
-  const { data, isLoading, isError } = useSearchVideosFullQuery(
-    { query: query!, page: 0, size: 20 },
-    { skip: !query }
-  );
+  useEffect(() => {
+    if (query) {
+      setLoading(true);
+      const fetchResults = async () => {
+        try {
+          // ✅ gọi Elastic API thay vì DB
+          const response = await apiClient.get<PageResponse<VideoDto>>(
+            "/videos/search/full",
+            {
+              params: { title: query, page: 0, size: 20 },
+            }
+          );
 
-  const results: RecommendedVideoItem[] = data?.content || [];
-  const totalResults = data?.totalElements || 0;
+          const mappedResults: VideoResult[] = response.data.content.map(
+            (dto) => ({
+              id: dto.id,
+              title: dto.title,
+              thumbnail: dto.thumbnailUrl,
+              description: dto.description,
+              duration: formatDuration(dto.duration),
+              views: `${
+                dto.totalView ? Number(dto.totalView).toLocaleString() : 0
+              } views`,
+              uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
+              channel: {
+                name: dto.author?.name || "Unknown",
+                avatar: dto.author?.picture || "/default-avatar.png",
+              },
+            })
+          );
+
+          setResults(mappedResults);
+        } catch (error) {
+          console.error("Failed to fetch search results:", error);
+          setResults([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchResults();
+    } else {
+      setResults([]);
+      setLoading(false);
+    }
+  }, [query]);
 
   // --- Loading Skeleton ---
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-4">
@@ -83,20 +122,12 @@ function SearchResultsContent() {
     );
   }
 
-  if (isError) {
-    return (
-      <div className="p-6 text-center text-red-500">
-        Failed to load search results.
-      </div>
-    );
-  }
-
   // --- Render Results ---
   return (
     <main className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <p className="text-gray-600">
-          About {totalResults} results for <b>{query}</b>
+          About {results.length} results for <b>{query}</b>
         </p>
       </div>
       <div className="space-y-4">
@@ -112,7 +143,7 @@ function SearchResultsContent() {
               <div className="relative flex-shrink-0">
                 <div className="relative w-80 h-48 bg-gray-300 rounded-lg overflow-hidden">
                   <Image
-                    src={video.thumbnailUrl}
+                    src={video.thumbnail}
                     alt={video.title}
                     fill
                     sizes="(max-width: 640px) 100vw, 320px"
@@ -133,29 +164,30 @@ function SearchResultsContent() {
                   {video.title}
                 </h3>
                 <div className="text-gray-600 text-sm mb-2">
-                  <span>
-                    {Number(video.totalView ?? 0).toLocaleString()} views
-                  </span>
+                  <span>{video.views}</span>
                   <span className="mx-1">•</span>
-                  <span>
-                    {new Date(video.createAt).toLocaleDateString("vi-VN")}
-                  </span>
+                  <span>{video.uploadTime}</span>
                 </div>
                 {/* Channel Info */}
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden">
                     <Image
-                      src={video.picture || "/default-avatar.png"}
-                      alt={video.name || "Channel Avatar"}
+                      src={video.channel.avatar}
+                      alt={video.channel.name}
                       width={24}
                       height={24}
                       className="object-cover"
                     />
                   </div>
                   <span className="text-gray-600 text-sm hover:text-black cursor-pointer">
-                    {video.name}
+                    {video.channel.name}
                   </span>
                 </div>
+                {video.description && (
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {video.description}
+                  </p>
+                )}
               </div>
             </div>
           </Link>
