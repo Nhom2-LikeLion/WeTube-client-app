@@ -45,6 +45,8 @@ export interface VideoDetailDto {
   picture: string;
   totalSubscribers:number;
   comments: Comment[];
+  subscribed: boolean;
+  channelId: string;
 }
 
 export interface RecommendResponseDto {
@@ -85,17 +87,6 @@ export interface ApiComment {
     updatedAt: string;
     replyCount: number | null;
     replies: ApiComment[] | null;
-}
-
-export interface RelatedVideo {
-    id: string;
-    title: string;
-    thumbnailUrl: string;
-    totalView: number;
-    createAt: string;
-    name: string;
-    duration: number;
-    picture: string;
 }
 
 export interface Short {
