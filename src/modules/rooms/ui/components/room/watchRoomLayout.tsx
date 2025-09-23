@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import VideoPlayer from "../video/videoPlayer";
 import UpcomingList, { VideoItem } from "./upcomingList";
 import MemberList from "./membersList";
 import RoomChat from "./roomChat";
@@ -9,6 +8,7 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import VideoSync from "../video/videoSync";
 
 const initialVideos: VideoItem[] = [
     {
@@ -36,28 +36,42 @@ interface WatchRoomLayoutProps {
     username: string;
 }
 
-export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutProps) {
+export default function WatchRoomLayout({
+                                            roomId,
+                                            username,
+                                        }: WatchRoomLayoutProps) {
     const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
-    const [currentVideoId, setCurrentVideoId] = useState<number>(videos[0]?.id ?? -1);
+    const [currentVideoId, setCurrentVideoId] = useState<number>(
+        videos[0]?.id ?? -1
+    );
     const [stompClient, setStompClient] = useState<Client | null>(null);
     const [chatOpen, setChatOpen] = useState(false);
+    const [members, setMembers] = useState<string[]>([]);
     const router = useRouter();
 
     useEffect(() => {
-        const socket = new SockJS(`http://localhost:8080/ws`);
+        const socket = new SockJS("http://localhost:8080/ws");
         const client = new Client({
             webSocketFactory: () => socket,
-            // debug: (str) => console.log("[STOMP]", str),
             reconnectDelay: 5000,
         });
 
-        client.onConnect = (frame) => {
+        client.onConnect = () => {
             console.log("✅ Connected STOMP to room", roomId);
-            console.log("STOMP frame:", frame);
 
+            client.subscribe(`/topic/room.${roomId}`, (msg) => {
+                const data = JSON.parse(msg.body);
+                handleIncomingMessage(data);
+            });
+
+            // Thông báo join
             client.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "JOIN", sender: username }),
+                destination: `/app/room/${roomId}`,
+                body: JSON.stringify({
+                    type: "MEMBER",
+                    sender: username,
+                    action: "JOIN",
+                }),
             });
         };
 
@@ -65,48 +79,127 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
         setStompClient(client);
 
         return () => {
+            if (client.connected) {
+                client.publish({
+                    destination: `/app/room/${roomId}`,
+                    body: JSON.stringify({
+                        type: "MEMBER",
+                        sender: username,
+                        action: "LEAVE",
+                    }),
+                });
+            }
             client.deactivate();
         };
     }, [roomId, username]);
 
+    const handleIncomingMessage = (data: any) => {
+        switch (data.type) {
+            case "CHAT":
+                // RoomChat sẽ tự subscribe messages qua props
+                break;
+            case "MEMBER":
+                if (data.currentUsers) setMembers(data.currentUsers);
+                break;
+            case "UPCOMING":
+                if (data.action === "ADD") {
+                    setVideos((prev) => [
+                        ...prev,
+                        {
+                            id: Number(data.videoId),
+                            title: data.content,
+                            thumbnail: data.thumbnail,
+                            url: data.url,
+                        },
+                    ]);
+                } else if (data.action === "REORDER") {
+                    setVideos(data.videos);
+                }
+                break;
+            case "VIDEO":
+                break;
+            default:
+                break;
+        }
+    };
+
     const handleLeaveRoom = () => {
         if (stompClient?.connected) {
             stompClient.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "LEAVE", sender: username }),
+                destination: `/app/room/${roomId}`,
+                body: JSON.stringify({
+                    type: "MEMBER",
+                    sender: username,
+                    action: "LEAVE",
+                }),
             });
         }
         router.push("/");
     };
 
+    const handleAddVideo = (video: VideoItem) => {
+        if (stompClient?.connected) {
+            stompClient.publish({
+                destination: `/app/room/${roomId}`,
+                body: JSON.stringify({
+                    type: "UPCOMING",
+                    action: "ADD",
+                    sender: username,
+                    videoId: video.id,
+                    content: video.title,
+                    thumbnail: video.thumbnail,
+                    url: video.url,
+                }),
+            });
+        }
+    };
+
+    const handleReorderVideos = (newVideos: VideoItem[]) => {
+        if (stompClient?.connected) {
+            stompClient.publish({
+                destination: `/app/room/${roomId}`,
+                body: JSON.stringify({
+                    type: "UPCOMING",
+                    action: "REORDER",
+                    sender: username,
+                    videos: newVideos,
+                }),
+            });
+        }
+        setVideos(newVideos);
+    };
+
     return (
         <div className="flex flex-col flex-1 w-full h-full bg-white text-black p-3 md:p-4 overflow-hidden">
             <div className="flex flex-col lg:flex-row w-full h-full gap-4 overflow-hidden">
-
+                {/* Left Column */}
                 <div className="flex flex-col flex-1 gap-4 min-w-0">
-
                     <div className="flex-1 w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
-                        <VideoPlayer
-                            videos={videos}
-                            currentVideoId={currentVideoId}
-                            onChangeVideo={setCurrentVideoId}
-                        />
+                        {stompClient && (
+                            <VideoSync
+                                roomId={roomId}
+                                username={username}
+                                stompClient={stompClient}
+                                initialUrl={
+                                    videos.find((v) => v.id === currentVideoId)?.url || ""
+                                }
+                                isHost={true} // fake host cho test
+                            />
+                        )}
                     </div>
 
                     <div className="bg-gray-100 rounded-lg shadow-lg p-4 flex flex-col border border-gray-200 overflow-hidden">
-                        {stompClient && (
-                            <div className="flex flex-col md:flex-row justify-between items-center mb-3 gap-2">
-                                <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                                    Upcoming Videos
-                                </h2>
-                                <button
-                                    onClick={handleLeaveRoom}
-                                    className="px-4 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors"
-                                >
-                                    Leave Room
-                                </button>
-                            </div>
-                        )}
+                        <div className="flex flex-col md:flex-row justify-between items-center mb-3 gap-2">
+                            <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                                Upcoming Videos
+                            </h2>
+                            <button
+                                onClick={handleLeaveRoom}
+                                className="px-4 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors"
+                            >
+                                Leave Room
+                            </button>
+                        </div>
 
                         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400">
                             <UpcomingList
@@ -114,30 +207,32 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                                 setVideos={setVideos}
                                 currentVideoId={currentVideoId}
                                 onPlay={setCurrentVideoId}
+                                onAddVideo={handleAddVideo}
+                                onReorderVideos={handleReorderVideos}
                             />
                         </div>
 
-                        {stompClient && (
-                            <div className="mt-3">
-                                <MemberList
-                                    roomId={roomId}
-                                    stompClient={stompClient}
-                                    username={username}
-                                />
-                            </div>
-                        )}
+                        <div className="mt-3">
+                            <MemberList members={members} username={username} />
+                        </div>
                     </div>
                 </div>
 
+                {/* Right Column */}
                 <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
-                    {stompClient && (
-                        <div className="flex-1 overflow-y-auto">
-                            <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
-                        </div>
-                    )}
+                    <div className="flex-1 overflow-y-auto">
+                        {stompClient && (
+                            <RoomChat
+                                roomId={roomId}
+                                username={username}
+                                stompClient={stompClient}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
 
+            {/* Mobile Chat Button */}
             <button
                 onClick={() => setChatOpen(true)}
                 className="lg:hidden fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg"
@@ -145,6 +240,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                 <MessageCircle className="w-6 h-6" />
             </button>
 
+            {/* Mobile Chat Modal */}
             {chatOpen && (
                 <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end z-50">
                     <div className="bg-white w-full h-3/4 rounded-t-lg shadow-lg flex flex-col">
@@ -159,7 +255,11 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         </div>
                         <div className="flex-1 overflow-y-auto">
                             {stompClient && (
-                                <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
+                                <RoomChat
+                                    roomId={roomId}
+                                    username={username}
+                                    stompClient={stompClient}
+                                />
                             )}
                         </div>
                     </div>

@@ -11,7 +11,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRoomAction } from "@/hooks/rooms/useRoomAction";
+
+async function createRoomApi(username: string) {
+    const res = await fetch("http://localhost:8080/api/rooms", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+    });
+
+    if (!res.ok) {
+        throw new Error("Failed to create room");
+    }
+
+    return res.json(); // { roomId: string }
+}
+
+async function joinRoomApi(roomId: string, username: string) {
+    const res = await fetch(`http://localhost:8080/api/rooms/${roomId}/join`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+    });
+
+    if (!res.ok) {
+        throw new Error("Failed to join room");
+    }
+
+    return res.json(); // { roomId: string }
+}
 
 interface RoomProps {
     open: boolean;
@@ -21,31 +52,45 @@ interface RoomProps {
 export default function RoomModal({ open, onOpenChange }: RoomProps) {
     const [roomId, setRoomId] = useState("");
     const [username, setUsername] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { createRoom } = useRoomAction();
 
-    // -------------------
-    // JOIN ROOM
-    // -------------------
-    const handleJoin = () => {
+    const handleJoin = async () => {
         if (!roomId.trim() || !username.trim()) return;
 
-        // onOpenChange(false);
-        // joinRoom(roomId, username, (roomIdFromServer) => {
-        //     router.push(`/rooms/${roomIdFromServer}?username=${encodeURIComponent(username)}`);
-        // });
+        try {
+            setLoading(true);
+            const data = await joinRoomApi(roomId, username);
+            onOpenChange(false);
+
+            router.push(
+                `/rooms/${data.roomId}?username=${encodeURIComponent(username)}`
+            );
+        } catch (err) {
+            console.error(err);
+            alert("Failed to join room");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // -------------------
-    // CREATE ROOM
-    // -------------------
-    const handleCreate = () => {
+    const handleCreate = async () => {
         if (!username.trim()) return;
 
-        onOpenChange(false);
-        createRoom(username, (room) => {
-            router.push(`/rooms/${room.roomId}?username=${encodeURIComponent(username)}`);
-        });
+        try {
+            setLoading(true);
+            const data = await createRoomApi(username);
+            onOpenChange(false);
+
+            router.push(
+                `/rooms/${data.roomId}?username=${encodeURIComponent(username)}`
+            );
+        } catch (err) {
+            console.error(err);
+            alert("Failed to create room");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -77,9 +122,9 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
                             />
                             <Button
                                 onClick={handleJoin}
-                                disabled={!roomId.trim() || !username.trim()}
+                                disabled={!roomId.trim() || !username.trim() || loading}
                             >
-                                Join
+                                {loading ? "Joining..." : "Join"}
                             </Button>
                         </div>
                     </div>
@@ -91,9 +136,9 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
                             <Button
                                 variant="secondary"
                                 onClick={handleCreate}
-                                disabled={!username.trim()}
+                                disabled={!username.trim() || loading}
                             >
-                                Create Room
+                                {loading ? "Creating..." : "Create Room"}
                             </Button>
                         </div>
                     </div>

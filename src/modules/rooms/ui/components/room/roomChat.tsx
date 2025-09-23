@@ -21,31 +21,28 @@ export default function RoomChat({ roomId, username, stompClient }: RoomChatProp
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!stompClient) return;
+        if (!stompClient || !stompClient.connected) return;
 
-        let subscription: StompSubscription | undefined;
+        console.log("📌 Subscribing to topic:", `/topic/chat.${roomId}`);
+        const subscription: StompSubscription = stompClient.subscribe(
+            `/topic/chat.${roomId}`,
+            (msg: IMessage) => {
+                console.log("📩 Received:", msg.body);
+                const payload = JSON.parse(msg.body);
+                setMessages((prev) => [...prev, payload]);
+            }
+        );
 
-        stompClient.onConnect = () => {
-            console.log("📌 Subscribing to topic:", `/topic/rooms.${roomId}.chat`);
-
-            subscription = stompClient.subscribe(
-                `/topic/rooms.chat.${roomId}`,
-                (msg: IMessage) => {
-                    console.log("📩 Received:", msg.body);
-                    const payload = JSON.parse(msg.body);
-                    setMessages((prev) => [...prev, payload]);
-                }
-            );
-
-            stompClient.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "JOIN", sender: username }),
-            });
-        };
+        // Khi mount component → gửi JOIN
+        stompClient.publish({
+            destination: `/app/chat.${roomId}`,
+            body: JSON.stringify({ type: "JOIN", sender: username }),
+        });
 
         return () => {
-            if (subscription) subscription.unsubscribe();
-            if (stompClient && stompClient.connected) {
+            // Khi unmount component → gửi LEAVE + hủy sub
+            subscription.unsubscribe();
+            if (stompClient.connected) {
                 stompClient.publish({
                     destination: `/app/chat.${roomId}`,
                     body: JSON.stringify({ type: "LEAVE", sender: username }),

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {useRef} from "react";
+import { useRef } from "react";
 import {
     DndContext,
     closestCenter,
@@ -19,8 +19,8 @@ import {
     useSortable,
     horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
-import {Play} from "lucide-react";
+import { CSS } from "@dnd-kit/utilities";
+import { Play, Plus } from "lucide-react";
 
 export interface VideoItem {
     id: number;
@@ -33,14 +33,17 @@ function SortableVideo({
                            video,
                            isActive,
                            onPlay,
+                           onAdd,
                        }: {
     video: VideoItem;
     isActive: boolean;
     onPlay: (video: VideoItem) => void;
+    onAdd: (video: VideoItem) => void;
 }) {
-    const {attributes, listeners, setNodeRef, transform, transition} = useSortable({
-        id: video.id,
-    });
+    const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({
+            id: video.id,
+        });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -53,7 +56,7 @@ function SortableVideo({
             style={style}
             {...attributes}
             {...listeners}
-            className={`relative w-40 h-24 rounded-lg overflow-hidden cursor-move group ${
+            className={`relative w-40 h-28 rounded-lg overflow-hidden cursor-move group ${
                 isActive ? "ring-2 ring-blue-500" : ""
             }`}
         >
@@ -61,19 +64,26 @@ function SortableVideo({
                 src={video.thumbnail}
                 alt={video.title}
                 width={160}
-                height={96}
+                height={112}
                 className="w-full h-full object-cover"
                 onClick={() => onPlay(video)}
             />
+            {/* Overlay controls */}
             <div
-                className={`absolute inset-0 bg-black/40 transition flex items-center justify-center
+                className={`absolute inset-0 bg-black/40 transition flex items-center justify-center gap-3
         ${isActive ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"}`}
             >
                 <button
                     onClick={() => onPlay(video)}
                     className="bg-white/80 rounded-full p-2 hover:bg-white"
                 >
-                    <Play className="w-6 h-6 text-black"/>
+                    <Play className="w-5 h-5 text-black" />
+                </button>
+                <button
+                    onClick={() => onAdd(video)}
+                    className="bg-white/80 rounded-full p-2 hover:bg-white"
+                >
+                    <Plus className="w-5 h-5 text-black" />
                 </button>
             </div>
         </div>
@@ -84,10 +94,12 @@ function DraggableVideoList({
                                 videos,
                                 currentVideoId,
                                 onPlay,
+                                onAdd,
                             }: {
     videos: VideoItem[];
     currentVideoId: number;
     onPlay: (id: number) => void;
+    onAdd: (video: VideoItem) => void;
 }) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +107,7 @@ function DraggableVideoList({
         onDragMove(event) {
             if (!scrollRef.current) return;
             const container = scrollRef.current;
-            const {activatorEvent} = event;
+            const { activatorEvent } = event;
 
             if (
                 activatorEvent &&
@@ -118,7 +130,10 @@ function DraggableVideoList({
     });
 
     return (
-        <SortableContext items={videos.map((v) => v.id)} strategy={horizontalListSortingStrategy}>
+        <SortableContext
+            items={videos.map((v) => v.id)}
+            strategy={horizontalListSortingStrategy}
+        >
             <div
                 ref={scrollRef}
                 className="flex gap-3 overflow-x-auto p-2 scrollbar-thin scrollbar-thumb-gray-400"
@@ -129,6 +144,7 @@ function DraggableVideoList({
                         video={v}
                         isActive={v.id === currentVideoId}
                         onPlay={() => onPlay(v.id)}
+                        onAdd={onAdd}
                     />
                 ))}
             </div>
@@ -141,34 +157,46 @@ export default function UpcomingList({
                                          setVideos,
                                          currentVideoId,
                                          onPlay,
+                                         onAddVideo,
+                                         onReorderVideos,
                                      }: {
     videos: VideoItem[];
     setVideos: (videos: VideoItem[]) => void;
     currentVideoId: number;
     onPlay: (id: number) => void;
+    onAddVideo: (video: VideoItem) => void;
+    onReorderVideos?: (newVideos: VideoItem[]) => void;
 }) {
     const sensors = useSensors(
         useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {coordinateGetter: sortableKeyboardCoordinates})
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over) return;
+        const { active, over } = event;
+        if (!over) return;
 
-      if (active.id !== over.id) {
-        const oldIndex = videos.findIndex((v) => v.id === active.id);
-        const newIndex = videos.findIndex((v) => v.id === over.id);
-        setVideos(arrayMove(videos, oldIndex, newIndex));
-      }
+        if (active.id !== over.id) {
+            const oldIndex = videos.findIndex((v) => v.id === active.id);
+            const newIndex = videos.findIndex((v) => v.id === over.id);
+            const reordered = arrayMove(videos, oldIndex, newIndex);
+            setVideos(reordered);
+            onReorderVideos?.(reordered); // gửi event lên server nếu cần
+        }
     };
 
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <DraggableVideoList videos={videos} currentVideoId={currentVideoId} onPlay={onPlay}/>
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+        >
+            <DraggableVideoList
+                videos={videos}
+                currentVideoId={currentVideoId}
+                onPlay={onPlay}
+                onAdd={onAddVideo}
+            />
         </DndContext>
     );
 }
-
-
-
