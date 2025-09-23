@@ -11,38 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-async function createRoomApi(username: string) {
-    const res = await fetch("http://localhost:8080/api/rooms", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-    });
-
-    if (!res.ok) {
-        throw new Error("Failed to create room");
-    }
-
-    return res.json(); // { roomId: string }
-}
-
-async function joinRoomApi(roomId: string, username: string) {
-    const res = await fetch(`http://localhost:8080/api/rooms/${roomId}/join`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-    });
-
-    if (!res.ok) {
-        throw new Error("Failed to join room");
-    }
-
-    return res.json(); // { roomId: string }
-}
+import { v4 as uuidv4 } from "uuid";
 
 interface RoomProps {
     open: boolean;
@@ -57,18 +26,10 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
 
     const handleJoin = async () => {
         if (!roomId.trim() || !username.trim()) return;
-
         try {
             setLoading(true);
-            const data = await joinRoomApi(roomId, username);
             onOpenChange(false);
-
-            router.push(
-                `/rooms/${data.roomId}?username=${encodeURIComponent(username)}`
-            );
-        } catch (err) {
-            console.error(err);
-            alert("Failed to join room");
+            router.push(`/rooms/${roomId}?username=${encodeURIComponent(username)}`);
         } finally {
             setLoading(false);
         }
@@ -76,18 +37,11 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
 
     const handleCreate = async () => {
         if (!username.trim()) return;
-
         try {
             setLoading(true);
-            const data = await createRoomApi(username);
+            const newRoomId = uuidv4();
             onOpenChange(false);
-
-            router.push(
-                `/rooms/${data.roomId}?username=${encodeURIComponent(username)}`
-            );
-        } catch (err) {
-            console.error(err);
-            alert("Failed to create room");
+            router.push(`/rooms/${newRoomId}?username=${encodeURIComponent(username)}`);
         } finally {
             setLoading(false);
         }
