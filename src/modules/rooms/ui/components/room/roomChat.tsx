@@ -26,7 +26,7 @@ export default function RoomChat({ roomId, username, stompClient }: RoomChatProp
         let subscription: StompSubscription | undefined;
 
         stompClient.onConnect = () => {
-            console.log("📌 Subscribing to topic:", `/topic/rooms.${roomId}.chat`);
+            console.log("📌 Subscribing to topic:", `/topic/rooms.chat.${roomId}`);
 
             subscription = stompClient.subscribe(
                 `/topic/rooms.chat.${roomId}`,

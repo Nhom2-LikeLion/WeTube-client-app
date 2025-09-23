@@ -128,6 +128,6 @@ export function useRoomAction() {
         [client]
     );
 
-    return { createRoom, leaveRoom,subscribeRoomMembers };
+    return { createRoom, leaveRoom,subscribeRoomMembers, client };
 
 }

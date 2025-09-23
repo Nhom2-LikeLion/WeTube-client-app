@@ -6,7 +6,6 @@ import UpcomingList, { VideoItem } from "./upcomingList";
 import MemberList from "./membersList";
 import RoomChat from "./roomChat";
 import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 
@@ -34,44 +33,27 @@ const initialVideos: VideoItem[] = [
 interface WatchRoomLayoutProps {
     roomId: string;
     username: string;
+    stompClient : Client;
 }
 
-export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutProps) {
+export default function WatchRoomLayout({ roomId, username, stompClient }: WatchRoomLayoutProps) {
     const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
     const [currentVideoId, setCurrentVideoId] = useState<number>(videos[0]?.id ?? -1);
-    const [stompClient, setStompClient] = useState<Client | null>(null);
+    const [client, setClient] = useState<Client | null>(null);
     const [chatOpen, setChatOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const socket = new SockJS(`http://localhost:8080/ws`);
-        const client = new Client({
-            webSocketFactory: () => socket,
-            // debug: (str) => console.log("[STOMP]", str),
-            reconnectDelay: 5000,
-        });
-
-        client.onConnect = (frame) => {
-            console.log("✅ Connected STOMP to room", roomId);
-            console.log("STOMP frame:", frame);
-
-            client.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "JOIN", sender: username }),
-            });
-        };
-
-        client.activate();
-        setStompClient(client);
-
-        return () => {
-            client.deactivate();
-        };
+        setClient(stompClient);
+        // return () => {
+        //     if (client?.connected)
+        //     client!.deactivate();
+        // };
     }, [roomId, username]);
 
     const handleLeaveRoom = () => {
-        if (stompClient?.connected) {
-            stompClient.publish({
+        if (client?.connected) {
+            client.publish({
                 destination: `/app/chat.${roomId}`,
                 body: JSON.stringify({ type: "LEAVE", sender: username }),
             });
@@ -94,7 +76,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                     </div>
 
                     <div className="bg-gray-100 rounded-lg shadow-lg p-4 flex flex-col border border-gray-200 overflow-hidden">
-                        {stompClient && (
+                        {client && (
                             <div className="flex flex-col md:flex-row justify-between items-center mb-3 gap-2">
                                 <h2 className="text-lg md:text-xl font-semibold text-gray-800">
                                     Upcoming Videos
@@ -117,7 +99,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                             />
                         </div>
 
-                        {stompClient && (
+                        {client && (
                             <div className="mt-3">
                                 <MemberList
 
@@ -128,9 +110,9 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                 </div>
 
                 <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
-                    {stompClient && (
+                    {client && (
                         <div className="flex-1 overflow-y-auto">
-                            <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
+                            <RoomChat roomId={roomId} username={username} stompClient={client} />
                         </div>
                     )}
                 </div>
@@ -156,8 +138,8 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                            {stompClient && (
-                                <RoomChat roomId={roomId} username={username} stompClient={stompClient} />
+                            {client && (
+                                <RoomChat roomId={roomId} username={username} stompClient={client} />
                             )}
                         </div>
                     </div>
