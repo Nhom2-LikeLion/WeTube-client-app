@@ -54,6 +54,7 @@ export default function WatchRoomLayout({
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000,
+            debug: (str) => console.log(str),
         });
 
         client.onConnect = () => {
@@ -64,7 +65,6 @@ export default function WatchRoomLayout({
                 handleIncomingMessage(data);
             });
 
-            // Thông báo join
             client.publish({
                 destination: `/app/room/${roomId}`,
                 body: JSON.stringify({
@@ -95,9 +95,6 @@ export default function WatchRoomLayout({
 
     const handleIncomingMessage = (data: any) => {
         switch (data.type) {
-            case "CHAT":
-                // RoomChat sẽ tự subscribe messages qua props
-                break;
             case "MEMBER":
                 if (data.currentUsers) setMembers(data.currentUsers);
                 break;
@@ -117,6 +114,7 @@ export default function WatchRoomLayout({
                 }
                 break;
             case "VIDEO":
+                // TODO: handle video sync event
                 break;
             default:
                 break;
@@ -183,7 +181,7 @@ export default function WatchRoomLayout({
                                 initialUrl={
                                     videos.find((v) => v.id === currentVideoId)?.url || ""
                                 }
-                                isHost={true} // fake host cho test
+                                isHost={true}
                             />
                         )}
                     </div>
