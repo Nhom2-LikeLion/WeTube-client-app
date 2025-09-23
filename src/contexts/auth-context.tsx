@@ -1,16 +1,16 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-  useMemo,
-  useCallback,
-} from "react";
 import apiClient from "@/lib/apiClient";
 import axios from "axios";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 interface User {
   sub: string;
@@ -18,6 +18,27 @@ interface User {
   email: string;
   picture: string;
   channelId: string;
+    channel: {
+    id: string;
+    backgroundImgUrl: string;
+    name: string;
+    totalSubscribers: number;
+    totalVideos: number;
+    description: string;
+    countryCode: string;
+    createdAt: string; // ISO date string
+    totalViews: number;
+  };
+  playlists: {
+    playlistId: string;
+    playlistTitle: string;
+    playlistType: string;
+    totalVideos: number;
+    createdAt: string;
+    privacy: string;
+    lastUpdatedLabel: string;
+    thumbnailUrl: string | null;
+  }[];
 }
 
 interface AuthContextType {
@@ -37,10 +58,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchUser = async () => {
       try {
         const response = await apiClient.get<User>("/me");
-
-        console.log("✅ Data from backend:", response.data);
-
-        setUser(response.data); 
+        const user = response.data;
+        console.log("✅ Data from backendddddd:", response.data);
+        console.log("✅ Data from Usseerrrr:", user.playlists);
+        // Lấy playlist có type là HISTORY
+        const historyPlaylist = user.playlists.find(
+        (pl) => pl.playlistType === "HISTORY"
+        );
+        console.log("❤ PLaylist Data:", historyPlaylist?.playlistId);
+        setUser(user);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           console.log("User is not authenticated (handled gracefully).");
@@ -91,8 +117,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }),
     [user, isLoading, login, logout]
   );
-
-  console.log("AuthProvider State:", { isLoading, user });
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
