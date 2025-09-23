@@ -9,7 +9,7 @@ interface VideoData {
   title: string;
   channel: string;
   views: string;
-  duration: string;
+  duration: number;
   thumbnail: string;
   progress?: number;
 }
@@ -28,7 +28,7 @@ const History = () => {
       title: "David Guetta - Play Hard ft. Ne-Yo, Akon (Official Video)",
       channel: "David Guetta",
       views: "1.2B views",
-      duration: "3:21",
+      duration: 5000,
       thumbnail:
         "https://i.ytimg.com/vi/5dbEhBKGOtY/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAxY87QW6QYLAPpoNKWkxlxm5DEZg",
       progress: 0.85, // 85% đã xem
@@ -38,7 +38,7 @@ const History = () => {
       title: "ATLXS - PASSO BEM SOLTO (SLOWED)",
       channel: "phonk",
       views: "125M views",
-      duration: "4:02",
+      duration: 200,
       thumbnail:
         "https://i.ytimg.com/vi/KgayxOF4Y7E/hqdefault.jpg?sqp=-oaymwE2CNACELwBSFXyq4qpAygIARUAAIhCGAFwAcABBvABAfgB_gmAAtAFigIMCAAQARgvIGUoOTAP&rs=AOn4CLA5WjeFsrLiYnPIvPKg2NUP7AwVHA",
       progress: 0.25, // chỉ mới xem 25%
@@ -48,7 +48,7 @@ const History = () => {
       title: "BreZ - Girls like | Beatbox Loopstation",
       channel: "Wadou",
       views: "128k views",
-      duration: "8:45",
+      duration: 350,
       thumbnail:
         "https://i.ytimg.com/vi/1tXxSJqQejY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAF9l_tvsRdX6Wl8N14to2TDpH-4Q",
       progress: 0.5, // chưa xem

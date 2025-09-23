@@ -10,7 +10,7 @@ import PlayerLoader from "./player-loader";
 import PreviewGrid from "./preview-grid";
 import SliderControls from "./slider-controls";
 import { useControls } from "@/hooks/use-controls";
-import { useVideoStore } from '@/store/zustand/videoStore';
+import { useVideoStore } from "@/store/zustand/videoStore";
 
 export default function ActiveVideo() {
   const {

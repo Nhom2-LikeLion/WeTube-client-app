@@ -1,9 +1,9 @@
-import { API_PREFIX } from '@/constants/appConstant';
 import axios, {
   AxiosError,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import {API_PREFIX} from "@/constants/appConstant";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || `${API_PREFIX}`,

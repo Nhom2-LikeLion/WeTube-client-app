@@ -4,8 +4,8 @@ import { CommentInput } from "../inputs/comment-input";
 import { CommentComponent, Comment } from "./comment";
 
 import { Loader } from "../misc/loader";
+import { useVideoStore } from "@/store/zustand/videoStore";
 import { useGetCommentsByTargetQuery } from "@/app/api/commentApi";
-import { useVideoStore } from '@/store/zustand/videoStore';
 
 const container = {
   hidden: { opacity: 0 },

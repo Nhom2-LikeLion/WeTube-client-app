@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { Check, Clock, ListPlus, MoreVertical } from "lucide-react";
 import Image from 'next/image';
 import React, { useState } from "react";
@@ -17,7 +18,7 @@ interface VideoItemProps {
   title: string;
   channel: string;
   views: string;
-  duration: string;
+  duration: number;
   thumbnail: string;
   progress?: number;
 }
@@ -94,21 +95,8 @@ const VideoItem: React.FC<VideoItemProps> = ({
               </button>
             </div>
 
-            {/* Duration badge */}
-            {duration && (
-              <span className="absolute bottom-1.25 right-1 bg-black/60 text-white font-semibold text-[13px] px-1 py-[1px] rounded">
-                {duration}
-              </span>
-            )}
-            {/* Progress bar - hidden on hover */}
-            {typeof progress === "number" && progress > 0 && (
-              <div className="absolute rounded-lg bottom-[0.1px] w-full h-1 bg-gray-300 rounded-b-4xl overflow-hidden group-hover:hidden">
-                <div
-                  className="h-full bg-red-600"
-                  style={{ width: `${Math.min(progress * 100, 100)}%` }}
-                />
-              </div>
-            )}
+            <VideoOverlay duration={duration} progress={progress} />
+
           </div>
 
           {/* Video Details */}

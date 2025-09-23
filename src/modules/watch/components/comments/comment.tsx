@@ -52,8 +52,8 @@ export const CommentComponent = ({ comment }: { comment: Comment }) => {
     const userId = user?.sub;
 
     const { data: likeInfo } = useGetLikeInfoQuery(
-      { targetId: comment.id, targetType: "COMMENT", userId: userId! },
-      { skip: !userId }
+        { targetId: comment.id, targetType: "COMMENT", userId: userId! },
+        { skip: !userId }
     );
     const [toggleLike] = useToggleLikeMutation();
 
@@ -61,7 +61,7 @@ export const CommentComponent = ({ comment }: { comment: Comment }) => {
 
     const handleLike = async () => {
         if (!userId) return;
-        await toggleLike({ targetId: comment.id, targetType: "COMMENT", userId});
+        await toggleLike({ targetId: comment.id, targetType: "COMMENT", userId });
     };
 
     // const handleReply = () => {
@@ -69,10 +69,10 @@ export const CommentComponent = ({ comment }: { comment: Comment }) => {
     //     setReplying(true);
     //     setReplyText(`@${comment.commenter} `); // auto mention
     // };
-
+    //
     // const handleSubmitReply = async () => {
     //     if (!userId || !replyText.trim()) return;
-
+    //
     //     await createComment({
     //         targetId: comment.id,
     //         targetType: "COMMENT",
@@ -80,7 +80,7 @@ export const CommentComponent = ({ comment }: { comment: Comment }) => {
     //         content: replyText,
     //         parentCommentId: comment.id,
     //     });
-
+    //
     //     setReplying(false);
     //     setReplyText("");
     //     setIsRepliesSectionOpen(false);
