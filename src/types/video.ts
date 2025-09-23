@@ -25,9 +25,10 @@ export interface RecommendedVideoItem {
   name: string;       // ChannelName
   duration: number;
   picture: string;    // avatar
-  uploadedAgo?: string; // Computing from createdAt
+  uploadedAgo?: string;
   historyDuration?: number;
 }
+
 
 export interface VideoDetailResponseDto {
   detail: VideoDetailDto;

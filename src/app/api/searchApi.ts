@@ -14,41 +14,22 @@ export interface PageResponse<T> {
 export const searchApi = createApi({
   reducerPath: "searchApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_PREFIX}/videos/db`,
+    baseUrl: `${API_PREFIX}/videos/search`,
     credentials: "include",
   }),
   endpoints: (builder) => ({
-    searchVideosSuggest: builder.query<
-      string[],
-      { prefix: string; size?: number }
-    >({
-      query: ({ prefix, size = 10 }) => ({
-        url: "/search/suggest",
-        params: { prefix, size },
-      }),
-    }),
-    searchVideosFuzzy: builder.query<
+    // 🔎 Search video đầy đủ (Elastic + MySQL) → trả về VideoDto (RecommendedVideoItem)
+    searchVideosFull: builder.query<
       PageResponse<RecommendedVideoItem>,
       { query: string; page?: number; size?: number }
     >({
       query: ({ query, page = 0, size = 10 }) => ({
-        url: "/search/fuzzy",
-        params: { q: query, page, size },
-      }),
-    }),
-    searchVideos: builder.query<RecommendedVideoItem[], { query: string }>({
-      // query: ({ title }) => `/name?title=${encodeURIComponent(title)}`,
-      query: ({ query }) => ({
-        url: "/search",
+        url: "/full",
         method: "GET",
-        params: { q: query },
+        params: { title: query, page, size },
       }),
     }),
   }),
 });
 
-export const {
-  useSearchVideosSuggestQuery,
-  useSearchVideosFuzzyQuery,
-  useSearchVideosQuery,
-} = searchApi;
+export const { useSearchVideosFullQuery } = searchApi;
