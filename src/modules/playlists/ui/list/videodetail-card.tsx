@@ -39,6 +39,8 @@ export default function VideoCard({ thumbnailUrl, title }: VideoCardProps) {
         ref={imgRef}
         src={thumbnailUrl}
         alt={title}
+        width={300}
+        height={200}
         className="w-full h-40 object-cover rounded-xl"
       />
       <h3 className="mt-3 text-white font-semibold">{title}</h3>
