@@ -1,6 +1,10 @@
 // app/store/services/videoApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Video as VideoListItem, VideoFormDetail } from "@/types/video";
+import {
+  Video as VideoListItem,
+  VideoFormDetail,
+  VideoDetailResponseDto,
+} from "@/types/video";
 import { API_PREFIX } from "@/constants/appConstant";
 export type UpdateVideoPayload = Partial<
   Pick<VideoFormDetail, "title" | "description" | "status" | "tags">
@@ -31,6 +35,10 @@ export const videoApi = createApi({
       query: ({ categoryId = "", page = 1, limit = 6 }) =>
         `/videos?categoryId=${categoryId}&page=${page}&limit=${limit}`,
       providesTags: ["VideoList"],
+    }),
+
+    getVideoDetail: builder.query<VideoDetailResponseDto, { videoId: string }>({
+      query: ({ videoId }) => `/${videoId}/detail`,
     }),
 
     getVideoFormDetails: builder.query<VideoFormDetail, string>({
@@ -73,4 +81,5 @@ export const {
   useGetVideoFormDetailsQuery,
   useUpdateVideoDetailsMutation,
   useUploadVideoMutation,
+  useGetVideoDetailQuery,
 } = videoApi;

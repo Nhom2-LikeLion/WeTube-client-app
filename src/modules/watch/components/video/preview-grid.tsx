@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
+import { motion, Variants } from "motion/react";
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,

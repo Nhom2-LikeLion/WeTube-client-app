@@ -1,10 +1,11 @@
 
 import { motion } from "motion/react";
 import { CommentInput } from "../inputs/comment-input";
-import { CommentComponent } from "./comment";
+import { CommentComponent, Comment } from "./comment";
 
 import { Loader } from "../misc/loader";
-import { useComments } from "@/hooks/use-comments";
+import { useGetCommentsByTargetQuery } from "@/app/api/commentApi";
+import { useVideoStore } from '@/store/zustand/videoStore';
 
 const container = {
   hidden: { opacity: 0 },
@@ -19,30 +20,48 @@ const container = {
   },
 };
 
-const getCommentText = (comments: Comment[]) => {
-  return `${comments.length} ${comments.length > 1 ? " Comments" : " Comment"}`;
-};
+const mapApiCommentToUI = (apiComment: any): Comment => ({
+    id: apiComment.id,
+    commenter: apiComment.user?.name ?? "Unknown",
+    comment: apiComment.content,
+    picture: apiComment.user?.picture ?? "",
+    commentedAt: apiComment.createdAt,
+    likes: apiComment.likeCount ?? 0,
+    dislikes: 0,
+    replyCount: apiComment.replyCount ?? 0,
+    replies: apiComment.replies ?? [],
+});
 
 export const Comments = () => {
-  const { comments, isLoading } = useComments();
+    const videoDetail = useVideoStore((state) => state.videoDetail);
 
-  if (!comments.length || isLoading) {
-    return <Loader />;
-  }
-  return (
-    <div className="mt-4">
-      <p className="text-xl font-bold">{getCommentText(comments)}</p>
-      <CommentInput />
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col gap-6 mt-5"
-      >
-        {comments.map((comment: Comment, index: number) => (
-          <CommentComponent comment={comment} key={index} />
-        ))}
-      </motion.div>
-    </div>
-  );
+    const { data: apiComments, isLoading } = useGetCommentsByTargetQuery(
+        videoDetail
+            ? { targetId: videoDetail.detail.id, targetType: "VIDEO" }
+            : { targetId: "", targetType: "VIDEO" },
+        { skip: !videoDetail }
+    );
+
+    if (!videoDetail) return <Loader />;
+    if (isLoading) return <Loader />;
+
+    const comments: Comment[] = (apiComments ?? []).map(mapApiCommentToUI);
+
+    return (
+        <div className="mt-4">
+            <p className="text-xl font-bold">
+                {comments.length} {comments.length > 1 ? "Comments" : "Comment"}
+            </p>
+
+            <div className="mt-3">
+                <CommentInput />
+            </div>
+
+            <div className="mt-3">
+                {comments.map((c) => (
+                    <CommentComponent key={c.id} comment={c} />
+                ))}
+            </div>
+        </div>
+    );
 };

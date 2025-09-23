@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         console.log("✅ Data from backend:", response.data);
 
-        setUser(response.data);
+        setUser(response.data); 
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           console.log("User is not authenticated (handled gracefully).");

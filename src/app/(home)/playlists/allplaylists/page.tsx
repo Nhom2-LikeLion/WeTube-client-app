@@ -1,6 +1,6 @@
 "use client";
 
-import Allplaylist from "@/modules/playlists/ui/view/allplaylist-view";
+import Allplaylist from "@/modules/playlists/ui/view/Allplaylist-view";
 
 export default function AllPlaylistPage() {
   return <Allplaylist/>;
