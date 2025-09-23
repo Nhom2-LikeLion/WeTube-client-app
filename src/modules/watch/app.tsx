@@ -19,7 +19,7 @@ export default function App({ videoId }: AppProps) {
 
   useEffect(() => {
     if (data) setVideoDetail(data);
-    return () => clearVideoDetail(); // clear khi unmount hoặc đổi videoId
+    return () => clearVideoDetail();
   }, [data, setVideoDetail, clearVideoDetail]);
 
   if (isLoading) return <p>Loading...</p>;

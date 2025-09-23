@@ -15,9 +15,9 @@ import { timeAgo } from "@/lib/utils";
 export default function VideoMetadata() {
   const videoDetail = useVideoStore((state) => state.videoDetail);
 
-  if (!videoDetail) return null; // hoặc hiển thị skeleton
+  if (!videoDetail) return null;
 
-  const { title, description, totalView, createAt, name, picture } =
+  const { title, description, totalView, createAt, name, picture, totalSubscribers } =
       videoDetail.detail;
 
   return (
@@ -25,7 +25,6 @@ export default function VideoMetadata() {
         {/* Title */}
         <p className="text-2xl font-bold tracking-tight">{title}</p>
 
-        {/* Channel Info + Actions */}
         <div className="py-1 flex justify-between items-center mt-2">
           <section className="flex justify-start items-center gap-3">
             <Image
@@ -38,8 +37,8 @@ export default function VideoMetadata() {
             <div className="hidden md:block">
               <section className="flex flex-col tracking-tight mr-4">
                 <p className="font-bold font-lg cursor-pointer">{name}</p>
-                {/* Nếu có subscriber count, thêm ở đây */}
-                {/* <p className="text-gray-500 text-xs font-semibold">{subscribers}</p> */}
+
+                 <p className="text-gray-500 text-xs font-semibold">{totalSubscribers}</p>
               </section>
             </div>
             <button className="rounded-full flex gap-2 bg-gray-100 hover:bg-gray-200 py-2 px-2.5 cursor-pointer">
@@ -49,7 +48,6 @@ export default function VideoMetadata() {
             </button>
           </section>
 
-          {/* Action buttons */}
           <section className="flex justify-end items-center gap-3 ">
             <div className="cursor-pointer flex justify-between bg-gray-100 rounded-full overflow-hidden">
               <button className="flex gap-2 py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-l-full cursor-pointer">

@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await apiClient.get<User>("/api/me");
+        const response = await apiClient.get<User>("/me");
 
         console.log("✅ Data from backend:", response.data);
 
@@ -69,12 +69,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(() => {
-    window.location.href = `${apiClient.defaults.baseURL}/api/auth/login/google`;
+    window.location.href = `${apiClient.defaults.baseURL}/auth/login/google`;
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      await apiClient.post("/api/auth/logout");
+      await apiClient.post("/auth/logout");
       setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);

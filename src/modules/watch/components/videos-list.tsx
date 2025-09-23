@@ -1,9 +1,9 @@
 
-import { useVideos } from "@/hooks/use-videos";
 import VideoPreview from "./video-preview";
-import { motion } from "motion/react";
+import { motion, Variants } from "motion/react";
+import { useVideoStore } from "@/store/zustand/videoStore";
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -17,22 +17,19 @@ const container = {
 };
 
 export default function VideosList() {
-  const {
-    relatedVideos: { videos, isLoading },
-  } = useVideos();
+    const videoDetail = useVideoStore((s) => s.videoDetail);
 
-  if (!isLoading && videos.length) {
+    if (!videoDetail?.recommend?.video?.length) return null;
     return (
-      <motion.section
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col justify-start items-between gap-1 w-full border-t-[1px] pt-2 border-gray-200 mb-[58px]"
-      >
-        {videos.map((video, index) => (
-          <VideoPreview key={index} video={video} />
-        ))}
-      </motion.section>
+        <motion.section
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col gap-1 w-full border-t pt-2 border-gray-200 mb-[58px]"
+        >
+            {videoDetail.recommend.video.map((video) => (
+                <VideoPreview key={video.id} video={video} />
+            ))}
+        </motion.section>
     );
-  }
 }

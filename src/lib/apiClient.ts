@@ -3,9 +3,10 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import {API_PREFIX} from "@/constants/appConstant";
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || `${API_PREFIX}`,
   withCredentials: true,
 });
 
@@ -35,7 +36,7 @@ apiClient.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      originalRequest.url !== "/api/auth/refresh-login"
+      originalRequest.url !== "/auth/refresh-login"
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -46,7 +47,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await apiClient.post("/api/auth/refresh-login");
+        await apiClient.post("/auth/refresh-login");
         processQueue(null);
         return apiClient(originalRequest);
       } catch (refreshError) {

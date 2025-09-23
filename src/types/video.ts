@@ -29,7 +29,6 @@ export interface RecommendedVideoItem {
   historyDuration?: number;
 }
 
-// interfaces/videoDetail.ts
 export interface VideoDetailResponseDto {
   detail: VideoDetailDto;
   recommend: RecommendResponseDto;
@@ -44,6 +43,8 @@ export interface VideoDetailDto {
   totalView: number;
   name: string;
   picture: string;
+  totalSubscribers:number;
+  comments: Comment[];
 }
 
 export interface RecommendResponseDto {
@@ -67,5 +68,33 @@ export interface TagDto {
   name: string;
   createdAt: string; // LocalDateTime -> string (ISO format)
   count: number;
+}
+
+export interface ApiUser {
+    id: string;
+    name: string;
+    picture: string;
+}
+
+export interface ApiComment {
+    id: string;
+    content: string;
+    user: ApiUser;
+    likeCount: number;
+    createdAt: string;
+    updatedAt: string;
+    replyCount: number | null;
+    replies: ApiComment[] | null;
+}
+
+export interface RelatedVideo {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    totalView: number;
+    createAt: string;
+    name: string;
+    duration: number;
+    picture: string;
 }
 
