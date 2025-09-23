@@ -3,15 +3,18 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import apiClient from "@/lib/apiClient";
+import Link from "next/link";
+import apiClient from "@/lib/apiClient"; 
 import { formatDuration } from "@/lib/utils";
 
-import { useAuth } from "@/contexts/auth-context";
-import { useSaveInteractionMutation } from "@/app/api/interactionApi";
-import {
-  useGetHistoryPlaylistQuery,
-  useAddVideoToPlaylistMutation,
-} from "@/app/api/playlistApi";
+// Kiểu dữ liệu backend trả về từ Elasticsearch (PageResponse<VideoDto>)
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
+}
 
 interface VideoDto {
   id: string;
@@ -21,7 +24,7 @@ interface VideoDto {
   duration: number;
   totalView: number;
   createdAt: string;
-  user: {
+  author: {
     id: string;
     name: string;
     picture: string;
@@ -65,24 +68,31 @@ function SearchResultsContent() {
       setLoading(true);
       const fetchResults = async () => {
         try {
-          const response = await apiClient.get<VideoDto[]>("/videos/db/search", {
-            params: { q: query },
-          });
+          // ✅ gọi Elastic API thay vì DB
+          const response = await apiClient.get<PageResponse<VideoDto>>(
+            "/videos/search/full",
+            {
+              params: { title: query, page: 0, size: 20 },
+            }
+          );
 
-          const mappedResults: VideoResult[] = response.data.map((dto) => ({
-            id: dto.id,
-            title: dto.title,
-            thumbnail: dto.thumbnailUrl,
-            description: dto.description,
-            duration: formatDuration(dto.duration),
-            views: `${dto.totalView ? Number(dto.totalView).toLocaleString() : 0
+          const mappedResults: VideoResult[] =
+            response.data.content.map((dto) => ({
+              id: dto.id,
+              title: dto.title,
+              thumbnail: dto.thumbnailUrl,
+              description: dto.description,
+              duration: formatDuration(dto.duration),
+              views: `${
+                dto.totalView ? Number(dto.totalView).toLocaleString() : 0
               } views`,
-            uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
-            channel: {
-              name: dto.user.name,
-              avatar: dto.user.picture,
-            },
-          }));
+              uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
+              channel: {
+                name: dto.author?.name || "Unknown",
+                avatar: dto.author?.picture || "/default-avatar.png",
+              },
+            }));
+
           setResults(mappedResults);
         } catch (error) {
           console.error("Failed to fetch search results:", error);
@@ -98,12 +108,13 @@ function SearchResultsContent() {
     }
   }, [query]);
 
-  // --- Loading State (Skeleton) ---
+  // --- Loading Skeleton ---
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-4">
           {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-4">
             <div key={i} className="flex gap-4">
               <div className="w-80 h-48 bg-gray-200 rounded-lg"></div>
               <div className="flex-1 space-y-2">
@@ -123,7 +134,7 @@ function SearchResultsContent() {
     <main className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <p className="text-gray-600">
-          About {results.length} results for {query}
+          About {results.length} results for <b>{query}</b>
         </p>
       </div>
       <div className="space-y-4">
@@ -221,7 +232,6 @@ function SearchResultsContent() {
   );
 }
 
-// Component cha để bọc Suspense
 export default function SearchResults() {
   return (
     <div className="min-h-screen bg-gray-50 text-black">
