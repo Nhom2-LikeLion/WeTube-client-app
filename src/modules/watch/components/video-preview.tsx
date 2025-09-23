@@ -37,8 +37,8 @@ export default function VideoPreview({ video }: { video: RecommendVideoDto }) {
         </p>
         <span className="flex justify-start items-center gap-1">
           <p className="text-sm font-semibold text-gray-500">{video.name}</p>
-
-          <CheckCircleIcon className="size-4 text-gray-500" />
+                    {/* giả sử tất cả đều verified */}
+                    <CheckCircleIcon className="size-4 text-gray-500" />
         </span>
         <p className="flex text-xs justify-start items-center gap-2">
           {video.totalView} views • {video.createAt}
