@@ -40,7 +40,7 @@ export const StudioSidebarHeader = () => {
             <UserAvatar
               imageUrl={user.picture}
               name={user.name}
-              size="xl"
+              size="sm"
             />
             <span className="text-sm">Your profile</span>
           </Link>
