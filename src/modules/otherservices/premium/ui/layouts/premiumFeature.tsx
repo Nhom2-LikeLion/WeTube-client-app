@@ -50,7 +50,7 @@ export default function PremiumFeatures() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user?.sub, 
+          userId: user?.sub,
           subPackId,
           returnUrl: "http://localhost:3000/",
         }),

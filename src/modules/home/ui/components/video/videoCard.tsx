@@ -1,5 +1,6 @@
 "use client";
-import { formatViews, timeAgo } from "@/lib/utils";
+import VideoOverlay from "@/components/videos/VideoOverlayProps";
+import {formatDuration, formatViews, timeAgo } from "@/lib/utils";
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,14 +12,15 @@ const VideoCard = ({
   totalView,
   createAt,
   name,
-  // duration,
+  duration,
   picture,
+  historyDuration
 }: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
-
+  const videoTime = formatDuration(duration);
   const handleClick = () => {
-    router.push(`/watch?id=${id}`);
+    router.push(`/watch/${id}`);
   };
 
   return (
@@ -33,6 +35,10 @@ const VideoCard = ({
           fill
           // className="w-full h-full object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <VideoOverlay
+            duration={duration}
+            progress={historyDuration ? historyDuration / duration : 0}
         />
       </div>
 

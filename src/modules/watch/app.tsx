@@ -6,8 +6,8 @@ import VideoMetadata from "./components/video-metadata";
 import VideoTags from "./components/video-tags";
 import MiniPlayer from "./components/video/miniplayer";
 import VideosList from "./components/videos-list";
+import {useVideoStore } from "@/store/zustand/videoStore";
 import { useEffect } from "react";
-import { useVideoStore } from '@/store/zustand/videoStore';
 interface AppProps {
   videoId: string;
 }
