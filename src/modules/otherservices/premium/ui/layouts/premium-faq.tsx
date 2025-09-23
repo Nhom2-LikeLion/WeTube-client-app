@@ -1,33 +1,40 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react"; // icon mũi tên
+import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
-    question: "Gói YouTube Premium có những gì?",
+    question: "What does the YouTube Premium plan include?",
     answer: (
       <>
         <p>
-          Khi là thành viên YouTube Premium, bạn có thể xem video không có quảng cáo trên YouTube. Hơn nữa, bạn có thể tải video xuống để xem không cần mạng và phát video trong nền khi dùng các ứng dụng khác.
+          As a YouTube Premium member, you can watch videos without ads on
+          YouTube. In addition, you can download videos to watch offline and
+          play videos in the background while using other apps.
         </p>
         <p className="mt-2">
-          Gói thành viên YouTube Premium bao gồm cả quyền sử dụng YouTube Music Premium. Hãy tải ứng dụng YouTube Music xuống để nghe hơn 100 triệu bài hát không có quảng cáo, không cần mạng và khi khoá màn hình.
+          The YouTube Premium membership also includes YouTube Music Premium.
+          Download the YouTube Music app to enjoy over 100 million songs without
+          ads, offline, and with your screen locked.
         </p>
         <p className="mt-2">
-          Bạn cũng có thể xem video không có quảng cáo trên ứng dụng YouTube Kids.
+          You can also watch ad-free videos on the YouTube Kids app.
         </p>
       </>
     ),
   },
   {
-    question: "Làm cách nào để tải video và nhạc xuống?",
+    question: "How can I download videos and music?",
     answer: (
       <>
         <p>
-          Bạn có thể tải video/nhạc xuống thiết bị di động khi sử dụng ứng dụng YouTube, YouTube Music hoặc YouTube Kids. Còn trên máy tính, bạn cũng có thể xem và tải video bằng trình duyệt Chrome, Edge và Opera.
+          You can download videos/music to your mobile device when using the
+          YouTube, YouTube Music, or YouTube Kids apps. On desktop, you can also
+          watch and download videos using Chrome, Edge, or Opera browsers.
         </p>
         <p className="mt-2">
-          Bạn có thể xem hoặc nghe nội dung không cần mạng trong tối đa 30 ngày không có kết nối Internet.
+          You can view or listen offline for up to 30 days without an Internet
+          connection.
         </p>
         <a
           href="https://support.google.com/youtube/answer/6141269"
@@ -35,20 +42,23 @@ const faqs = [
           rel="noopener noreferrer"
           className="block mt-2 text-blue-600 underline"
         >
-          Tìm hiểu thêm về cách xem video không cần mạng
+          Learn more about watching offline
         </a>
       </>
     ),
   },
   {
-    question: "Làm cách nào để thêm người khác vào gói của tôi?",
+    question: "How can I add others to my plan?",
     answer: (
       <>
         <p>
-          Bạn có thể thêm thành viên YouTube Premium dành cho gia đình để chia sẻ với tối đa 5 thành viên khác trong gói gia đình. Khi mua gói dành cho gia đình, bạn có thể thêm thành viên nếu bạn là người quản lý gia đình.
+          You can add members to your YouTube Premium Family plan to share with
+          up to 5 other members. When you purchase the family plan, you can add
+          members if you are the family manager.
         </p>
         <p className="mt-2">
-          Các thành viên gia đình dùng chung gói dành cho gia đình phải cùng hỗ trợ gia đình hoặc có tài khoản Google trong nhóm gia đình.
+          Family members must live in the same household or have a Google
+          account within the family group.
         </p>
         <a
           href="https://support.google.com/youtube/answer/6305528"
@@ -56,41 +66,45 @@ const faqs = [
           rel="noopener noreferrer"
           className="block mt-2 text-blue-600 underline"
         >
-          Tìm hiểu thêm về gói dành cho gia đình
+          Learn more about the Family plan
         </a>
       </>
     ),
   },
   {
-    question: "Làm cách nào để phát nhạc và video trong nền?",
+    question: "How can I play music and videos in the background?",
     answer: (
       <>
         <p>
-          Khi bạn dùng gói YouTube Premium, tính năng phát trong nền sẽ bật theo mặc định trên YouTube, YouTube Music và YouTube Kids. Điều này có nghĩa là nếu bạn xem video trên YouTube và mở ứng dụng khác, video vẫn tiếp tục phát trong nền cho đến khi bạn tạm dừng video.
+          With YouTube Premium, background play is enabled by default on
+          YouTube, YouTube Music, and YouTube Kids. This means if you’re
+          watching a video on YouTube and switch to another app, the video will
+          keep playing in the background until you pause it.
         </p>
-        <p className="mt-2">
-          Bạn có thể tắt tính năng phát trong nền ở phần cài đặt.
-        </p>
+        <p className="mt-2">You can turn off background play in settings.</p>
         <a
           href="https://support.google.com/youtube/answer/7548453"
           target="_blank"
           rel="noopener noreferrer"
           className="block mt-2 text-blue-600 underline"
         >
-          Tìm hiểu thêm về tính năng Phát trong nền
+          Learn more about Background Play
         </a>
       </>
     ),
   },
   {
-    question: "YouTube Premium có gì khác so với YouTube Music Premium?",
+    question: "How is YouTube Premium different from YouTube Music Premium?",
     answer: (
       <>
         <p>
-          Thông qua YouTube Premium, bạn có thể xem video trên ứng dụng YouTube mà không có quảng cáo, không cần mạng và trong nền.
+          With YouTube Premium, you can watch videos on the YouTube app without
+          ads, offline, and in the background.
         </p>
         <p className="mt-2">
-          Gói thành viên YouTube Premium bao gồm cả quyền sử dụng YouTube Music Premium. Hãy tải ứng dụng YouTube Music xuống để nghe hơn 100 triệu bài hát không có quảng cáo, không cần mạng và khi khoá màn hình.
+          The YouTube Premium membership also includes YouTube Music Premium.
+          Download the YouTube Music app to enjoy over 100 million songs without
+          ads, offline, and with your screen locked.
         </p>
         <a
           href="https://support.google.com/youtube/answer/6305537"
@@ -98,25 +112,26 @@ const faqs = [
           rel="noopener noreferrer"
           className="block mt-2 text-blue-600 underline"
         >
-          Tìm hiểu thêm về YouTube Music
+          Learn more about YouTube Music
         </a>
       </>
     ),
   },
   {
-    question: "Làm cách nào để hủy gói thành viên?",
+    question: "How can I cancel my membership?",
     answer: (
       <>
         <p>
-          Bạn có thể huỷ gói thành viên bằng cách chuyển đến trang{" "}
+          You can cancel your membership by going to{" "}
           <a
             href="https://www.youtube.com/paid_memberships"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 underline"
           >
-            Gói thành viên có tính phí
-          </a>. Bạn có thể mua lại gói YouTube Premium bất cứ lúc nào.
+            Paid Memberships
+          </a>
+          . You can rejoin YouTube Premium anytime.
         </p>
       </>
     ),
@@ -131,49 +146,46 @@ export default function PremiumFaq() {
   };
 
   return (
-  <section className="w-full max-w-7xl bg-gray-100 rounded-4xl p-6 sm:p-10 mx-auto my-12 min-h-[700px]">
-    <div className="text-left">
-      <h2 className="text-4xl font-bold mb-6">Giải đáp các câu hỏi của bạn</h2>
+    <section className="w-full max-w-7xl bg-gray-100 rounded-4xl p-6 sm:p-10 mx-auto my-12">
+      <div className="text-left">
+        <h2 className="text-4xl font-bold mb-6">Answering your questions</h2>
 
-      <div className="divide-y divide-gray-300">
-        {faqs.map((faq, index) => (
-          <div key={index}>
-            <button
-              onClick={() => toggle(index)}
-              className="w-full text-left py-5 flex justify-between items-center font-medium text-lg"
-            >
-              <span>{faq.question}</span>
-              <ChevronDown
-                className={`w-5 h-5 transform transition-transform duration-200 ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                openIndex === index
-                  ? "max-h-[1000px] pb-4 text-sm text-gray-700"
-                  : "max-h-0"
-              }`}
-            >
-              {openIndex === index && <div className="pl-1">{faq.answer}</div>}
+        <div className="divide-y divide-gray-300">
+          {faqs.map((faq, index) => (
+            <div key={index}>
+              <button
+                onClick={() => toggle(index)}
+                className="w-full text-left py-5 flex justify-between items-center font-medium text-lg"
+              >
+                <span>{faq.question}</span>
+                <ChevronDown
+                  className={`w-5 h-5 transform ${
+                    openIndex === index ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {openIndex === index && (
+                <div className="pl-1 pb-4 text-sm text-gray-700">
+                  {faq.answer}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="mt-6 text-sm">
-        Bạn có thắc mắc?{" "}
-        <a
-          href="https://support.google.com/youtube"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
-        >
-          Trung tâm trợ giúp YouTube
-        </a>
+        <div className="mt-6 text-sm">
+          Still have questions?{" "}
+          <a
+            href="https://support.google.com/youtube"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            YouTube Help Center
+          </a>
+        </div>
       </div>
-    </div>
-  </section>
-);
-};
+    </section>
+  );
+}

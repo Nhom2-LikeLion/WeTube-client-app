@@ -71,7 +71,7 @@ export default function RoomChat({ roomId, username, stompClient }: RoomChatProp
     };
 
     return (
-        <div className="flex flex-col w-full max-w-md border rounded-lg shadow-md bg-white">
+        <div className="flex flex-col w-full min-w-0 h-full border rounded-lg shadow-md bg-white">
             <div className="p-3 border-b font-semibold">Room Chat ({roomId})</div>
             <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
                 {messages.map((msg, i) => (

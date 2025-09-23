@@ -59,7 +59,7 @@ export const playlistService = {
     if (!userId || !playlistType) throw new Error("UserId and playlistType are required");
 
     const res = await fetch(
-      `${API_BASE}/${userId}/playlistType`,
+      `${API_BASE}/${userId}/playlistType?playlistType=${playlistType}`,
       { headers: jsonHeaders() }
     );
     if (!res.ok) throw new Error("Failed to fetch playlist by user and type");

@@ -51,7 +51,7 @@ export function BroadcastDialog({ children }: { children: React.ReactNode }) {
     <Dialog.Root>
       <Dialog.Trigger>{children}</Dialog.Trigger>
 
-      <Dialog.Content style={{ maxWidth: 450 }}>
+      <Dialog.Content style={{ maxWidth: 450 }} className="rounded-2xl shadow-lg bg-white">
         <Dialog.Title>Create new stream</Dialog.Title>
         <Flex direction="column" gap="4" mt="4">
           <label>
