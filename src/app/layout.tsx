@@ -1,7 +1,7 @@
 import Providers from "@/providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import React from "react";
+import React, { Suspense } from "react";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { LoadingBarProvider } from "@/contexts/loading-bar-context";
@@ -42,22 +42,23 @@ export default function RootLayout({
           <AuthProvider>
             <Providers>
               <LoadingBar />
-              <NavigationEvents />
+              <Suspense fallback={null}>
+                <NavigationEvents />
+              </Suspense>
               {children}
               <ToastContainer
-                  position="top-center"
-                  autoClose={3000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick={false}
-                  rtl={false}
-                  pauseOnFocusLoss={false}
-                  draggable={false}
-                  pauseOnHover={false}
-                  theme="colored"
-                  transition={Bounce}
-            />
-              
+                position="top-center"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable={false}
+                pauseOnHover={false}
+                theme="colored"
+                transition={Bounce}
+              />
             </Providers>
           </AuthProvider>
         </LoadingBarProvider>
