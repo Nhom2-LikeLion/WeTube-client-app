@@ -46,6 +46,7 @@ export interface VideoDetailDto {
   totalSubscribers:number;
   comments: Comment[];
   subscribed: boolean;
+  channelId: string;
 }
 
 export interface RecommendResponseDto {

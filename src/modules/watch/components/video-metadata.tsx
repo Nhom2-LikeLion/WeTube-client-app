@@ -11,17 +11,40 @@ import {
 } from "@heroicons/react/24/outline";
 import {useVideoStore} from "@/store/zustand/videoStore";
 import {timeAgo} from "@/lib/utils";
-import { useState } from "react";
+import {useEffect, useState } from "react";
+import { useSubscribeMutation, useUnsubscribeMutation } from "@/app/api/subscriptionsApi";
 
 export default function VideoMetadata() {
     const videoDetail = useVideoStore((state) => state.videoDetail);
+    const [isSubscribed, setIsSubscribed] = useState(false);
+
+    useEffect(() => {
+        if (videoDetail?.detail?.subscribed !== undefined) {
+            setIsSubscribed(videoDetail.detail.subscribed);
+        }
+    }, [videoDetail]);
+
+    const [subscribe] = useSubscribeMutation();
+    const [unsubscribe] = useUnsubscribeMutation();
 
     if (!videoDetail) return null;
 
-    const {title, description, totalView, createAt, name, picture, totalSubscribers, subscribed} =
+    const {title, description, totalView, createAt, name, picture, totalSubscribers, subscribed, channelId} =
         videoDetail.detail;
 
-    const [isSubscribed, setIsSubscribed] = useState(subscribed);
+    const handleSubscribe = async () => {
+        try {
+            if (!isSubscribed) {
+                await subscribe({ subscriberId: "current-user-id", channelId, tierId: undefined }).unwrap();
+                setIsSubscribed(true);
+            } else {
+                await unsubscribe({ subscriberId: "current-user-id", channelId }).unwrap();
+                setIsSubscribed(false);
+            }
+        } catch (err) {
+            console.error("Failed to update subscription:", err);
+        }
+    };
 
     return (
         <section className="w-full mt-2">
@@ -44,23 +67,16 @@ export default function VideoMetadata() {
                             <p className="text-gray-500 text-xs font-semibold">{totalSubscribers}</p>
                         </section>
                     </div>
-                    {!isSubscribed ? (
-                        <button
-                            onClick={() => setIsSubscribed(true)}
-                            className="rounded-full bg-black text-white hover:bg-gray-800 py-2 px-4 font-bold text-sm cursor-pointer"
-                        >
-                            Subscribe
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setIsSubscribed(false)}
-                            className="rounded-full flex gap-2 bg-gray-100 hover:bg-gray-200 py-2 px-3 cursor-pointer items-center"
-                        >
-                            <BellIcon className="size-5" />
-                            <p className="text-sm font-bold">Subscribed</p>
-                            <ChevronDownIcon className="size-4.5" />
-                        </button>
-                    )}
+                    <button
+                        onClick={handleSubscribe}
+                        className={`rounded-full flex gap-2 py-2 px-3 cursor-pointer ${
+                            isSubscribed ? "bg-gray-100 hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
+                        } items-center`}
+                    >
+                        {isSubscribed && <BellIcon className="size-5" />}
+                        <p className="text-sm font-bold">{isSubscribed ? "Subscribed" : "Subscribe"}</p>
+                        {isSubscribed && <ChevronDownIcon className="size-4.5" />}
+                    </button>
                 </section>
 
                 <section className="flex justify-end items-center gap-3 ">
