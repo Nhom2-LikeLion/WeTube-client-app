@@ -2,15 +2,15 @@ import { redirect } from "next/navigation";
 import HostPageImpl from "../../../../modules/stream/views/host/page.client";
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     at: string | undefined;
     rt: string | undefined;
-  };
+  }>;
 }
 
-export default async function HostPage({
-  searchParams: { at, rt },
-}: PageProps) {
+export default async function HostPage({ searchParams }: PageProps) {
+  const { at, rt } = await searchParams;
+
   if (!at || !rt) {
     redirect("/");
   }
@@ -19,5 +19,11 @@ export default async function HostPage({
     .LIVEKIT_WS_URL!.replace("wss://", "https://")
     .replace("ws://", "http://");
 
-  return <HostPageImpl authToken={at} roomToken={rt} serverUrl={serverUrl} />;
+  return (
+    <HostPageImpl
+      authToken={at}
+      roomToken={rt}
+      serverUrl={serverUrl}
+    />
+  );
 }

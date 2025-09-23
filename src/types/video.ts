@@ -111,3 +111,44 @@ export interface Short {
     };
 }
 
+
+export interface VideoDetail {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  createAt: string;
+  totalView: number;
+  name: string;
+  picture: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  createdAt: string;
+  count: number;
+}
+
+export interface RecommendResponse {
+  video: RecommendedVideoItem[];
+  tags: Tag[];
+}
+
+export interface VideoDetailResponse {
+  detail: VideoDetail;
+  recommend: RecommendResponse;
+}
+
+export interface VideoFormDetail {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  status: "ACTIVE" | "PRIVATE" | "UNLISTED" | "PENDING" | "INACTIVE";
+  createdAt: string;
+  updatedAt: string;
+  tags: Tag[];
+  duration: number;
+}

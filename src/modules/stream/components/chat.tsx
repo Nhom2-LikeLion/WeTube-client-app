@@ -55,7 +55,6 @@ export function Chat() {
     metadata ? JSON.parse(metadata) : {}
   ) as RoomMetadata;
 
-  // HACK: why do we get duplicate messages?
   const messages = useMemo(() => {
     const timestamps = chatMessages.map((msg) => msg.timestamp);
     const filtered = chatMessages.filter(

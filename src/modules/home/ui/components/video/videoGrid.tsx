@@ -17,7 +17,7 @@ export default function VideoGrid() {
     isLoading,
     isFetching,
     error,
-  } = useGetRecommendVideosQuery(userId!, {
+  } = useGetRecommendVideosQuery(userId || "", {
     skip: !userId,
   });
 

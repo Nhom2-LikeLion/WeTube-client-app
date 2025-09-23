@@ -1,10 +1,9 @@
-
 "use client";
 
-import Seelaterlist from "@/modules/playlists/ui/list/seelater-list";
+import Likedview from '@/modules/playlists/ui/view/liked-view';
 
-const Page = () => {
-  return <div><Seelaterlist/></div>;
-};
+import React from 'react'
 
-export default Page;
+export default function likedlaterpage() {
+  return <Likedview />;
+}

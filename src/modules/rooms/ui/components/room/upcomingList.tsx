@@ -65,7 +65,6 @@ function SortableVideo({
                 className="w-full h-full object-cover"
                 onClick={() => onPlay(video)}
             />
-            {/* Overlay khi hover */}
             <div
                 className={`absolute inset-0 bg-black/40 transition flex items-center justify-center
         ${isActive ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"}`}

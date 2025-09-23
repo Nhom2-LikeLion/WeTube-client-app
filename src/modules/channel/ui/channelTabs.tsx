@@ -1,24 +1,25 @@
 "use client";
 
-import {useParams, usePathname, useRouter} from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { usePathname, useRouter } from "next/navigation";
 
 const tabs = [
-  { label: "Trang chủ", slug: "" },
-  { label: "Video", slug: "videos" },
-  { label: "Danh sách phát", slug: "playlists" },
-  { label: "Bài đăng", slug: "posts" },
+  { label: "Home", slug: "" },
+  { label: "Videos", slug: "videos" },
+  { label: "Playlists", slug: "playlists" },
+  { label: "Posts", slug: "posts" },
 ];
 
 export default function ChannelTabs() {
   const pathname = usePathname();
   const router = useRouter();
-  const params = useParams();
+  const { user } = useAuth();
 
-  const userId = params.userId as string;
+  const channelId = user?.channelId;
   const currentTab = pathname.split("/").pop();
 
   const handleTabClick = (slug: string) => {
-    router.push(`/users/${userId}/${slug}`);
+    router.push(`/channel/${channelId}/${slug}`);
   };
 
   return (

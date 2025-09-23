@@ -19,10 +19,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Theme
-          appearance="dark"
-          accentColor="purple"
-          grayColor="mauve"
-          radius="none"
+            appearance="light"
+            accentColor="indigo"
+            grayColor="sand"
+            radius="large"
         >
           {children}
           <ThemePanel defaultOpen={false} />

@@ -58,58 +58,10 @@ const HomeNavbar = () => {
         </div>
 
         <div className="flex-1 flex justify-center max-w-[720px] mx-auto">
-          <SearchInput allVideos={[]} />
+          <SearchInput />
         </div>
 
         <div className="flex-shrink-0 items-center flex gap-4">
-          {/* <CreateButton triggerIcon={Plus}>
-            {(closeDropdown) => (
-              <>
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    handleUploadVideoClick(closeDropdown);
-                  }}
-                  className="cursor-pointer text-base p-3"
-                >
-                  <Video className="mr-2 h-5 w-5" />
-                  <span>Upload video</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onSelect={() => {
-                    close();
-                  }}
-                  className="cursor-pointer text-base p-3"
-                >
-                  <RadioTower className="mr-2 h-5 w-5" />
-                  <span>Live stream</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onSelect={() => {
-                    close();
-                  }}
-                  className="cursor-pointer text-base p-3"
-                >
-                  <SquarePen className="mr-2 h-5 w-5" />
-                  <span>Create post</span>
-                </DropdownMenuItem>
-              </>
-            )}
-          </CreateButton>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full px-4 py-2 flex items-center gap-2 text-black shadow-md transition-all duration-200"
-            onClick={() => {
-              console.log("Notification button clicked");
-            }}
-          >
-            <Bell className="h-10 w-10" />
-          </Button> */}
-          {/*<Button variant="ghost" size="lg" className="rounded-full px-4 py-2 flex items-center gap-2*/}
-          {/* text-black shadow-md transition-all duration-200">Sign In</Button>*/}
           {isLoading ? (
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />

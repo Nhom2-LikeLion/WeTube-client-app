@@ -1,14 +1,15 @@
-import Allplaylistlayout from "@/modules/playlists/layouts/Allplaylist-layout";
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Allplaylistlayout from "@/modules/playlists/layouts/allplaylist-layout";
 
 export const dynamic = "force-dynamic";
 
 interface LayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
-export default function Layout({children }: LayoutProps ) {
-    return (
-        <Allplaylistlayout>
-            {children}
-        </Allplaylistlayout>
-    )
+export default function Layout({ children }: LayoutProps) {
+  return (
+    <ProtectedRoute>
+      <Allplaylistlayout>{children}</Allplaylistlayout>
+    </ProtectedRoute>
+  );
 }

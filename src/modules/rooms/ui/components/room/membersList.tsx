@@ -2,23 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
-
-interface Member {
-    username: string;
-}
+import { Users } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 interface MemberPayload {
     count: number;
-    members: Member[];
+    members: string[];
 }
 
 interface MemberListProps {
     roomId: string;
     stompClient: Client;
+    username: string;
 }
 
-export default function MemberList({ roomId, stompClient }: MemberListProps) {
-    const [members, setMembers] = useState<Member[]>([]);
+export default function MemberList({ roomId, stompClient, username }: MemberListProps) {
+    const [members, setMembers] = useState<string[]>([]);
     const [count, setCount] = useState<number>(0);
 
     useEffect(() => {
@@ -35,30 +41,47 @@ export default function MemberList({ roomId, stompClient }: MemberListProps) {
             }
         );
 
-        // join room ngay khi mount
         stompClient.publish({
             destination: `/app/rooms.members.${roomId}`,
-            body: JSON.stringify({ username: "" })
+            body: JSON.stringify({ username }),
         });
 
         return () => {
-            // leave room khi unmount
             stompClient.publish({
                 destination: `/app/rooms.members.leave.${roomId}`,
-                body: JSON.stringify({ username: "" })
+                body: JSON.stringify({ username }),
             });
             subscription.unsubscribe();
         };
-    }, [stompClient, roomId]);
+    }, [stompClient, roomId, username]);
 
     return (
-        <div className="mb-4">
-            <div className="font-semibold mb-1">Members ({count}):</div>
-            <ul className="text-sm space-y-1">
-                {members.map((m) => (
-                    <li key={m.username}>{m.username}</li>
-                ))}
-            </ul>
-        </div>
+        <Dialog>
+            <DialogTrigger asChild>
+                <button className="relative flex items-center gap-1 p-2 rounded-lg hover:bg-muted">
+                    <Users className="w-5 h-5" />
+                    {count > 0 && (
+                        <Badge className="absolute -top-1 -right-2 px-2 py-0.5 text-xs">
+                            {count}
+                        </Badge>
+                    )}
+                </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs">
+                <DialogHeader>
+                    <DialogTitle>Room Members ({count})</DialogTitle>
+                </DialogHeader>
+                <ul className="mt-2 space-y-1 text-sm">
+                    {members.length === 0 && (
+                        <li className="text-muted-foreground italic">No members</li>
+                    )}
+                    {members.map((m) => (
+                        <li key={m} className="px-2 py-1 rounded hover:bg-muted">
+                            {m}
+                        </li>
+                    ))}
+                </ul>
+            </DialogContent>
+        </Dialog>
     );
 }

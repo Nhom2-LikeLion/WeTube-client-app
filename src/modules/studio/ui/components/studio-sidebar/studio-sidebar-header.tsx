@@ -35,7 +35,7 @@ export const StudioSidebarHeader = () => {
         >
           <Link
             prefetch
-            href="/users/current"
+            href={`/channel/${user.channelId}`}
           >
             <UserAvatar
               imageUrl={user.picture}
@@ -53,10 +53,10 @@ export const StudioSidebarHeader = () => {
     <SidebarHeader className="flex items-center justify-center pb-4">
       <Link
         prefetch
-        href="/users/current"
+        href={`/channel/${user.channelId}`}
       >
         <UserAvatar
-          imageUrl={user?.picture ?? ""}
+          imageUrl={user?.picture}
           name={user?.name ?? "User"}
           className="size-[112px] hover:opacity-80 transition-opacity"
         />

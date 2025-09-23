@@ -1,4 +1,5 @@
-import HistoryLayout from "@/modules/playlists/layouts/HistoryLayout";
+import ProtectedRoute from '@/components/ProtectedRoute';
+import HistoryLayout from "@/modules/playlists/layouts/historyLayout";
 
 export const dynamic = "force-dynamic"; // nếu bạn dùng SSR hoặc cần dynamic routing
 
@@ -7,5 +8,9 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return <HistoryLayout>{children}</HistoryLayout>;
+  return (
+    <ProtectedRoute>
+      <HistoryLayout>{children}</HistoryLayout>
+    </ProtectedRoute>
+  );
 }

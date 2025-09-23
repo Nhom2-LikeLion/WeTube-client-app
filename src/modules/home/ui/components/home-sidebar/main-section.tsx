@@ -12,40 +12,48 @@ import {FileVideo, HomeIcon, PlaySquareIcon, Popcorn, Radio} from "lucide-react"
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useState} from "react";
+import { useAuth } from "@/contexts/auth-context";
 import RoomModal from "@/modules/rooms/ui/components/room/roomModal";
+import {Bounce, toast } from "react-toastify";
 
 const items = [
-    {
-        title: "Home",
-        url: pageUrls.HOME,
-        icon: HomeIcon,
-    },
-    {
-        title: "Subscriptions",
-        url: pageUrls.SUBSCRIPTIONS,
-        icon: PlaySquareIcon,
-        auth: true,
-    },
-    {
-        title: "Shorts",
-        url: pageUrls.SHORTS,
-        icon: FileVideo,
-    },
-    {
-        title: "WatchTogether",
-        url: pageUrls.ROOMS,
-        icon: Popcorn,
-    },
-    {
-        title: "Live",
-        url: pageUrls.LIVESTREAM,
-        icon: Radio,
-    },
+    { title: "Home", url: pageUrls.HOME, icon: HomeIcon },
+    { title: "Subscriptions", url: pageUrls.SUBSCRIPTIONS, icon: PlaySquareIcon, auth: true },
+    { title: "Shorts", url: pageUrls.SHORTS, icon: FileVideo },
+    { title: "WatchTogether", url: pageUrls.ROOMS, icon: Popcorn },
+    { title: "Live", url: pageUrls.LIVESTREAM, icon: Radio },
 ];
-
 export const MainSection = () => {
     const pathname = usePathname();
     const [openRoomModal, setOpenRoomModal] = useState(false);
+    const { user } = useAuth();
+    const userId = user?.sub;
+    const isTest = true;
+    
+    const handleRoomClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+
+        if(isTest){
+            setOpenRoomModal(true);
+            return;
+        }
+        
+        if (!userId) {
+            toast('👀 You need to sign in to use this feature !', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "light",
+                transition: Bounce,
+            });
+            return;
+        }
+
+        setOpenRoomModal(true);
+    };
 
     return (
         <>
@@ -62,10 +70,7 @@ export const MainSection = () => {
                                     >
                                         <button
                                             className="flex items-center gap-4 w-full"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setOpenRoomModal(true);
-                                            }}
+                                            onClick={handleRoomClick}
                                         >
                                             <item.icon/>
                                             <span className="text-sm">{item.title}</span>

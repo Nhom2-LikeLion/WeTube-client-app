@@ -6,15 +6,7 @@ export const recommendApi = createApi({
   reducerPath: "recommendApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_PREFIX}/recommend`,
-    prepareHeaders: (headers) => {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-      }
-      return headers;
-    },
+    credentials: "include",
   }),
   endpoints: (builder) => ({
     getRecommendVideos: builder.query<RecommendedVideoItem[], string>({

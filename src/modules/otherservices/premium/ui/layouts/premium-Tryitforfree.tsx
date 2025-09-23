@@ -6,38 +6,33 @@ import PaymentButton from './PaymentButton';
 const features = [
   {
     icon: "/icons/no-ads.png",
-    title: "Xem YouTube không quảng cáo",
-    desc: "để đắm chìm trong những video bạn yêu thích mà không bị gián đoạn",
+    title: "Watch YouTube without ads",
+    desc: "immerse yourself in the videos you love without interruptions",
   },
   {
     icon: "/icons/download.png",
-    title: "Tải xuống",
-    desc: "để xem khi bạn không có kết nối",
+    title: "Download",
+    desc: "to watch when you don’t have an internet connection",
   },
   {
     icon: "/icons/background-play.png",
-    title: "Phát trong nền",
-    desc: "xem video khi dùng ứng dụng khác hoặc màn hình khoá",
+    title: "Background play",
+    desc: "keep videos playing while using other apps or when the screen is locked",
   },
   {
     icon: "/icons/music.png",
-    title: "Nghe nhạc không quảng cáo",
-    desc: "trên ứng dụng YouTube Music",
+    title: "Ad-free music",
+    desc: "on the YouTube Music app",
   },
 ];
 
 export default function PremiumTryitforfree() {
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center text-center px-4 py-20">
+    <section className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center text-center px-4 py-20pt-10 pb-20">
       <div className="max-w-3xl w-full flex flex-col items-center">
-        {/* Logo và dòng chữ */}
+       
         <div className="flex items-center justify-center gap-x-4 mb-6">
-          {/* <img
-            src="/image/Logo.png"
-            alt="WeTube Premium"
-            className="w-20 h-20 object-contain"
-          /> */}
           <Image
             src="/image/Logo.png"
             alt="WeTube Premium"
@@ -51,19 +46,18 @@ export default function PremiumTryitforfree() {
         </div>
 
         <p className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-          Tận hưởng trọn vẹn{" "}
+          Enjoy the full experience of{" "}
           <span className="text-blue-600">WeTube Premium</span>
         </p>
 
         <p className="text-lg text-gray-700 mb-6">
-          Trải nghiệm WeTube và WeTube Music không quảng cáo, phát nền, và không
-          cần mạng.
+          Experience WeTube and WeTube Music without ads, with background play,
+          and offline viewing.
         </p>
 
         <p className="text-base text-gray-600 mb-2">
-          Dùng thử 1 tháng với giá <strong>0 ₫</strong>. Sau đó chỉ{" "}
-          <strong>79.000 ₫/tháng</strong> • Không bao gồm VAT • Hủy bất cứ lúc
-          nào
+          Try 1 month for <strong>free</strong>. After that only{" "}
+          <strong>₫49,000/month</strong> • VAT not included • Cancel anytime
         </p>
 
         <div className="mt-6">
@@ -71,7 +65,7 @@ export default function PremiumTryitforfree() {
         </div>
 
         <p className="mt-4 text-sm text-blue-700 underline cursor-pointer hover:text-blue-900">
-          Gói dành cho gia đình hoặc sinh viên
+          Plans for family or students
         </p>
       </div>
 
@@ -81,11 +75,6 @@ export default function PremiumTryitforfree() {
             key={index}
             className="flex items-start gap-4 text-left px-4"
           >
-            {/* <img
-              src={feature.icon}
-              alt={feature.title}
-              className="w-12 h-12 object-contain"
-            /> */}
             <Image
               src={feature.icon}
               alt={feature.title}
