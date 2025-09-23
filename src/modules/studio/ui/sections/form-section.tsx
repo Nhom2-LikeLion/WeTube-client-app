@@ -105,7 +105,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
 
   // Progress bar states
   const [progress, setProgress] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Track form changes manually for file uploads
   const [hasChanges, setHasChanges] = useState(false);
@@ -203,7 +203,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
   );
 
   const onSubmit = async (values: VideoFormValues) => {
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
     setProgress(0);
 
     // Simulate progress
@@ -256,13 +256,13 @@ export default function FormSection({ videoId }: FormSectionProps) {
       console.error("Failed to update video:", err);
       toast.error("Failed to update video!");
       setProgress(0);
-      setIsSubmitting(false);
+      // setIsSubmitting(false);
       clearInterval(progressInterval);
     }
   };
 
   const renderButtonContent = () => {
-    if (isSubmitting) {
+    if (isUpdating) {
       return (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -288,9 +288,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
             <h1 className="text-2xl font-bold">Video Details</h1>
             <Button
               type="submit"
-              disabled={
-                isSubmitting || (!form.formState.isDirty && !hasChanges)
-              }
+              disabled={isUpdating || (!form.formState.isDirty && !hasChanges)}
             >
               {renderButtonContent()}
             </Button>
@@ -308,7 +306,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                       <Textarea
                         {...field}
                         placeholder="Input video title"
-                        disabled={isSubmitting}
+                        disabled={isUpdating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -326,7 +324,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                         {...field}
                         rows={12}
                         placeholder="Describe your video..."
-                        disabled={isSubmitting}
+                        disabled={isUpdating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -343,7 +341,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                         <ThumbnailSelector
                           thumbnailPreview={thumbnailPreview}
                           onThumbnailChange={handleThumbnailChange}
-                          disabled={isSubmitting}
+                          disabled={isUpdating}
                         />
                       </div>
                     </FormControl>
@@ -361,7 +359,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                       <Input
                         {...field}
                         placeholder="Enter tags, starting with #"
-                        disabled={isSubmitting}
+                        disabled={isUpdating}
                       />
                     </FormControl>
                     <FormMessage />
@@ -390,7 +388,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                   >{`${window.location.origin}/watch/${video.id}`}</Link>
 
                   {/* Progress Bar */}
-                  {isSubmitting && (
+                  {isUpdating && (
                     <div className="mt-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
@@ -446,7 +444,7 @@ export default function FormSection({ videoId }: FormSectionProps) {
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
-                      disabled={isSubmitting}
+                      disabled={isUpdating}
                     >
                       <FormControl>
                         <SelectTrigger>

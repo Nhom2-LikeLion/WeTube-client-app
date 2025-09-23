@@ -1,5 +1,5 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
-import Allplaylistlayout from "@/modules/playlists/layouts/Allplaylist-layout";
+import Allplaylistlayout from "@/modules/playlists/layouts/allplaylist-layout";
 
 export const dynamic = "force-dynamic";
 

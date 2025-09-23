@@ -1,5 +1,5 @@
 import React from "react";
-import Playlistlist from "../list/Playlist-list";
+import Playlistlist from '../list/playlist-list';
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Allplaylist() {

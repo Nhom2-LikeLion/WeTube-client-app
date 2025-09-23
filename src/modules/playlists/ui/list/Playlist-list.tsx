@@ -7,7 +7,7 @@ import { playlistService } from "./playlist-API";
 
 export default function Playlistlist({ userId }: { userId: string }) {
   const [playlists, setPlaylists] = useState<Playlists[]>([]);
-  const [recentPlaylists, setRecentPlaylists] = useState<Playlists[]>([]);
+  // const [recentPlaylists, setRecentPlaylists] = useState<Playlists[]>([]);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -29,6 +29,7 @@ export default function Playlistlist({ userId }: { userId: string }) {
 
   const tabs = [
     { label: "Playlists", value: "playlists", playlistType: null },
+    { label: "Recently Added", value: "recently-added", playlistType: null },
     { label: "Watch Later", value: "watchlater", playlistType: "WATCH_LATER" },
     { label: "Music", value: "music", playlistType: "MUSIC" },
     { label: "Saved", value: "saved", playlistType: "SAVED" },
@@ -36,9 +37,25 @@ export default function Playlistlist({ userId }: { userId: string }) {
     { label: "Liked", value: "liked", playlistType: "LIKED" },
   ];
 
+  const getPlaylistsForTab = (
+    tabValue: string,
+    playlistType: string | null
+  ) => {
+    if (tabValue === "recently-added") {
+      return [...playlists].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+    if (playlistType) {
+      return playlists.filter((p) => p.playlistType === playlistType);
+    }
+    return playlists;
+  };
+
   return (
     <div className="flex-1 px-6">
-      <h1 className="text-2xl font-bold mb-6">Danh sách phát</h1>
+      <h1 className="text-2xl font-bold mb-6">Playlists</h1>
 
       <Tabs defaultValue="playlists">
         <TabsList className="flex justify-start border-none p-0 h-auto gap-2 px-6 w-full">
@@ -56,9 +73,13 @@ export default function Playlistlist({ userId }: { userId: string }) {
         </TabsList>
 
         {tabs.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="mt-8">
+          <TabsContent
+            key={tab.value}
+            value={tab.value}
+            className="mt-8"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {tab.value === "recently-added"
+              {/* {tab.value === "recently-added"
                 ? recentPlaylists.map((playlist) => (
                     <PlaylistCard
                       key={playlist.playlistId}
@@ -82,7 +103,16 @@ export default function Playlistlist({ userId }: { userId: string }) {
                       playlists={playlist}
                       category={tab.value}
                     />
-                  ))}
+                  ))} */}
+              {getPlaylistsForTab(tab.value, tab.playlistType).map(
+                (playlist) => (
+                  <PlaylistCard
+                    key={playlist.playlistId}
+                    playlists={playlist}
+                    category={tab.value}
+                  />
+                )
+              )}
             </div>
           </TabsContent>
         ))}

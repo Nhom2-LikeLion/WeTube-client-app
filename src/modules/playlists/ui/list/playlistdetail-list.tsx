@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MoreVertical, PlayCircle, Shuffle } from "lucide-react";
 import { playlistService } from "./playlist-API";
 import ColorThief from "colorthief";
+import Image from 'next/image';
 
 export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const [playlist, setPlaylist] = useState<any>(null);
@@ -55,7 +56,7 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
           className="rounded-lg p-6 text-white flex flex-col h-full"
           style={{ backgroundColor: bgColor }}
         >
-          <img
+          <Image
             ref={imgRef}
             src={firstVideo?.thumbnailUrl || "/api/placeholder/300/200"}
             alt="Playlist"
@@ -92,7 +93,7 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
               {index + 1}
             </div>
             <div className="relative flex-shrink-0">
-              <img
+              <Image
                 src={video.thumbnailUrl || "/api/placeholder/168/94"}
                 alt={video.videoTitle}
                 className="w-42 h-24 object-cover rounded-lg"

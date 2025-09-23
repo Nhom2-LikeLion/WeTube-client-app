@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import WatchPageImpl from "../../../../../modules/stream/views/room/page.client";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     roomName: string;
-  };
+  }>;
 }
 
-export default async function WatchPage({ params: { roomName } }: PageProps) {
+export default async function WatchPage({ params }: PageProps) {
+  const { roomName } = await params;
+
   if (!roomName) {
     redirect("/");
   }
@@ -16,5 +18,10 @@ export default async function WatchPage({ params: { roomName } }: PageProps) {
     .LIVEKIT_WS_URL!.replace("wss://", "https://")
     .replace("ws://", "http://");
 
-  return <WatchPageImpl roomName={roomName} serverUrl={serverUrl} />;
+  return (
+    <WatchPageImpl
+      roomName={roomName}
+      serverUrl={serverUrl}
+    />
+  );
 }

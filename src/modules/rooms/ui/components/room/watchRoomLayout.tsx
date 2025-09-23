@@ -90,8 +90,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                             videos={videos}
                             currentVideoId={currentVideoId}
                             onChangeVideo={setCurrentVideoId}
-                            roomId={roomId}
-                            username={username}
                         />
                     </div>
 

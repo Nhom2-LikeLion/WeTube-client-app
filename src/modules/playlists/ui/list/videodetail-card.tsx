@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ColorThief from "colorthief";
+import Image from 'next/image';
 
 interface VideoCardProps {
   thumbnailUrl: string;
@@ -34,7 +35,7 @@ export default function VideoCard({ thumbnailUrl, title }: VideoCardProps) {
       className="rounded-2xl shadow-md p-4 transition-all duration-300"
       style={{ backgroundColor: bgColor }}
     >
-      <img
+      <Image
         ref={imgRef}
         src={thumbnailUrl}
         alt={title}

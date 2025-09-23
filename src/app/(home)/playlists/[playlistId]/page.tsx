@@ -1,11 +1,10 @@
-"use client";
-
 import PlaylistDetail from "@/modules/playlists/ui/list/playlistdetail-list";
 
-export default function Page({
-  params,
-}: {
-  params: { playlistId: string };
-}) {
-  return <PlaylistDetail playlistId={params.playlistId} />;
+interface PlaylistsProps {
+  readonly params: Promise<{ playlistId: string }>;
+}
+
+export default async function PlaylistsPage({ params }: PlaylistsProps) {
+    const { playlistId } = await params;
+  return <PlaylistDetail playlistId={playlistId} />;
 }

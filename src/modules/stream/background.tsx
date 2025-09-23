@@ -4,7 +4,7 @@ import {useEffect, useRef} from "react";
 
 export default function NeonLinesBackground() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    let opacity = 0;
+    // let opacity = 0;
 
 
     useEffect(() => {

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from "next/link";
 
 export interface Playlists {
@@ -44,7 +45,7 @@ export default function PlaylistCard({
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div className="relative aspect-video">
-        <img
+        <Image
           src={latestThumbnail || "/images/default-thumbnail.jpg"}
           alt={playlists.playlistTitle}
           className="w-full h-full object-cover"

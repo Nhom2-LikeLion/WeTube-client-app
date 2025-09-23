@@ -23,7 +23,8 @@ export function useStompClient() {
             setConnected(true);
         };
 
-        stompClient.onStompError = (frame) => {
+        // stompClient.onStompError = (frame) => {
+        stompClient.onStompError = () => {
             // console.error("[STOMP] Broker Error", frame);
         };
 
