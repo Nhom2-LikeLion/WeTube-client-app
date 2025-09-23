@@ -1,4 +1,3 @@
-import { API_PREFIX } from '@/constants/appConstant';
 import axios, {
   AxiosError,
   AxiosResponse,
