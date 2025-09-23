@@ -90,8 +90,6 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                             videos={videos}
                             currentVideoId={currentVideoId}
                             onChangeVideo={setCurrentVideoId}
-                            roomId={roomId}
-                            username={username}
                         />
                     </div>
 
@@ -122,9 +120,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
                         {stompClient && (
                             <div className="mt-3">
                                 <MemberList
-                                    roomId={roomId}
-                                    stompClient={stompClient}
-                                    username={username}
+
                                 />
                             </div>
                         )}

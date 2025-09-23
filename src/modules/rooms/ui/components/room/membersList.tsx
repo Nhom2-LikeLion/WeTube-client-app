@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Client } from "@stomp/stompjs";
 import { Users } from "lucide-react";
 import {
     Dialog,
@@ -11,49 +9,11 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
 
-interface MemberPayload {
-    count: number;
-    members: string[];
-}
-
-interface MemberListProps {
-    roomId: string;
-    stompClient: Client;
-    username: string;
-}
-
-export default function MemberList({ roomId, stompClient, username }: MemberListProps) {
-    const [members, setMembers] = useState<string[]>([]);
-    const [count, setCount] = useState<number>(0);
-
-    useEffect(() => {
-        if (!stompClient.connected) return;
-
-        const subscription = stompClient.subscribe(
-            `/topic/rooms.${roomId}.members`,
-            (msg) => {
-                if (msg.body) {
-                    const payload: MemberPayload = JSON.parse(msg.body);
-                    setMembers(payload.members);
-                    setCount(payload.count);
-                }
-            }
-        );
-
-        stompClient.publish({
-            destination: `/app/rooms.members.${roomId}`,
-            body: JSON.stringify({ username }),
-        });
-
-        return () => {
-            stompClient.publish({
-                destination: `/app/rooms.members.leave.${roomId}`,
-                body: JSON.stringify({ username }),
-            });
-            subscription.unsubscribe();
-        };
-    }, [stompClient, roomId, username]);
+export default function MemberList() {
+    const members = useRoomStore((s) => s.room?.members || []);
+    const count = members.length;
 
     return (
         <Dialog>
@@ -76,8 +36,8 @@ export default function MemberList({ roomId, stompClient, username }: MemberList
                         <li className="text-muted-foreground italic">No members</li>
                     )}
                     {members.map((m) => (
-                        <li key={m} className="px-2 py-1 rounded hover:bg-muted">
-                            {m}
+                        <li key={m.username} className="px-2 py-1 rounded hover:bg-muted">
+                            {m.username}
                         </li>
                     ))}
                 </ul>
