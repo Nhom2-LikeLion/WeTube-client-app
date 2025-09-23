@@ -152,3 +152,74 @@ export interface VideoFormDetail {
   tags: Tag[];
   duration: number;
 }
+
+
+export interface VideoDetailResponseDto {
+  detail: VideoDetailDto;
+  recommend: RecommendResponseDto;
+}
+
+export interface VideoDetailDto {
+  id: string; // UUID dạng string
+  title: string;
+  description: string;
+  videoUrl: string;
+  createAt: string; // LocalDate -> string (YYYY-MM-DD)
+  totalView: number;
+  name: string;
+  picture: string;
+  totalSubscribers: number;
+  comments: Comment[];
+}
+
+export interface RecommendResponseDto {
+  video: RecommendVideoDto[];
+  tags: TagDto[];
+}
+
+export interface RecommendVideoDto {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  totalView: number;
+  createAt: string; // LocalDate -> string
+  name: string;
+  duration: number; // Long -> number
+  picture: string;
+}
+
+export interface TagDto {
+  id: string;
+  name: string;
+  createdAt: string; // LocalDateTime -> string (ISO format)
+  count: number;
+}
+
+export interface ApiUser {
+  id: string;
+  name: string;
+  picture: string;
+}
+
+export interface ApiComment {
+  id: string;
+  content: string;
+  user: ApiUser;
+  likeCount: number;
+  createdAt: string;
+  updatedAt: string;
+  replyCount: number | null;
+  replies: ApiComment[] | null;
+}
+
+export interface RelatedVideo {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  totalView: number;
+  createAt: string;
+  name: string;
+  duration: number;
+  picture: string;
+}
+

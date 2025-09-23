@@ -33,12 +33,12 @@ export default function PlaylistCard({
       : `/playlists/${playlists.playlistId}?category=${category.toLowerCase()}`;
 
       const latestThumbnail =
-      playlists.videos?.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )[0]?.thumbnailUrl ||
-      playlists.thumbnailUrl ||
-      "/images/default-thumbnail.jpg";
+        playlists.videos?.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )[0]?.thumbnailUrl ||
+        playlists.thumbnailUrl ||
+        "/images/default-thumbnail.jpg";
 
 
 
@@ -48,6 +48,8 @@ export default function PlaylistCard({
         <Image
           src={latestThumbnail || "/images/default-thumbnail.jpg"}
           alt={playlists.playlistTitle}
+          width={400}
+          height={225}
           className="w-full h-full object-cover"
         />
         <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
@@ -64,7 +66,10 @@ export default function PlaylistCard({
           <p>{playlists.privacy} • Danh sách phát</p>
           <p className="text-gray-500">{playlists.lastUpdatedLabel}</p>
 
-          <Link href={href} className="text-xs text-black hover:underline font-medium">
+          <Link
+            href={href}
+            className="text-xs text-black hover:underline font-medium"
+          >
             Xem toàn bộ danh sách
           </Link>
         </div>

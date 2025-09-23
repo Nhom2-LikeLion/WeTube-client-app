@@ -81,4 +81,5 @@ export const {
   useGetVideoFormDetailsQuery,
   useUpdateVideoDetailsMutation,
   useUploadVideoMutation,
+  useGetVideoDetailQuery,
 } = videoApi;

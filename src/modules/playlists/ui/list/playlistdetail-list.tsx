@@ -60,6 +60,9 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
             ref={imgRef}
             src={firstVideo?.thumbnailUrl || "/api/placeholder/300/200"}
             alt="Playlist"
+            width={300}
+            height={200}
+            priority
             className="w-full h-48 object-cover rounded mb-4"
           />
           <h1 className="text-2xl font-bold mb-2">

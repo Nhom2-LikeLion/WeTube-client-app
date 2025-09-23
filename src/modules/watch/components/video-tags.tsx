@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useVideo } from "@/hooks/use-video";
 
-const container:Variants = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
