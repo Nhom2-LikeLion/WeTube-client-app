@@ -120,7 +120,7 @@ function SearchResultsContent() {
       <div className="space-y-4">
         {results.map((video) => (
           <Link
-            href={`/watch?v=${video.id}`}
+            href={`/watch/${video.id}`}
             key={video.id}
             onMouseEnter={() => setHoveredId(video.id)}
             onMouseLeave={() => setHoveredId(null)}
