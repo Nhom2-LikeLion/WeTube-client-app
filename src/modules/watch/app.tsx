@@ -22,7 +22,12 @@ export default function App({ videoId }: AppProps) {
     return () => clearVideoDetail();
   }, [data, setVideoDetail, clearVideoDetail]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+        <div className="flex justify-center items-center py-10">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    );
   if (isError) return <p>Something went wrong.</p>;
 
   return (

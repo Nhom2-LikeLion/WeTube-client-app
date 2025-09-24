@@ -44,9 +44,14 @@ export default function VideoGrid() {
   }, [visibleCount, videos.length, isFetching, loadMore]);
 
   if (!userId)
-    return <p className="p-4">Bạn cần đăng nhập để xem video gợi ý.</p>;
-  if (isLoading) return <p className="p-4">Đang tải video...</p>;
-  if (error) return <p className="p-4 text-red-500">Lỗi tải video!</p>;
+    return <p className="p-4">Please Sign In To Enjoy Our Video Community ❤</p>;
+  if (isLoading)
+    return (
+        <div className="flex justify-center items-center py-10">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    );
+  if (error) return <p className="p-4 text-red-500">Error Downloading Video</p>;
 
   return (
     <div className="p-4">
@@ -65,7 +70,7 @@ export default function VideoGrid() {
       )}
 
       {visibleCount >= videos.length && !isFetching && (
-        <p className="text-center mt-6 text-gray-500">Đã hết video</p>
+        <p className="text-center mt-6 text-gray-500">Let's start by searching something 😊</p>
       )}
     </div>
   );
