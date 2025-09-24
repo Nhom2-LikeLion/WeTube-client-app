@@ -19,10 +19,8 @@ export default function VideoGrid() {
     error,
   } = useGetRecommendVideosQuery(userId || "", {
     skip: !userId,
+    refetchOnMountOrArgChange: true,
   });
-
-  // const loadMore = () =>
-  //   setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
 
   const loadMore = useCallback(() => {
     setVisibleCount((prev) => Math.min(prev + LOAD_COUNT, videos.length));
@@ -31,10 +29,10 @@ export default function VideoGrid() {
   useEffect(() => {
     const handleScroll = () => {
       if (
-        window.innerHeight + window.scrollY + 100 >=
+          window.innerHeight + window.scrollY + 100 >=
           document.documentElement.scrollHeight &&
-        visibleCount < videos.length &&
-        !isFetching
+          visibleCount < videos.length &&
+          !isFetching
       ) {
         loadMore();
       }
@@ -45,33 +43,44 @@ export default function VideoGrid() {
 
   if (!userId)
     return <p className="p-4">Please Sign In To Enjoy Our Video Community ❤</p>;
+
   if (isLoading)
     return (
         <div className="flex justify-center items-center py-10">
           <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
     );
-  if (error) return <p className="p-4 text-red-500">Error Downloading Video</p>;
+
+  if (error)
+    return <p className="p-4 text-red-500">Error Downloading Video</p>;
 
   return (
-    <div className="p-4">
-      <div className="flex flex-wrap gap-4">
-        {videos.slice(0, visibleCount).map((video) => (
-          <div key={video.id} className="w-full sm:w-[calc(33.333%-1rem)]">
-            <VideoCard {...video} />
-          </div>
-        ))}
-      </div>
-
-      {isFetching && (
-        <div className="flex justify-center mt-6">
-          <div className="w-10 h-10 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
+      <div className="p-4">
+        <div className="flex flex-wrap gap-4">
+          {videos.slice(0, visibleCount).map((video) => (
+              <div key={video.id} className="w-full sm:w-[calc(33.333%-1rem)]">
+                <VideoCard {...video} />
+              </div>
+          ))}
         </div>
-      )}
 
-      {visibleCount >= videos.length && !isFetching && (
-        <p className="text-center mt-6 text-gray-500">Let's start by searching something 😊</p>
-      )}
-    </div>
+        {isFetching && (
+            <div className="flex justify-center mt-6">
+              <div className="w-10 h-10 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin"></div>
+            </div>
+        )}
+
+        {videos.length === 0 && !isFetching && (
+            <p className="text-center mt-6 text-gray-500">
+              Let's start by searching something 😊
+            </p>
+        )}
+
+        {visibleCount >= videos.length && videos.length > 0 && !isFetching && (
+            <p className="text-center mt-6 text-gray-500">
+              You have reached the end of recommendations
+            </p>
+        )}
+      </div>
   );
 }
