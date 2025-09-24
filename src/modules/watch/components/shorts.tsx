@@ -1,4 +1,3 @@
-import {useShorts} from "@/hooks/use-shorts";
 import ShortVideo from "./short-video";
 import { useVideoStore } from "@/store/zustand/videoStore";
 import { useState } from "react";

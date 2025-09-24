@@ -3,7 +3,7 @@
 import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { useAuth } from "@/contexts/auth-context";
-import { formatDuration, formatViews, timeAgo } from "@/lib/utils";
+import { formatViews, timeAgo } from "@/lib/utils";
 import { VideoThumbnail } from '@/modules/videos/ui/components/video-thumbnail';
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
