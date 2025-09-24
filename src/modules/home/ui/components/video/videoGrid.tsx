@@ -72,7 +72,7 @@ export default function VideoGrid() {
 
         {videos.length === 0 && !isFetching && (
             <p className="text-center mt-6 text-gray-500">
-              Let's start by searching something 😊
+              Let&apos;s start by searching something 😊
             </p>
         )}
 
