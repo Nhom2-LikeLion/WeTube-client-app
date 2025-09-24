@@ -1,5 +1,5 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
-import HistoryLayout from "@/modules/playlists/layouts/historyLayout";
+import HistoryLayout from "@/modules/playlists/layouts/HistoryLayout";
 
 export const dynamic = "force-dynamic"; // nếu bạn dùng SSR hoặc cần dynamic routing
 

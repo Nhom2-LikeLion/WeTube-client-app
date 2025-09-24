@@ -272,6 +272,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
             { type: "Playlist", id: `USER_${user.sub}` },
           ])
         );
+        dispatch(playlistApi.util.invalidateTags(["Playlist"]));
       }
       dispatch(videoApi.util.invalidateTags(["VideoList"]));
 
