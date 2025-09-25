@@ -1,12 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import VideoPlayer from "../video/videoPlayer";
 import UpcomingList, { VideoItem } from "./upcomingList";
 import MemberList from "./membersList";
 import RoomChat from "./roomChat";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 
@@ -31,52 +28,48 @@ const initialVideos: VideoItem[] = [
     },
 ];
 
-interface WatchRoomLayoutProps {
-    roomId: string;
-    username: string;
-}
 
-export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutProps) {
+
+export default function WatchRoomLayout() {
     const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
     const [currentVideoId, setCurrentVideoId] = useState<number>(videos[0]?.id ?? -1);
-    const [stompClient, setStompClient] = useState<Client | null>(null);
     const [chatOpen, setChatOpen] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        const socket = new SockJS(`http://localhost:8080/ws`);
-        const client = new Client({
-            webSocketFactory: () => socket,
-            // debug: (str) => console.log("[STOMP]", str),
-            reconnectDelay: 5000,
-        });
+    // useEffect(() => {
+    //     const socket = new SockJS(`http://localhost:8080/ws`);
+    //     const client = new Client({
+    //         webSocketFactory: () => socket,
+    //         // debug: (str) => console.log("[STOMP]", str),
+    //         reconnectDelay: 5000,
+    //     });
 
-        client.onConnect = (frame) => {
-            console.log("✅ Connected STOMP to room", roomId);
-            console.log("STOMP frame:", frame);
+    //     client.onConnect = (frame) => {
+    //         console.log("✅ Connected STOMP to room", roomId);
+    //         console.log("STOMP frame:", frame);
 
-            client.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "JOIN", sender: username }),
-            });
-        };
+    //         client.publish({
+    //             destination: `/app/chat.${roomId}`,
+    //             body: JSON.stringify({ type: "JOIN", sender: username }),
+    //         });
+    //     };
 
-        client.activate();
-        setStompClient(client);
+    //     client.activate();
+    //     setStompClient(client);
 
-        return () => {
-            client.deactivate();
-        };
-    }, [roomId, username]);
+    //     return () => {
+    //         client.deactivate();
+    //     };
+    // }, [roomId, username]);
 
     const handleLeaveRoom = () => {
-        if (stompClient?.connected) {
-            stompClient.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "LEAVE", sender: username }),
-            });
-        }
-        router.push("/");
+        // if (stompClient?.connected) {
+        //     stompClient.publish({
+        //         destination: `/app/chat.${roomId}`,
+        //         body: JSON.stringify({ type: "LEAVE", sender: username }),
+        //     });
+        // }
+        // router.push("/");
     };
 
     return (
