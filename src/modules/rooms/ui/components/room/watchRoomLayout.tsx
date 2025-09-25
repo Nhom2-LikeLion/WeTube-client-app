@@ -44,7 +44,7 @@ export default function WatchRoomLayout({ roomId, username }: WatchRoomLayoutPro
     const router = useRouter();
 
     useEffect(() => {
-        const socket = new SockJS(`http://localhost:8080/ws`);
+        const socket = new SockJS(`http://wetube.name.vn:8080/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
             // debug: (str) => console.log("[STOMP]", str),

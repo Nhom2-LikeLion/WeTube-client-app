@@ -10,12 +10,12 @@ export function useStompClient() {
     // Khởi tạo client 1 lần
     useEffect(() => {
         const stompClient = new Client({
-            brokerURL: undefined,
-            webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
-            reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-            // debug: (str) => console.log("[STOMP]", str),
+          brokerURL: undefined,
+          webSocketFactory: () => new SockJS("http://wetube.name.vn:8080/ws"),
+          reconnectDelay: 5000,
+          heartbeatIncoming: 4000,
+          heartbeatOutgoing: 4000,
+          // debug: (str) => console.log("[STOMP]", str),
         });
 
         stompClient.onConnect = () => {
