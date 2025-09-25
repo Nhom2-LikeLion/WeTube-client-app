@@ -2,7 +2,7 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install --only=production && npm cache clean --force
 
 # ===== build =====
 FROM node:24-alpine AS build
