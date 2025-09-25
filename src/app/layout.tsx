@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { LoadingBarProvider } from "@/contexts/loading-bar-context";
 import { LoadingBar } from "@/components/LoadingBar";
 import { NavigationEvents } from "@/components/NavigationEvents";
-import {Bounce, ToastContainer } from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const geistSans = Geist({
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   title: "WeTube",
   description: "Stream and Share Videos Seamlessly",
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: "/favicon.ico" }],
   },
 };
 
