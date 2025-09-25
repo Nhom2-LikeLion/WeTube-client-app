@@ -18,7 +18,7 @@ interface User {
   email: string;
   picture: string;
   channelId: string;
-    channel: {
+  channel: {
     id: string;
     backgroundImgUrl: string;
     name: string;
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log("✅ Data from Usseerrrr:", user.playlists);
         // Lấy playlist có type là HISTORY
         const historyPlaylist = user.playlists.find(
-        (pl) => pl.playlistType === "HISTORY"
+          (pl) => pl.playlistType === "HISTORY"
         );
         console.log("❤ PLaylist Data:", historyPlaylist?.playlistId);
         setUser(user);
@@ -96,7 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(() => {
-    window.location.href = `${apiClient.defaults.baseURL}/auth/login/google`;
+    const baseUrl = apiClient.defaults.baseURL || "";
+    const rootUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/api"));
+
+    const googleLoginUrl = `${rootUrl}/oauth2/authorization/google`;
+
+    // window.location.href = `${apiClient.defaults.baseURL}/auth/login/google`;
+    window.location.href = googleLoginUrl;
   }, []);
 
   const logout = useCallback(async () => {
