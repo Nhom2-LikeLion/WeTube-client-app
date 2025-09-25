@@ -25,5 +25,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:latest
-          build-args: |
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}

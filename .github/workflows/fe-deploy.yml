@@ -27,9 +27,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
-          build-args: |
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
 
+        
   deploy:
     name: Deploy Frontend to EC2
     runs-on: ubuntu-latest
