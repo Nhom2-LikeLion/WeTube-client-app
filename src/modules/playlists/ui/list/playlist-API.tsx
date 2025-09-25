@@ -1,4 +1,4 @@
-const API_BASE = "http://wetube.name.vn:8080/api/playlists";
+const API_BASE = "https://wetube.name.vn/api/playlists";
 
 function jsonHeaders() {
   return {

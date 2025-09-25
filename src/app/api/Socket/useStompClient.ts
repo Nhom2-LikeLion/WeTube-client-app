@@ -11,7 +11,7 @@ export function useStompClient() {
     useEffect(() => {
         const stompClient = new Client({
           brokerURL: undefined,
-          webSocketFactory: () => new SockJS("http://wetube.name.vn:8080/ws"),
+          webSocketFactory: () => new SockJS("https://wetube.name.vn"),
           reconnectDelay: 5000,
           heartbeatIncoming: 4000,
           heartbeatOutgoing: 4000,

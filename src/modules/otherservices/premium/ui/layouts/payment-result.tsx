@@ -23,7 +23,7 @@ export default function PaymentResult() {
     if (resultCode === "0") {
       // Thanh toán thành công
       fetch(
-        `http://wetube.name.vn:8080/api/payment/confirm?orderId=${orderId}`,
+        `https://wetube.name.vn/api/payment/confirm?orderId=${orderId}`,
         {
           method: "POST",
         }

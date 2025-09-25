@@ -11,7 +11,7 @@ export default function PaymentButton() {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://wetube.name.vn:8080/api/payment/momo/create",
+        "https://wetube.name.vn/api/payment/momo/create",
         {
           method: "POST",
           headers: {

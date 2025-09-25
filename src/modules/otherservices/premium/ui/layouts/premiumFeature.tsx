@@ -20,7 +20,7 @@ export default function PremiumFeatures() {
   useEffect(() => {
     const fetchSubPacks = async () => {
       try {
-        const res = await fetch("http://wetube.name.vn:8080/api/subpacks");
+        const res = await fetch("https://wetube.name.vn/api/subpacks");
         const data: SubPack[] = await res.json();
 
         const updatedData = data
@@ -47,7 +47,7 @@ export default function PremiumFeatures() {
     setPayLoading(subPackId);
     try {
       const res = await fetch(
-        "http://wetube.name.vn:8080/api/payment/momo/create",
+        "https://wetube.name.vn/api/payment/momo/create",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
