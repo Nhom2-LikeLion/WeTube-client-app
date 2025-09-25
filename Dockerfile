@@ -10,10 +10,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 👇 Truyền key ở build-time qua ARG, không hardcode
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bG95YWwtY29sdC03OC5jbGVyay5hY2NvdW50cy5kZXYk
-
 RUN npm run build
 
 # ===== run =====
