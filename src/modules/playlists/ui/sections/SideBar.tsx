@@ -13,7 +13,7 @@ import {
 const Sidebar = () => {
   return (
     <div className=" p-8  border-gray-200 bg-white z-40">
-      {/* Search */}
+      
       <div className="relative mb-8">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
         <Input
@@ -22,7 +22,6 @@ const Sidebar = () => {
         />
       </div>
 
-      {/* History Controls */}
       <div className="space-y-4">
         <Button variant="ghost" className="w-full justify-start h-auto p-3 text-black hover:bg-gray-100 text-left">
           <Trash2 className="h-5 w-5 mr-3 flex-shrink-0" />
@@ -38,7 +37,6 @@ const Sidebar = () => {
         </Button>
       </div>
 
-      {/* Additional Options */}
       <div className="mt-8 pt-6 border-t border-gray-200 space-y-2">
         <Button variant="ghost" className="w-full justify-start h-auto p-3 text-gray-600 hover:bg-gray-100 hover:text-black text-left">
           <MessageCircle className="h-4 w-4 mr-3 flex-shrink-0" />

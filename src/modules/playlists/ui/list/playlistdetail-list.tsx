@@ -99,6 +99,8 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
               <Image
                 src={video.thumbnailUrl || "/api/placeholder/168/94"}
                 alt={video.videoTitle}
+                width={168}
+                height={94}
                 className="w-42 h-24 object-cover rounded-lg"
               />
               <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-1 rounded">

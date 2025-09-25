@@ -10,8 +10,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { Check, Clock, ListPlus, MoreVertical } from "lucide-react";
-import Image from 'next/image';
+import Image from "next/image";
 import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  FileText,
+  MessageCircle,
+  MessageSquare,
+  Pause,
+  Search,
+  Settings,
+  Trash2,
+} from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { playlistService } from "../list/playlist-API";
+import { useRouter } from "next/navigation";
 
 interface VideoItemProps {
   id: string;
@@ -21,39 +34,60 @@ interface VideoItemProps {
   duration: number;
   thumbnail: string;
   progress?: number;
+   onAddedToHistory?: () => void;
 }
 
-const VideoItem: React.FC<VideoItemProps> = ({
+export default function VideoItem({
+  id,
   title,
   channel,
   views,
   duration,
   thumbnail,
   progress,
-}) => {
+  onAddedToHistory,
+}: VideoItemProps){
+
   const [watchLaterClicked, setWatchLaterClicked] = useState(false);
   const [addedPlaylistClicked, setAddedPlaylistClicked] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
 
-  // Reset toàn bộ khi rời khỏi group
   const resetState = () => {
     setWatchLaterClicked(false);
     setAddedPlaylistClicked(false);
+  };
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${minutes}:${sec < 10 ? "0" : ""}${sec}`;
+  };
+
+   const handleClickVideo = async () => {
+    if (!user?.sub) return;
+
+    try {
+      await playlistService.addToHistory(user.sub, id);
+      console.log("Video đã lưu vào history");
+
+      if (onAddedToHistory) onAddedToHistory();
+
+      router.push(`/watch/${id}`);
+    } catch (err) {
+      console.error("Lỗi khi lưu history:", err);
+    }
   };
 
   return (
     <Card
       onMouseLeave={resetState}
+      onClick={handleClickVideo}
       className="bg-transparent border-none shadow-none hover:cursor-pointer py-2"
     >
       <CardContent className="p-0">
         <div className="flex gap-3 group">
           {/* Thumbnail */}
           <div className="relative w-1/3 h-28 overflow-hidden rounded-sm flex-shrink-0">
-            {/* <img
-              src={thumbnail}
-              alt={title}
-              className=" w-full h-full rounded-sm"
-            /> */}
             <Image
               src={thumbnail}
               alt={title}
@@ -96,7 +130,6 @@ const VideoItem: React.FC<VideoItemProps> = ({
             </div>
 
             <VideoOverlay duration={duration} progress={progress} />
-
           </div>
 
           {/* Video Details */}
@@ -139,4 +172,4 @@ const VideoItem: React.FC<VideoItemProps> = ({
   );
 };
 
-export default VideoItem;
+
