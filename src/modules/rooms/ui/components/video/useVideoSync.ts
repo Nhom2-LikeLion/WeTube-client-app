@@ -21,7 +21,7 @@ export function useVideoSync(
 
     useEffect(() => {
         if (!roomId) return;
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS("http://wetube.name.vn:8080/ws");
         const client = Stomp.over(socket);
         client.debug = () => {};
         client.connect({}, () => {

@@ -20,7 +20,7 @@ export default function PremiumFeatures() {
   useEffect(() => {
     const fetchSubPacks = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/subpacks");
+        const res = await fetch("http://wetube.name.vn:8080/api/subpacks");
         const data: SubPack[] = await res.json();
 
         const updatedData = data
@@ -46,15 +46,18 @@ export default function PremiumFeatures() {
   const handlePayment = async (subPackId: string) => {
     setPayLoading(subPackId);
     try {
-      const res = await fetch("http://localhost:8080/api/payment/momo/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user?.sub,
-          subPackId,
-          returnUrl: "http://localhost:3000/",
-        }),
-      });
+      const res = await fetch(
+        "http://wetube.name.vn:8080/api/payment/momo/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user?.sub,
+            subPackId,
+            returnUrl: "https://wetube-client-app.onrender.com/",
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Payment API failed");
 

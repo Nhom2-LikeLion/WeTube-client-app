@@ -22,14 +22,17 @@ export default function PaymentResult() {
 
     if (resultCode === "0") {
       // Thanh toán thành công
-      fetch(`http://localhost:8080/api/payment/confirm?orderId=${orderId}`, {
-        method: "POST",
-      })
+      fetch(
+        `http://wetube.name.vn:8080/api/payment/confirm?orderId=${orderId}`,
+        {
+          method: "POST",
+        }
+      )
         .then(() => setStatus({ success: true, orderId }))
         .catch(() => setStatus({ success: false, orderId }))
         .finally(() => {
           setLoading(false);
-          
+
           setTimeout(() => router.replace("/"), 2000);
         });
     } else {
