@@ -3,25 +3,23 @@
 import { useSearchVideosFullQuery } from "@/app/api/searchApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RecommendedVideoItem, SearchVideoItem } from "@/types/video";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
+import { useStompStore } from "@/store/zustand/useStompStore";
+import { SearchVideoItem } from "@/types/video";
 import { SearchIcon, SquarePlus, XIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 
-interface SearchInputProps {
-  onAddToUpcoming?: (v: RecommendedVideoItem) => void;
-}
-
-export const SearchInput = ({ onAddToUpcoming }: SearchInputProps) => {
+export const SearchInput = () => {
   return (
     <Suspense fallback={<Skeleton className="h-10 w-full" />}>
-      <SearchInputSuspense onAddToUpcoming={onAddToUpcoming} />
+      <SearchInputSuspense />
     </Suspense>
   );
 };
 
-const SearchInputSuspense = ({ onAddToUpcoming }: SearchInputProps) => {
+const SearchInputSuspense = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -33,6 +31,8 @@ const SearchInputSuspense = ({ onAddToUpcoming }: SearchInputProps) => {
   const [value, setValue] = useState(query);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { client, connected, connect, publish, subscribe } = useStompStore();
+  const { room, myUsername } = useRoomStore();
 
   const { data, isFetching } = useSearchVideosFullQuery(
     { query: value },
@@ -118,9 +118,10 @@ const SearchInputSuspense = ({ onAddToUpcoming }: SearchInputProps) => {
               type="button"
               onClick={() => {
                 console.log("Modeeeeeeeeeeeeeee:", mode);
-                if (mode === "rooms" || onAddToUpcoming) {
-                  console.log("In Room Searchhhhhhhhhhhhh");
-                  onAddToUpcoming(video);
+                if (mode === "rooms") {
+                  publish(`/app/room/addSong/${room?.roomId}`, {
+                    videoId : video.id,
+                  });
                 } else {
                   const url = `/search?query=${encodeURIComponent(
                     video.title
