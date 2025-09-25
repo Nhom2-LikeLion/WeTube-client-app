@@ -1,49 +1,57 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { VideoItem } from "../room/upcomingList";
+import { VideoRoom } from "@/types/room";
+import { VideoOff } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface VideoPlayerProps {
-  videos: VideoItem[];
-  currentVideoId: number;
-  onChangeVideo: (id: number) => void;
+  videos: VideoRoom[];
+  onChangeVideo?: (id: string) => void;
 }
 
 export default function VideoPlayer({
   videos,
-  currentVideoId,
   onChangeVideo,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const currentVideo = videos.find((v) => v.id === currentVideoId);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const currentVideo = videos[currentIndex];
 
   useEffect(() => {
-    const videoToPlay = videos.find((v) => v.id === currentVideoId);
-
-    if (videoRef.current && videoToPlay) {
+    if (videoRef.current && currentVideo) {
       videoRef.current.load();
       videoRef.current.play().catch(() => {
         console.log("Autoplay bị chặn, user cần click vào video.");
       });
+      onChangeVideo?.(currentVideo.id); // gọi callback nếu cần
     }
-  }, [currentVideoId, videos]);
+  }, [currentVideo]);
 
   const handleEnded = () => {
-    const currentIndex = videos.findIndex((v) => v.id === currentVideoId);
-    if (currentIndex >= 0 && currentIndex < videos.length - 1) {
-      onChangeVideo(videos[currentIndex + 1].id);
+    if (currentIndex < videos.length - 1) {
+      setCurrentIndex(currentIndex + 1);
     } else {
-      onChangeVideo(videos[0].id);
+      setCurrentIndex(0); // lặp lại từ đầu
     }
   };
 
-  if (!currentVideo) return null;
+  if (videos.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
+        <VideoOff className="w-12 h-12 mb-4" /> {/* Icon Lucide */}
+        <p className="text-lg text-center">
+          Search and add a video to start the party 🎉
+        </p>
+      </div>
+    );
+  }
 
   return (
     <video
       ref={videoRef}
       key={currentVideo.id}
-      src={currentVideo.url}
+      src={currentVideo.videoUrl}
       controls
       autoPlay
       className="w-full h-full rounded-lg"

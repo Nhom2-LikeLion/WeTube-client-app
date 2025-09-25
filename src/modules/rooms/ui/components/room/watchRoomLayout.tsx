@@ -1,85 +1,39 @@
 "use client";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
+import { VideoRoom } from "@/types/room";
 import { MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import VideoPlayer from "../video/videoPlayer";
 import MemberList from "./membersList";
 import RoomChat from "./roomChat";
-import UpcomingList, { VideoItem } from "./upcomingList";
-
-const initialVideos: VideoItem[] = [
-  {
-    id: 1,
-    title: "Funny Cats Compilation",
-    thumbnail: "/thumb1.jpg",
-    url: "https://res.cloudinary.com/demo/video/upload/cat.mp4",
-  },
-  {
-    id: 2,
-    title: "Travel Vlog",
-    thumbnail: "/thumb4.jpg",
-    url: "https://res.cloudinary.com/demo/video/upload/travel.mp4",
-  },
-  {
-    id: 3,
-    title: "Another Travel Vlog",
-    thumbnail: "/thumb4.jpg",
-    url: "https://res.cloudinary.com/demo/video/upload/travel.mp4",
-  },
-];
+import UpcomingList from "./upcomingList";
 
 export default function WatchRoomLayout() {
-  const [videos, setVideos] = useState<VideoItem[]>(initialVideos);
-  const [currentVideoId, setCurrentVideoId] = useState<number>(
-    videos[0]?.id ?? -1
-  );
   const [chatOpen, setChatOpen] = useState(false);
   const router = useRouter();
   const { client, connected, connect, publish, subscribe } = useStompStore();
   const { room, myUsername } = useRoomStore();
+const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(
+    videos.length > 0 ? videos[0].id : null
+  );
 
   useEffect(() => {
-    const setupChat = () => {
-      if (!room?.roomId) return;
-
-      console.log("✅ Connected to room", room.roomId);
-
-      // Subscribe
-      subscribe(`/topic/rooms/chat/${room.roomId}`, (message) => {
-        console.log("Received chat message:", message);
-        // Handle message logic here
-      });
-
-      // Publish JOIN
-      publish(`/app/chat/${room.roomId}`, {
-        type: "JOIN",
-        sender: myUsername,
-        content: "Hello!",
-      });
-    };
-
-    // Nếu chưa kết nối thì kết nối trước, rồi setup
     if (!connected) {
-      connect()
-        .then(() => {
-          setupChat();
-        })
-        .catch((err) => {
-          console.error("Failed to connect STOMP:", err);
-        });
-    } else {
-      setupChat(); // Nếu đã kết nối rồi thì setup luôn
+      connect().catch((err) => {
+        console.error("Failed to connect STOMP:", err);
+      });
     }
   }, []);
 
   const handleLeaveRoom = () => {
     if (client?.connected) {
-      publish(
-        `/app/chat/${room?.roomId}`,
-        JSON.stringify({ type: "LEAVE", sender: myUsername })
-      );
+      publish(`/app/chat/${room?.roomId}`, {
+        type: "LEAVE",
+        sender: myUsername,
+      });
     }
     router.push("/"); // Redirect to home or other page after leaving the room
   };
@@ -88,16 +42,14 @@ export default function WatchRoomLayout() {
     <div className="flex flex-col flex-1 w-full h-full bg-white text-black p-3 md:p-4 overflow-hidden">
       <div className="flex flex-col lg:flex-row w-full h-full gap-4 overflow-hidden">
         <div className="flex flex-col flex-1 gap-4 min-w-0">
+          {/* Video Player */}
           <div className="flex-1 w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
-            <VideoPlayer
-              videos={videos}
-              currentVideoId={currentVideoId}
-              onChangeVideo={setCurrentVideoId}
-            />
+            <VideoPlayer videos={videos} onChangeVideo={setCurrentVideoId} />
           </div>
 
+          {/* Upcomming Video and Leave Room */}
           <div className="bg-gray-100 rounded-lg shadow-lg p-4 flex flex-col border border-gray-200 overflow-hidden">
-            {/* {client && (
+            {room && (
               <div className="flex flex-col md:flex-row justify-between items-center mb-3 gap-2">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800">
                   Upcoming Videos
@@ -115,12 +67,12 @@ export default function WatchRoomLayout() {
               <UpcomingList
                 videos={videos}
                 setVideos={setVideos}
-                currentVideoId={currentVideoId}
+                currentVideoId={currentVideoId!}
                 onPlay={setCurrentVideoId}
               />
             </div>
 
-            {client && room && (
+            {room && client && (
               <div className="mt-3">
                 <MemberList
                   roomId={room?.roomId}
@@ -128,7 +80,7 @@ export default function WatchRoomLayout() {
                   username={myUsername}
                 />
               </div>
-            )} */}
+            )}
           </div>
         </div>
 
@@ -165,7 +117,7 @@ export default function WatchRoomLayout() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {client && room && (
+              {room && client && (
                 <RoomChat
                   roomId={room?.roomId}
                   username={myUsername}

@@ -47,13 +47,13 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     if (!username.trim()) return;
 
     onOpenChange(false);
-    const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
+    // const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
 
     try {
       await stomp.connect();
-      toastEmitter.updateSuccess(toastId, "Connected Successfully!");
+      //   toastEmitter.updateSuccess(toastId, "Connected Successfully!");
     } catch (err) {
-      toastEmitter.updateError(toastId, "Connection failed!");
+      //   toastEmitter.updateError(toastId, "Connection failed!");
       return;
     }
 
@@ -61,11 +61,11 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     const subscription = stomp.subscribe("/topic/room/create", (message) => {
       try {
         // In ra toàn bộ message, bạn có thể debug để kiểm tra
-        console.log("Received message:", message);
+        // console.log("Received message:", message);
 
         // Parse message.body để lấy thông tin Room
         const room: Room = JSON.parse(message.body); // Bây giờ parse ở đây
-        console.log("Parsed room:", room);
+        // console.log("Parsed room:", room);
 
         setRoom(room);
         setMyUsername(username);
