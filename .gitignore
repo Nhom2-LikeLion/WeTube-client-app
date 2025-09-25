@@ -47,6 +47,5 @@ next-env.d.ts
 .env.local
 
 *.xml
-package-lock.json
 .idea
 .vscode
