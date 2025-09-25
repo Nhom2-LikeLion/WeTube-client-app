@@ -22,13 +22,30 @@ export interface RecommendedVideoItem {
   thumbnailUrl: string;
   totalView: number;
   createAt: string;
-  name: string;       // ChannelName
+  name: string; // ChannelName
   duration: number;
-  picture: string;    // avatar
+  picture: string; // avatar
   uploadedAgo?: string;
   historyDuration?: number;
 }
 
+export interface SearchVideoItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  videosStatus: string;
+  duration: number;
+  createdAt: string; 
+  user: User; 
+}
+
+type User = {
+  id: string;
+  name: string;
+  picture: string;
+};
 
 export interface VideoDetailResponseDto {
   detail: VideoDetailDto;
@@ -44,7 +61,7 @@ export interface VideoDetailDto {
   totalView: number;
   name: string;
   picture: string;
-  totalSubscribers:number;
+  totalSubscribers: number;
   comments: Comment[];
   subscribed: boolean;
   channelId: string;
@@ -74,35 +91,34 @@ export interface TagDto {
 }
 
 export interface ApiUser {
-    id: string;
-    name: string;
-    picture: string;
+  id: string;
+  name: string;
+  picture: string;
 }
 
 export interface ApiComment {
-    id: string;
-    content: string;
-    user: ApiUser;
-    likeCount: number;
-    createdAt: string;
-    updatedAt: string;
-    replyCount: number | null;
-    replies: ApiComment[] | null;
+  id: string;
+  content: string;
+  user: ApiUser;
+  likeCount: number;
+  createdAt: string;
+  updatedAt: string;
+  replyCount: number | null;
+  replies: ApiComment[] | null;
 }
 
 export interface Short {
+  id: string;
+  title: string;
+  thumbnail: string;
+  videoUrl?: string;
+  views: number;
+  channel?: {
     id: string;
-    title: string;
-    thumbnail: string;
-    videoUrl?: string;
-    views: number;
-    channel?: {
-        id: string;
-        name: string;
-        avatar?: string;
-    };
+    name: string;
+    avatar?: string;
+  };
 }
-
 
 export interface VideoDetail {
   id: string;
@@ -144,7 +160,6 @@ export interface VideoFormDetail {
   tags: Tag[];
   duration: number;
 }
-
 
 export interface VideoDetailResponseDto {
   detail: VideoDetailDto;
@@ -214,4 +229,3 @@ export interface RelatedVideo {
   duration: number;
   picture: string;
 }
-

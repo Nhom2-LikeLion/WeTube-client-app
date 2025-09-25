@@ -3,7 +3,7 @@
 import { useSearchVideosFullQuery } from "@/app/api/searchApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RecommendedVideoItem } from "@/types/video";
+import { RecommendedVideoItem, SearchVideoItem } from "@/types/video";
 import { SearchIcon, SquarePlus, XIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -39,7 +39,7 @@ const SearchInputSuspense = ({ onAddToUpcoming }: SearchInputProps) => {
     { skip: !value.trim() }
   );
 
-  const results: RecommendedVideoItem[] = data?.content ?? [];
+  const results: SearchVideoItem[] = data?.content ?? [];
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -149,7 +149,7 @@ const SearchInputSuspense = ({ onAddToUpcoming }: SearchInputProps) => {
                     <span className="font-medium truncate">{video.title}</span>
                     {mode === "rooms" && (
                       <span className="text-xs text-gray-400">
-                        {video.totalView} views
+                        {video.user.name}
                       </span>
                     )}
                   </div>
