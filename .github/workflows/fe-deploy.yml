@@ -26,3 +26,11 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:latest
+          build-args: |
+            NEXT_PUBLIC_LIVEKIT_URL=${{ secrets.NEXT_PUBLIC_LIVEKIT_URL }}
+            LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
+            LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
+            LIVEKIT_WS_URL=${{ secrets.LIVEKIT_WS_URL }}
+            NEXT_PUBLIC_API_BASE=${{ secrets.NEXT_PUBLIC_API_BASE }}
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+            
