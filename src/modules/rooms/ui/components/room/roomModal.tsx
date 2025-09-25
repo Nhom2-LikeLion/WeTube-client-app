@@ -13,9 +13,8 @@ import { toastEmitter } from "@/lib/toastEmitter";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
 import { Room } from "@/types/room";
-import { StompSubscription } from "@stomp/stompjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface RoomProps {
   open: boolean;
@@ -26,19 +25,9 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
   const router = useRouter();
-  const { setRoom } = useRoomStore();
+  const { setRoom, setMyUsername } = useRoomStore();
   const stomp = useStompStore();
-  const createdRoomSubRef = useRef<StompSubscription | null>(null);
 
-  useEffect(() => {
-    return () => {
-      // cleanup khi component unmount
-      if (createdRoomSubRef.current) {
-        stomp.unsubscribe(createdRoomSubRef.current);
-        createdRoomSubRef.current = null;
-      }
-    };
-  }, []);
   // -------------------
   // JOIN ROOM
   // -------------------
@@ -68,33 +57,25 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
       return;
     }
 
-    // Ngăn chặn sub nhiều lần nếu user bấm liên tục
-    if (createdRoomSubRef.current) {
-      stomp.unsubscribe(createdRoomSubRef.current);
-      createdRoomSubRef.current = null;
-    }
-
     // Subscribe để nhận phản hồi khi phòng được tạo thành công
-    const subscription = stomp.subscribe(
-      "/user/queue/room/created",
-      (message) => {
-        try {
-          const room: Room = JSON.parse(message.body);
+    const subscription = stomp.subscribe("/topic/room/create", (message) => {
+      try {
+        // In ra toàn bộ message, bạn có thể debug để kiểm tra
+        console.log("Received message:", message);
 
-          //const room: Room = message;
-          console.log("Received room:", room);
+        // Parse message.body để lấy thông tin Room
+        const room: Room = JSON.parse(message.body); // Bây giờ parse ở đây
+        console.log("Parsed room:", room);
 
-          setRoom(room);
-          toastEmitter.success("Room created!");
-          router.push("/rooms");
-        } catch (err) {
-          toastEmitter.error("Failed to parse room data");
-          console.error(err);
-        }
+        setRoom(room);
+        setMyUsername(username);
+        toastEmitter.success("Room created!");
+        router.push("/rooms");
+      } catch (err) {
+        toastEmitter.error("Failed to parse room data");
+        console.error(err);
       }
-    );
-
-    createdRoomSubRef.current = subscription;
+    });
 
     // Gửi yêu cầu tạo phòng
     stomp.publish("/app/room/create", username);

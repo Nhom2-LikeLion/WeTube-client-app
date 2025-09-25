@@ -116,7 +116,7 @@ export const useStompStore = create<StompState>((set, get) => ({
     }
   },
 
-  subscribe: (destination: string, callback: (msg: any) => void) => {
+  subscribe: (destination: string, callback: (msg: IMessage) => void) => {
     const { client, connected } = get();
     if (!connected || !client) {
       console.warn("[STOMP] Cannot subscribe, client not connected");
@@ -125,13 +125,9 @@ export const useStompStore = create<StompState>((set, get) => ({
 
     console.log(`[STOMP] Subscribing to ${destination}`);
     return client.subscribe(destination, (message: IMessage) => {
-      try {
-        const body = JSON.parse(message.body);
-        console.log(`[STOMP] Received from ${destination}:`, body);
-        callback(body);
-      } catch (err) {
-        console.error("[STOMP] Failed to parse message", message.body, err);
-      }
+      // Gửi nguyên vẹn message (chưa parse)
+      console.log(`[STOMP] Received from ${destination}:`, message);
+      callback(message); // Trả nguyên message cho callback
     });
   },
 
