@@ -13,7 +13,7 @@ interface VideoPlayerProps {
 export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { room, setMediaState } = useRoomStore();
+  const { room, setMediaState, myUsername } = useRoomStore();
   const { publish, subscribe, unsubscribe } = useStompStore();
   const videos = room?.playlist ?? [];
   const currentVideo = room?.playerState.currentSongId;
@@ -93,8 +93,12 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
         playing: false,
         currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
       };
-      setMediaState(newState); // Cập nhật trạng thái local
-      publishMediaState(newState); // Gửi lên server
+      const host = room?.members.find((m) => m.isHost);
+      if(host?.username === myUsername){
+        //publishMediaState(newState); // Gửi lên server
+      }else{
+        setMediaState(newState); 
+      }
     }
   };
 
@@ -105,8 +109,12 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
         playing: true, // Giả sử video đang chơi khi seek
         currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
       };
-      setMediaState(newState); // Cập nhật trạng thái local
-      publishMediaState(newState); // Gửi lên server
+      const host = room?.members.find((m) => m.isHost);
+      if(host?.username === myUsername){
+        //publishMediaState(newState); // Gửi lên server
+      }else{
+        setMediaState(newState); 
+      }
     }
   };
 

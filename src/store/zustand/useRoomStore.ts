@@ -9,8 +9,9 @@ interface RoomStore {
   setMyUsername: (username: string) => void;
   clearMyUsername: () => void;
   addSong: (song: VideoRoom) => void;
-  setMediaState: (mediaState: MediaPlayerState) => void;
   setCurrentSongId: (id: string) => void;
+    setPlayingState: (playing: boolean) => void;
+  setSeek: (songId: string, timeMillis: number) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
