@@ -43,49 +43,78 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
     // });
   }, []);
 
-useEffect(() => {
-  // Kiểm tra nếu videoRef và currentSongId đã có giá trị
-  if (videoRef.current && mediaState?.currentSongId) {
-    const videoUrl = mediaState.currentSongId;
-    const video = videos.find((v) => v.videoUrl === videoUrl);
+  useEffect(() => {
+    // Kiểm tra nếu videoRef và currentSongId đã có giá trị
+    if (videoRef.current && mediaState?.currentSongId) {
+      const videoUrl = mediaState.currentSongId;
+      const video = videos.find((v) => v.videoUrl === videoUrl);
 
-    // Log để kiểm tra giá trị của video và mediaState
-    console.log("mediaState received:", mediaState);
-    console.log("currentVideoUrl:", videoUrl);
-    console.log("Found video:", video);
+      // Log để kiểm tra giá trị của video và mediaState
+      console.log("mediaState received:", mediaState);
+      console.log("currentVideoUrl:", videoUrl);
+      console.log("Found video:", video);
 
-    if (video && videoRef.current) {
-      // Cập nhật nguồn video khi có video mới
-      console.log("Updating video src:", video.videoUrl);
-      videoRef.current.src = video.videoUrl;
+      if (video && videoRef.current) {
+        // Cập nhật nguồn video khi có video mới
+        console.log("Updating video src:", video.videoUrl);
+        videoRef.current.src = video.videoUrl;
 
-      // Thiết lập lại thời gian video khi video đổi
-      console.log("Setting currentTime to:", currentTimeInSeconds);
-      videoRef.current.currentTime = currentTimeInSeconds;
+        // Thiết lập lại thời gian video khi video đổi
+        console.log("Setting currentTime to:", currentTimeInSeconds);
+        videoRef.current.currentTime = currentTimeInSeconds;
 
-      // Reload video để cập nhật nguồn mới
-      videoRef.current.load();
-      console.log("Video loaded successfully");
-      console.log("mediaState.isPlaying:", mediaState.playing);
+        // Reload video để cập nhật nguồn mới
+        videoRef.current.load();
+        console.log("Video loaded successfully");
+        console.log("mediaState.isPlaying:", mediaState.playing);
 
-      // Kiểm tra trạng thái "playing" để phát hoặc tạm dừng video
-      if (mediaState.playing) {
-        console.log("Playing video...");
-        videoRef.current.play().catch((err) => {
-          console.log("Error while playing video:", err);
-        });
+        // Kiểm tra trạng thái "playing" để phát hoặc tạm dừng video
+        if (mediaState.playing) {
+          console.log("Playing video...");
+          videoRef.current.play().catch((err) => {
+            console.log("Error while playing video:", err);
+          });
+        } else {
+          console.log("Pausing video...");
+          videoRef.current.pause();
+        }
       } else {
-        console.log("Pausing video...");
-        videoRef.current.pause();
+        console.log("No video found with the given URL or videoRef is null.");
       }
     } else {
-      console.log("No video found with the given URL or videoRef is null.");
+      console.log("No videoRef or currentSongId available.");
     }
-  } else {
-    console.log("No videoRef or currentSongId available.");
-  }
-}, [mediaState]); // Chạy lại khi mediaState thay đổi
+  }, [mediaState]); // Chạy lại khi mediaState thay đổi
 
+  const handlePause = () => {
+    if (videoRef.current) {
+      const newState: MediaPlayerState = {
+        ...mediaState!,
+        playing: false,
+        currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
+      };
+      setMediaState(newState); // Cập nhật trạng thái local
+      publishMediaState(newState); // Gửi lên server
+    }
+  };
+
+  const handleSeek = () => {
+    if (videoRef.current) {
+      const newState: MediaPlayerState = {
+        ...mediaState!,
+        playing: true, // Giả sử video đang chơi khi seek
+        currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
+      };
+      setMediaState(newState); // Cập nhật trạng thái local
+      publishMediaState(newState); // Gửi lên server
+    }
+  };
+
+  const publishMediaState = (mediaState: MediaPlayerState) => {
+    if (!room) return;
+    const publishEndpoint = `/app/room/mediaState/${room.roomId}`;
+    publish(publishEndpoint, mediaState);
+  };
 
   const handleEnded = () => {
     if (currentIndex < videos.length - 1) {
@@ -115,6 +144,8 @@ useEffect(() => {
       autoPlay={true}
       className="w-full h-full rounded-lg"
       onEnded={handleEnded}
+      onPause={handlePause}
+      onSeeked={handleSeek}
     />
   );
 }
