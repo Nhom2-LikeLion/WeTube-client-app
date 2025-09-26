@@ -15,7 +15,7 @@ export default function WatchRoomLayout() {
   const router = useRouter();
   const { client, connected, connect, publish, subscribe } = useStompStore();
   const { room, myUsername } = useRoomStore();
-const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
+  const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(
     videos.length > 0 ? videos[0].id : null
   );
@@ -44,7 +44,7 @@ const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
         <div className="flex flex-col flex-1 gap-4 min-w-0">
           {/* Video Player */}
           <div className="flex-1 w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
-            <VideoPlayer videos={videos} onChangeVideo={setCurrentVideoId} />
+            <VideoPlayer onChangeVideo={setCurrentVideoId} />
           </div>
 
           {/* Upcomming Video and Leave Room */}
@@ -64,12 +64,7 @@ const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
             )}
 
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400">
-              <UpcomingList
-                videos={videos}
-                setVideos={setVideos}
-                currentVideoId={currentVideoId!}
-                onPlay={setCurrentVideoId}
-              />
+              <UpcomingList onPlay={setCurrentVideoId} roomId={room!.roomId} />
             </div>
 
             {room && client && (

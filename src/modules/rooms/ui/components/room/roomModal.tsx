@@ -31,13 +31,41 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
   // -------------------
   // JOIN ROOM
   // -------------------
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!roomId.trim() || !username.trim()) return;
+    const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
 
-    // onOpenChange(false);
-    // joinRoom(roomId, username, (roomIdFromServer) => {
-    //     router.push(`/rooms/${roomIdFromServer}?username=${encodeURIComponent(username)}`);
-    // });
+    onOpenChange(false);
+    try {
+      await stomp.connect();
+        toastEmitter.updateSuccess(toastId, "Connected Successfully!");
+    } catch (err) {
+        toastEmitter.updateError(toastId, "Connection failed!");
+      return;
+    }
+
+        // Subscribe để nhận phản hồi khi phòng được tạo thành công
+    stomp.subscribe(`/topic/rooms/members/${roomId}`, (message) => {
+      try {
+        
+        console.log("Received message:", message);
+        const room: Room = JSON.parse(message.body); 
+        // console.log("Parsed room:", room);
+
+        setRoom(room);
+        setMyUsername(username);
+        toastEmitter.success("Room Joined!");
+        router.push("/rooms");
+      } catch (err) {
+        toastEmitter.error("Failed to parse room data");
+        console.error(err);
+      }
+    });
+
+    // Gửi yêu cầu tạo phòng
+    stomp.publish(`/app/room/join/${roomId}`, {
+        username: username
+    });
   };
 
   // -------------------

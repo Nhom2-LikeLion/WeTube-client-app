@@ -1,10 +1,11 @@
 "use client";
 
+import { useRoomStore } from "@/store/zustand/useRoomStore";
+import { useStompStore } from "@/store/zustand/useStompStore";
 import { VideoRoom } from "@/types/room";
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useDndMonitor,
@@ -12,7 +13,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   horizontalListSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
@@ -21,16 +21,15 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Play } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
+// Component hiển thị thông tin bài hát
 function SortableVideo({
   video,
   isActive,
-  onPlay,
 }: {
   video: VideoRoom;
   isActive: boolean;
-  onPlay: (video: VideoRoom) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -41,6 +40,8 @@ function SortableVideo({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const { setCurrentSongId } = useRoomStore();
 
   return (
     <div
@@ -58,7 +59,6 @@ function SortableVideo({
         width={160}
         height={96}
         className="w-full h-full object-cover"
-        onClick={() => onPlay(video)}
       />
       <div
         className={`absolute inset-0 bg-black/40 transition flex items-center justify-center
@@ -69,7 +69,11 @@ function SortableVideo({
         }`}
       >
         <button
-          onClick={() => onPlay(video)}
+          // Phát bài hát khi nhấn nút play
+          onDoubleClick={() => {
+            console.log("Double Clicked to play:", video);
+            setCurrentSongId(video.videoUrl);
+          }} // Update room.playerState.currentSongId
           className="bg-white/80 rounded-full p-2 hover:bg-white"
         >
           <Play className="w-6 h-6 text-black" />
@@ -79,14 +83,13 @@ function SortableVideo({
   );
 }
 
+// Danh sách bài hát có khả năng kéo và thả
 function DraggableVideoList({
   videos,
   currentVideoId,
-  onPlay,
 }: {
   videos: VideoRoom[];
-  currentVideoId: number;
-  onPlay: (id: number) => void;
+  currentVideoId: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +133,6 @@ function DraggableVideoList({
             key={v.id}
             video={v}
             isActive={v.id === currentVideoId}
-            onPlay={() => onPlay(v.id)}
           />
         ))}
       </div>
@@ -138,43 +140,44 @@ function DraggableVideoList({
   );
 }
 
-export default function UpcomingList({
-  videos,
-  setVideos,
-  currentVideoId,
-  onPlay,
-}: {
-  videos: VideoRoom[];
-  setVideos: (videos: VideoRoom[]) => void;
-  currentVideoId: string;
-  onPlay: (id: number) => void;
-}) {
+export default function UpcomingList({ roomId }: { roomId: string }) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  const { subscribe, unsubscribe } = useStompStore();
+  const { room, setCurrentSongId, addSong } = useRoomStore();
+  const subscriptionRef = useRef<ReturnType<typeof subscribe> | null>(null);
 
-    if (active.id !== over.id) {
-      const oldIndex = videos.findIndex((v) => v.id === active.id);
-      const newIndex = videos.findIndex((v) => v.id === over.id);
-      setVideos(arrayMove(videos, oldIndex, newIndex));
-    }
-  };
+  // Lắng nghe sự kiện nhận bài hát mới từ server
+  useEffect(() => {
+    if (!roomId) return;
+
+    const topicEndpoint = `/topic/rooms/addSong/${roomId}`;
+
+    // Subscribe to topic
+    subscriptionRef.current = subscribe(topicEndpoint, (msg) => {
+      try {
+        const payload: VideoRoom = JSON.parse(msg.body);
+        console.log("VideoRoom received:", payload);
+        addSong(payload);
+      } catch (err) {
+        console.error("❌ Failed to parse message:", msg.body);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribe(subscriptionRef.current);
+    };
+  }, [roomId, addSong, subscribe, unsubscribe]);
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext sensors={sensors} collisionDetection={closestCenter}>
       <DraggableVideoList
-        videos={videos}
-        currentVideoId={currentVideoId}
-        onPlay={onPlay}
+        videos={room?.playlist || []}
+        currentVideoId={room?.playerState.currentSongId || ""}
       />
     </DndContext>
   );

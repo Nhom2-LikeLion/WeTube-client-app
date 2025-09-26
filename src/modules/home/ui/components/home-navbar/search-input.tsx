@@ -3,6 +3,7 @@
 import { useSearchVideosFullQuery } from "@/app/api/searchApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toastEmitter } from "@/lib/toastEmitter";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
 import { SearchVideoItem } from "@/types/video";
@@ -120,8 +121,9 @@ const SearchInputSuspense = () => {
                 console.log("Modeeeeeeeeeeeeeee:", mode);
                 if (mode === "rooms") {
                   publish(`/app/room/addSong/${room?.roomId}`, {
-                    videoId : video.id,
+                    videoId: video.id,
                   });
+                  toastEmitter.success("Video Added!");
                 } else {
                   const url = `/search?query=${encodeURIComponent(
                     video.title

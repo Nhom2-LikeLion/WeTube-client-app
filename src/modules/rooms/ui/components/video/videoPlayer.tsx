@@ -1,22 +1,19 @@
 "use client";
 
-import { VideoRoom } from "@/types/room";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { VideoOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface VideoPlayerProps {
-  videos: VideoRoom[];
   onChangeVideo?: (id: string) => void;
 }
 
-export default function VideoPlayer({
-  videos,
-  onChangeVideo,
-}: VideoPlayerProps) {
+export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const currentVideo = videos[currentIndex];
+  const { room } = useRoomStore();
+  const videos = room?.playlist ?? [];
+  const currentVideo = room?.playerState.currentSongId;
 
   useEffect(() => {
     if (videoRef.current && currentVideo) {
@@ -24,7 +21,7 @@ export default function VideoPlayer({
       videoRef.current.play().catch(() => {
         console.log("Autoplay bị chặn, user cần click vào video.");
       });
-      onChangeVideo?.(currentVideo.id); // gọi callback nếu cần
+      onChangeVideo?.(currentVideo); // gọi callback nếu cần
     }
   }, [currentVideo]);
 
@@ -50,8 +47,8 @@ export default function VideoPlayer({
   return (
     <video
       ref={videoRef}
-      key={currentVideo.id}
-      src={currentVideo.videoUrl}
+      key={currentVideo}
+      src={currentVideo}
       controls
       autoPlay
       className="w-full h-full rounded-lg"
