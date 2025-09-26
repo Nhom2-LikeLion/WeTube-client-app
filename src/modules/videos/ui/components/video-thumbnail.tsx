@@ -27,7 +27,6 @@ export const VideoThumbnail = ({
   duration,
 }: VideoThumbnailProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isVideo, setIsVideo] = useState(false);
 
@@ -41,24 +40,20 @@ export const VideoThumbnail = ({
   }, [previewUrl]);
 
   // Handle video playback on hover
-  const handleMouseEnter = () => {
+  const handleMouseEnter = async () => {
     if (videoRef.current && isVideo) {
-      timerRef.current = setTimeout(() => {
-        videoRef.current
-          ?.play()
-          .catch((error) => console.error("Video play failed:", error));
-      }, 300);
+      try {
+        await videoRef.current.play();
+      } catch {
+        // ignore AbortError / NotSupportedError
+      }
     }
   };
 
   const handleMouseLeave = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-
     if (videoRef.current && isVideo) {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0; // Reset video to start
+      videoRef.current.currentTime = 0;
     }
   };
 
@@ -69,31 +64,31 @@ export const VideoThumbnail = ({
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative w-full overflow-hidden transition-all rounded-xl aspect-video">
-        <Image
+        {/* <Image
           src={imageUrl ?? THUMBNAIL_FALLBACK}
           alt={title}
           fill
           className="h-full w-full object-cover group-hover:opacity-0 transition-opacity duration-200"
-        />
+        /> */}
 
         {/* Conditionally render video or preview image on hover */}
         {isVideo && previewUrl ? (
           <video
             ref={videoRef}
             src={previewUrl}
+            poster={imageUrl ?? THUMBNAIL_FALLBACK}
             preload="metadata"
             loop
             muted
             playsInline
-            className="h-full w-full object-cover opacity-0 group-hover:opacity-100 absolute top-0 left-0 transition-opacity duration-200"
+            className="h-full w-full object-cover rounded-xl"
           />
         ) : (
           <Image
-            unoptimized={!!previewUrl}
-            src={previewUrl ?? THUMBNAIL_FALLBACK}
-            alt={`${title} preview`}
+            src={imageUrl ?? THUMBNAIL_FALLBACK}
+            alt={title}
             fill
-            className="h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="h-full w-full object-cover rounded-xl"
           />
         )}
 
