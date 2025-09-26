@@ -21,7 +21,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Play } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 // Component hiển thị thông tin bài hát
 function SortableVideo({
@@ -43,7 +43,7 @@ function SortableVideo({
     transition,
   };
 
-  const { setCurrentSongId, host, setMediaState } = useRoomStore();
+  const { host } = useRoomStore();
   const { publish } = useStompStore();
 
   return (
@@ -82,10 +82,6 @@ function SortableVideo({
               currentTimeMillis: 0,
               currentSongId: video.videoUrl,
             };
-            if (host) {
-              console.log(" 😊 New Media Sate: ", newMediaState);
-              setMediaState(newMediaState);
-            }
             publish(`/app/room/mediaState/${roomId}`, newMediaState);
           }} // Update room.playerState.currentSongId
           className="bg-white/80 rounded-full p-2 hover:bg-white"
@@ -157,38 +153,13 @@ function DraggableVideoList({
   );
 }
 
-export default function UpcomingList({ roomId }: { roomId: string }) {
+export default function UpcomingList() {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const { subscribe, unsubscribe } = useStompStore();
-  const { room, setCurrentSongId, addSong } = useRoomStore();
-  const subscriptionRef = useRef<ReturnType<typeof subscribe> | null>(null);
-
-  // Lắng nghe sự kiện nhận bài hát mới từ server
-  useEffect(() => {
-    if (!roomId) return;
-
-    const topicEndpoint = `/topic/rooms/addSong/${roomId}`;
-
-    // Subscribe to topic
-    subscriptionRef.current = subscribe(topicEndpoint, (msg) => {
-      try {
-        const payload: VideoRoom = JSON.parse(msg.body);
-        console.log("VideoRoom received:", payload);
-        addSong(payload);
-      } catch (err) {
-        console.error("❌ Failed to parse message:", msg.body);
-      }
-    });
-
-    // Cleanup
-    return () => {
-      unsubscribe(subscriptionRef.current);
-    };
-  }, []);
+  const { room } = useRoomStore();
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter}>

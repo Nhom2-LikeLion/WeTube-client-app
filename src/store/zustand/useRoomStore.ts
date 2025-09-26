@@ -58,6 +58,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
               ...mediaState,
             },
           }
-        : null,
+          : null,
     })),
 }));

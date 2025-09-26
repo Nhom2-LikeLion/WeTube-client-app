@@ -1,7 +1,8 @@
 "use client";
+import { ChatMessage, useChatStore } from "@/store/zustand/useChatStore";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
-import { VideoRoom } from "@/types/room";
+import { MediaPlayerState, VideoRoom } from "@/types/room";
 import { MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,22 +12,39 @@ import RoomChat from "./roomChat";
 import UpcomingList from "./upcomingList";
 
 export default function WatchRoomLayout() {
-  const [chatOpen, setChatOpen] = useState(false);
   const router = useRouter();
-  const { client, connected, connect, publish, subscribe, disconnect } =
-    useStompStore();
-  const { room, myUsername } = useRoomStore();
-  const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(
-    videos.length > 0 ? videos[0].id : null
-  );
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const { room, myUsername, setMediaState, addSong } = useRoomStore();
+  const { client, publish, subscribe, unsubscribe } = useStompStore();
+  const addMessage = useChatStore((state) => state.addMessage);
+  const clearMessages = useChatStore((state) => state.clearMessages);
 
   useEffect(() => {
-    if (!connected) {
-      connect().catch((err) => {
-        console.error("Failed to connect STOMP:", err);
-      });
-    }
+    const roomId = room!.roomId;
+
+    const subs = [
+      subscribe(`/topic/rooms/mediaState/${roomId}`, (msg) => {
+        const payload: MediaPlayerState = JSON.parse(msg.body);
+        setMediaState(payload);
+      }),
+      subscribe(`/topic/rooms/addSong/${roomId}`, (msg) => {
+        const payload: VideoRoom = JSON.parse(msg.body);
+        addSong(payload);
+      }),
+      subscribe(`/topic/rooms/chat/${roomId}`, (msg) => {
+        const payload: ChatMessage = JSON.parse(msg.body);
+        addMessage(payload);
+      }),
+    ];
+
+    publish(`/app/chat/${roomId}`, { type: "JOIN", sender: myUsername });
+
+    return () => {
+      publish(`/app/chat/${roomId}`, { type: "LEAVE", sender: myUsername });
+      subs.forEach(unsubscribe);
+      clearMessages();
+    };
   }, []);
 
   const handleLeaveRoom = () => {
@@ -45,7 +63,9 @@ export default function WatchRoomLayout() {
         <div className="flex flex-col flex-1 gap-4 min-w-0">
           {/* Video Player */}
           <div className="flex-1 w-full aspect-video bg-black rounded-lg shadow-lg overflow-hidden">
-            <VideoPlayer onChangeVideo={setCurrentVideoId} />
+            <VideoPlayer
+            // onChangeVideo={setCurrentVideoId}
+            />
           </div>
 
           {/* Upcomming Video and Leave Room */}
@@ -67,8 +87,7 @@ export default function WatchRoomLayout() {
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400">
               {room && (
                 <UpcomingList
-                  //   onPlay={setCurrentVideoId}
-                  roomId={room!.roomId}
+                //   onPlay={setCurrentVideoId}
                 />
               )}
             </div>
@@ -88,11 +107,7 @@ export default function WatchRoomLayout() {
         <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
           {room && client && (
             <div className="flex-1 overflow-y-auto">
-              <RoomChat
-                roomId={room.roomId}
-                username={myUsername}
-                stompClient={client!}
-              />
+              {room && client && <RoomChat />}
             </div>
           )}
         </div>
@@ -118,13 +133,7 @@ export default function WatchRoomLayout() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {room && client && (
-                <RoomChat
-                  roomId={room?.roomId}
-                  username={myUsername}
-                  stompClient={client}
-                />
-              )}
+              {room && client && <RoomChat />}
             </div>
           </div>
         </div>

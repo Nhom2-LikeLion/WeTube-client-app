@@ -15,30 +15,11 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { room, setMediaState, host } = useRoomStore();
   const { publish, subscribe } = useStompStore();
-  const videos = room!.playlist ?? [];
-  const currentVideo = room!.playerState.currentSongId;
-  const mediaState = room!.playerState;
+  const videos = room?.playlist ?? [];
+  const currentVideo = room?.playerState.currentSongId || "";
+  const mediaState = room?.playerState;
   const currentTimeInSeconds = mediaState!.currentTimeMillis / 1000 || 0;
 
-  // 1️⃣ Setup & teardown chat
-  useEffect(() => {
-    if (!room) return;
-    console.log("MediaPlayeer Is Hostttt???????:", host);
-
-    if (host) return;
-    console.log("Hereeeeeeeeeeeeee", host);
-    const topicEndpoint = `/topic/rooms/mediaState/${room.roomId}`;
-
-    subscribe(topicEndpoint, (msg) => {
-      try {
-        const payload: MediaPlayerState = JSON.parse(msg.body);
-        console.log("MediaPlayerState received:", payload);
-        setMediaState(payload);
-      } catch (err) {
-        console.error("❌ Failed to parse message:", msg.body);
-      }
-    });
-  }, []);
 
   useEffect(() => {
     // Kiểm tra nếu videoRef và currentSongId đã có giá trị
