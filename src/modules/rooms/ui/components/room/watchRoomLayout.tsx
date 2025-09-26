@@ -13,7 +13,8 @@ import UpcomingList from "./upcomingList";
 export default function WatchRoomLayout() {
   const [chatOpen, setChatOpen] = useState(false);
   const router = useRouter();
-  const { client, connected, connect, publish, subscribe } = useStompStore();
+  const { client, connected, connect, publish, subscribe, disconnect } =
+    useStompStore();
   const { room, myUsername } = useRoomStore();
   const [videos, setVideos] = useState<VideoRoom[]>(room?.playlist ?? []);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(
@@ -66,7 +67,7 @@ export default function WatchRoomLayout() {
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400">
               {room && (
                 <UpcomingList
-                //   onPlay={setCurrentVideoId}
+                  //   onPlay={setCurrentVideoId}
                   roomId={room!.roomId}
                 />
               )}

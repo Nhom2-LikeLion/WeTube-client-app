@@ -1,7 +1,7 @@
 export interface WatchMember {
     userId: string;
     username: string;
-    isHost: boolean;
+    host: boolean;
 }
 
 export interface VideoRoom {
