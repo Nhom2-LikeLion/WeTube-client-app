@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUploadVideoMutation, videoApi } from "@/app/api/videoApi";
 import { useDispatch } from "react-redux";
 import { playlistApi } from "@/app/api/playlistApi";
-import { formatDuration } from '@/lib/utils';
+import { formatDuration } from "@/lib/utils";
 
 const MAX_VIDEO_SIZE_MB = 100;
 const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
@@ -40,13 +40,9 @@ const videoUploadSchema = z.object({
   tags: z
     .string()
     .max(200, { message: "Tags must be 200 characters or fewer." })
-    .refine(
-      (value) =>
-        value === "" || /^(#[a-zA-Z0-9_]+(\s+#[a-zA-Z0-9_]+)*)$/.test(value),
-      {
-        message: 'Tags must be in the format "#tag1 #tag2"',
-      }
-    )
+    .refine((value) => value === "" || /^(#\w+(\s+#\w+)*)$/.test(value), {
+      message: 'Tags must be in the format "#tag1 #tag2"',
+    })
     .optional(),
   videoFile: z
     .instanceof(File, { message: "Video file is required." })
