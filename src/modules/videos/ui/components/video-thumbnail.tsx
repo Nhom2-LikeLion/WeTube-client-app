@@ -27,7 +27,7 @@ export const VideoThumbnail = ({
   duration,
 }: VideoThumbnailProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
 
   useEffect(() => {
@@ -64,31 +64,28 @@ export const VideoThumbnail = ({
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative w-full overflow-hidden transition-all rounded-xl aspect-video">
-        {/* <Image
+        {!isLoaded && <VideoThumbnailSkeleton />}
+        <Image
           src={imageUrl ?? THUMBNAIL_FALLBACK}
           alt={title}
           fill
-          className="h-full w-full object-cover group-hover:opacity-0 transition-opacity duration-200"
-        /> */}
+          onLoad={() => setIsLoaded(true)}
+          className={`h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-0 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
 
         {/* Conditionally render video or preview image on hover */}
-        {isVideo && previewUrl ? (
+        {isVideo && previewUrl && (
           <video
             ref={videoRef}
             src={previewUrl}
-            poster={imageUrl ?? THUMBNAIL_FALLBACK}
             preload="metadata"
             loop
             muted
             playsInline
-            className="h-full w-full object-cover rounded-xl"
-          />
-        ) : (
-          <Image
-            src={imageUrl ?? THUMBNAIL_FALLBACK}
-            alt={title}
-            fill
-            className="h-full w-full object-cover rounded-xl"
+            onLoadedData={() => setIsLoaded(true)}
+            className="absolute top-0 left-0 h-full w-full object-cover opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           />
         )}
 
