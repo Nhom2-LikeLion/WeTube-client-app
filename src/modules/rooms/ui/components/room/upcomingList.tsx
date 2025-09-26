@@ -43,7 +43,7 @@ function SortableVideo({
     transition,
   };
 
-  const { host } = useRoomStore();
+  const { host, setMediaState } = useRoomStore();
   const { publish } = useStompStore();
 
   return (
@@ -82,7 +82,11 @@ function SortableVideo({
               currentTimeMillis: 0,
               currentSongId: video.videoUrl,
             };
-            publish(`/app/room/mediaState/${roomId}`, newMediaState);
+
+            if (host) {
+              publish(`/app/room/mediaState/${roomId}`, newMediaState);
+            }
+            setMediaState(newMediaState);
           }} // Update room.playerState.currentSongId
           className="bg-white/80 rounded-full p-2 hover:bg-white"
         >

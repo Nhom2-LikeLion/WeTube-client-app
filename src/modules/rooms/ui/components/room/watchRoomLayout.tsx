@@ -15,7 +15,7 @@ export default function WatchRoomLayout() {
   const router = useRouter();
   const [chatOpen, setChatOpen] = useState(false);
 
-  const { room, myUsername, setMediaState, addSong } = useRoomStore();
+  const { room, myUsername, setMediaState, addSong, host } = useRoomStore();
   const { client, publish, subscribe, unsubscribe } = useStompStore();
   const addMessage = useChatStore((state) => state.addMessage);
   const clearMessages = useChatStore((state) => state.clearMessages);
@@ -24,10 +24,6 @@ export default function WatchRoomLayout() {
     const roomId = room!.roomId;
 
     const subs = [
-      subscribe(`/topic/rooms/mediaState/${roomId}`, (msg) => {
-        const payload: MediaPlayerState = JSON.parse(msg.body);
-        setMediaState(payload);
-      }),
       subscribe(`/topic/rooms/addSong/${roomId}`, (msg) => {
         const payload: VideoRoom = JSON.parse(msg.body);
         addSong(payload);
@@ -37,6 +33,15 @@ export default function WatchRoomLayout() {
         addMessage(payload);
       }),
     ];
+
+    if (!host) {
+      subs.push(
+        subscribe(`/topic/rooms/mediaState/${roomId}`, (msg) => {
+          const payload: MediaPlayerState = JSON.parse(msg.body);
+          setMediaState(payload);
+        })
+      );
+    }
 
     publish(`/app/chat/${roomId}`, { type: "JOIN", sender: myUsername });
 
