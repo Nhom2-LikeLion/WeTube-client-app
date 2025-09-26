@@ -40,13 +40,9 @@ const videoUploadSchema = z.object({
   tags: z
     .string()
     .max(200, { message: "Tags must be 200 characters or fewer." })
-    .refine(
-      (value) =>
-        value === "" || /^(#[a-zA-Z0-9_]+(\s+#[a-zA-Z0-9_]+)*)$/.test(value),
-      {
-        message: 'Tags must be in the format "#tag1 #tag2"',
-      }
-    )
+    .refine((value) => value === "" || /^(#\w+(\s+#\w+)*)$/.test(value), {
+      message: 'Tags must be in the format "#tag1 #tag2"',
+    })
     .optional(),
   videoFile: z
     .instanceof(File, { message: "Video file is required." })
