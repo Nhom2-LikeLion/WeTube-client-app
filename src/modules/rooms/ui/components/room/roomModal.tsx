@@ -1,110 +1,171 @@
 "use client";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { toastEmitter } from "@/lib/toastEmitter";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
+import { useStompStore } from "@/store/zustand/useStompStore";
+import { Room } from "@/types/room";
 import { useRouter } from "next/navigation";
-import { useRoomAction } from "@/hooks/rooms/useRoomAction";
+import { useState } from "react";
 
 interface RoomProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export default function RoomModal({ open, onOpenChange }: RoomProps) {
-    const [roomId, setRoomId] = useState("");
-    const [username, setUsername] = useState("");
-    const router = useRouter();
-    const { createRoom } = useRoomAction();
+  const [roomId, setRoomId] = useState("");
+  const [username, setUsername] = useState("");
+  const router = useRouter();
+  const { setRoom, setMyUsername } = useRoomStore();
+  const stomp = useStompStore();
 
-    // -------------------
-    // JOIN ROOM
-    // -------------------
-    const handleJoin = () => {
-        if (!roomId.trim() || !username.trim()) return;
+  // -------------------
+  // JOIN ROOM
+  // -------------------
+  const handleJoin = async () => {
+    if (!roomId.trim() || !username.trim()) return;
+    const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
 
-        // onOpenChange(false);
-        // joinRoom(roomId, username, (roomIdFromServer) => {
-        //     router.push(`/rooms/${roomIdFromServer}?username=${encodeURIComponent(username)}`);
-        // });
-    };
+    onOpenChange(false);
+    try {
+      await stomp.connect();
+        toastEmitter.updateSuccess(toastId, "Connected Successfully!");
+    } catch (err) {
+        toastEmitter.updateError(toastId, "Connection failed!");
+      return;
+    }
 
-    // -------------------
-    // CREATE ROOM
-    // -------------------
-    const handleCreate = () => {
-        if (!username.trim()) return;
+        // Subscribe để nhận phản hồi khi phòng được tạo thành công
+    stomp.subscribe(`/topic/rooms/members/${roomId}`, (message) => {
+      try {
+        
+        console.log("Received message:", message);
+        const room: Room = JSON.parse(message.body); 
+        // console.log("Parsed room:", room);
 
-        onOpenChange(false);
-        createRoom(username, (room) => {
-            router.push(`/rooms/${room.roomId}?username=${encodeURIComponent(username)}`);
-        });
-    };
+        setRoom(room);
+        setMyUsername(username);
+        toastEmitter.success("Room Joined!");
+        router.push("/rooms");
+      } catch (err) {
+        toastEmitter.error("Failed to parse room data");
+        console.error(err);
+      }
+    });
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Join or Create a Room</DialogTitle>
-                </DialogHeader>
+    // Gửi yêu cầu tạo phòng
+    stomp.publish(`/app/room/join/${roomId}`, {
+        username: username
+    });
+  };
 
-                <div className="flex flex-col gap-6">
-                    {/* Username */}
-                    <div>
-                        <label className="text-sm font-medium">Your Name</label>
-                        <Input
-                            placeholder="Enter username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                    </div>
+  // -------------------
+  // CREATE ROOM
+  // -------------------
+  const handleCreate = async () => {
+    if (!username.trim()) return;
 
-                    {/* Join Room */}
-                    <div>
-                        <label className="text-sm font-medium">Join with Room ID</label>
-                        <div className="flex gap-2 mt-1">
-                            <Input
-                                placeholder="Enter Room ID"
-                                value={roomId}
-                                onChange={(e) => setRoomId(e.target.value)}
-                            />
-                            <Button
-                                onClick={handleJoin}
-                                disabled={!roomId.trim() || !username.trim()}
-                            >
-                                Join
-                            </Button>
-                        </div>
-                    </div>
+    onOpenChange(false);
+    // const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
 
-                    {/* Create Room */}
-                    <div>
-                        <label className="text-sm font-medium">Create New Room</label>
-                        <div className="flex flex-col gap-2 mt-1">
-                            <Button
-                                variant="secondary"
-                                onClick={handleCreate}
-                                disabled={!username.trim()}
-                            >
-                                Create Room
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+    try {
+      await stomp.connect();
+      //   toastEmitter.updateSuccess(toastId, "Connected Successfully!");
+    } catch (err) {
+      //   toastEmitter.updateError(toastId, "Connection failed!");
+      return;
+    }
 
-                <DialogFooter>
-                    <p className="text-xs text-gray-500">
-                        Share the Room ID with friends so they can join your room.
-                    </p>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
+    // Subscribe để nhận phản hồi khi phòng được tạo thành công
+    const subscription = stomp.subscribe("/topic/room/create", (message) => {
+      try {
+        // In ra toàn bộ message, bạn có thể debug để kiểm tra
+        // console.log("Received message:", message);
+
+        // Parse message.body để lấy thông tin Room
+        const room: Room = JSON.parse(message.body); // Bây giờ parse ở đây
+        console.log("Parsed room:", room);
+
+        setRoom(room);
+        setMyUsername(username);
+        toastEmitter.success("Room created!");
+        router.push("/rooms");
+      } catch (err) {
+        toastEmitter.error("Failed to parse room data");
+        console.error(err);
+      }
+    });
+
+    // Gửi yêu cầu tạo phòng
+    stomp.publish("/app/room/create", username);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Join or Create a Room</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-6">
+          {/* Username */}
+          <div>
+            <label className="text-sm font-medium">Your Name</label>
+            <Input
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          {/* Join Room */}
+          <div>
+            <label className="text-sm font-medium">Join with Room ID</label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                placeholder="Enter Room ID"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+              />
+              <Button
+                onClick={handleJoin}
+                disabled={!roomId.trim() || !username.trim()}
+              >
+                Join
+              </Button>
+            </div>
+          </div>
+
+          {/* Create Room */}
+          <div>
+            <label className="text-sm font-medium">Create New Room</label>
+            <div className="flex flex-col gap-2 mt-1">
+              <Button
+                variant="secondary"
+                onClick={handleCreate}
+                disabled={!username.trim()}
+              >
+                Create Room
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <p className="text-xs text-gray-500">
+            Share the Room ID with friends so they can join your room.
+          </p>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }

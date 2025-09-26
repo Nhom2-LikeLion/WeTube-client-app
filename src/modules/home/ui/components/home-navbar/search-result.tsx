@@ -10,7 +10,6 @@ import { useAuth } from "@/contexts/auth-context";
 import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import { useAddVideoToPlaylistMutation } from "@/app/api/playlistApi";
 
-// Kiểu dữ liệu backend trả về từ Elasticsearch (PageResponse<VideoDto>)
 interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -40,7 +39,7 @@ interface VideoResult {
   thumbnail: string;
   channel: {
     name: string;
-    avatar: string;
+    picture: string;
   };
   duration: string;
   views: string;
@@ -58,7 +57,6 @@ function SearchResultsContent() {
 
   const query = searchParams.get("query");
 
-  // ✅ thêm hooks cho interaction + history
   const { user } = useAuth();
   const [saveInteraction] = useSaveInteractionMutation();
   const [addVideoToPlaylist] = useAddVideoToPlaylistMutation();
@@ -73,7 +71,6 @@ function SearchResultsContent() {
       setLoading(true);
       const fetchResults = async () => {
         try {
-          // ✅ gọi Elastic API thay vì DB
           const response = await apiClient.get<PageResponse<VideoDto>>(
             "/videos/search/full",
             {
@@ -94,7 +91,7 @@ function SearchResultsContent() {
               uploadTime: new Date(dto.createdAt).toLocaleDateString("vi-VN"),
               channel: {
                 name: dto.author?.name || "Unknown",
-                avatar: dto.author?.picture || "/default-avatar.png",
+                picture: dto.author?.picture || "/default-avatar.png",
               },
             }));
 
@@ -113,18 +110,15 @@ function SearchResultsContent() {
     }
   }, [query]);
 
-  // ✅ click handler: VIEW + HISTORY + redirect
   const handleClick = async (videoId: string) => {
     try {
       if (user?.sub) {
-        // 1. lưu interaction VIEW
         await saveInteraction({
           userId: user.sub,
           videoId,
           type: "VIEW",
         }).unwrap();
 
-        // 2. thêm vào HISTORY playlist
         if (playlistID) {
           await addVideoToPlaylist({
             playlistId: playlistID,
@@ -135,7 +129,6 @@ function SearchResultsContent() {
     } catch (err) {
       console.error("❌ Failed to save interaction or add to history:", err);
     } finally {
-      // 3. luôn redirect sang trang watch
       router.push(`/watch/${videoId}`);
     }
   };
@@ -210,7 +203,7 @@ function SearchResultsContent() {
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 rounded-full overflow-hidden">
                   <Image
-                    src={video.channel.avatar}
+                    src={video.channel.picture}
                     alt={video.channel.name}
                     width={24}
                     height={24}

@@ -19,7 +19,7 @@ export interface VideoRoom {
 
 export interface MediaPlayerState {
     roomId: string;
-    isPlaying: boolean;
+    playing: boolean;
     currentTimeMillis: number;
     currentSongId: string;
 }
