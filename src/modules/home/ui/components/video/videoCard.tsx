@@ -1,17 +1,19 @@
 "use client";
+
 import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { useAuth } from "@/contexts/auth-context";
-import { formatDuration, formatViews, timeAgo } from "@/lib/utils";
+import { formatViews, timeAgo } from "@/lib/utils";
+import { VideoThumbnail } from '@/modules/videos/ui/components/video-thumbnail';
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// ✅ import mutation
 
 const VideoCard = ({
   id,
   title,
   thumbnailUrl,
+  videoUrl,
   totalView,
   createAt,
   name,
@@ -21,7 +23,6 @@ const VideoCard = ({
 }: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
-  const videoTime = formatDuration(duration);
   const { user } = useAuth();
 
   const [saveInteraction] = useSaveInteractionMutation();
@@ -30,13 +31,13 @@ const VideoCard = ({
     try {
       if (user?.sub && id) {
         await saveInteraction({
-          userId: user.sub, // ✅ lấy userId từ auth
+          userId: user.sub, 
           videoId: id,
           type: "VIEW",
         }).unwrap();
       }
     } catch (err) {
-      console.error("❌ Ghi nhận VIEW thất bại:", err);
+      console.error("❌ Failed to record VIEW interaction:", err);
     } finally {
       router.push(`/watch/${id}`);
     }
@@ -44,15 +45,15 @@ const VideoCard = ({
 
   return (
     <div
-      className="w-full flex flex-col cursor-pointer transform transition duration-300 hover:scale-105 hover:shadow-xl"
+      className="w-full flex flex-col cursor-pointer group"
       onClick={handleClick}
     >
-      <div className="aspect-video bg-blue-200 rounded-xl overflow-hidden relative">
-        <Image
-          src={thumbnailUrl}
-          alt={title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      <div className="rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
+        <VideoThumbnail
+          imageUrl={thumbnailUrl}
+          previewUrl={videoUrl}
+          title={title}
+          duration={duration}
         />
         <VideoOverlay
           duration={duration}
@@ -69,7 +70,7 @@ const VideoCard = ({
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h3 className="text-lg text-black font-bold leading-tight break-words">
+          <h3 className="text-md font-semibold leading-tight break-words text-black group-hover:text-blue-600 transition-colors">
             {title}
           </h3>
           <p className="text-sm text-gray-300">{name}</p>

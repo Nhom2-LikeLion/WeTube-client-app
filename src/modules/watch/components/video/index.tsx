@@ -52,7 +52,11 @@ export default function ActiveVideo() {
   };
 
   const handleVideoClick = () => {
-    isPlaying ? pauseVideo() : playVideo();
+    if (isPlaying) {
+      pauseVideo();
+    } else {
+      playVideo();
+    }
   };
 
   const handleSeek = (value: string) => {
