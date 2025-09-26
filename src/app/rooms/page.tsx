@@ -1,14 +1,5 @@
 "use client";
-
-import { useState } from "react";
-import RoomModal from "@/modules/rooms/ui/components/room/roomModal";
-
+import WatchRoomPageClient from "@/modules/rooms/watchRoomPageClient";
 export default function RoomsPage() {
-    const [open, setOpen] = useState(true);
-
-    return (
-        <div className="flex h-screen items-center justify-center">
-            <RoomModal open={open} onOpenChange={setOpen} />
-        </div>
-    );
+  return <WatchRoomPageClient />;
 }
