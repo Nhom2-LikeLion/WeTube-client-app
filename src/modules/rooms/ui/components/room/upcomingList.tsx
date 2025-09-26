@@ -43,9 +43,9 @@ function SortableVideo({
     transition,
   };
 
-  const { setCurrentSongId, myUsername, room,host } = useRoomStore();
+  const { setCurrentSongId, host, setMediaState } = useRoomStore();
   const { publish } = useStompStore();
-  
+
   return (
     <div
       ref={setNodeRef}
@@ -76,16 +76,17 @@ function SortableVideo({
           onDoubleClick={() => {
             console.log("Double Clicked to play:", video);
             console.log("Is HOst??????????:", host);
-
-            if (host) {
-              setCurrentSongId(video.videoUrl);
-            }
-            publish(`/app/room/mediaState/${roomId}`, {
+            const newMediaState = {
               roomId: roomId,
               playing: true,
               currentTimeMillis: 0,
               currentSongId: video.videoUrl,
-            });
+            };
+            if (host) {
+              console.log(" 😊 New Media Sate: ", newMediaState);
+              setMediaState(newMediaState);
+            }
+            publish(`/app/room/mediaState/${roomId}`, newMediaState);
           }} // Update room.playerState.currentSongId
           className="bg-white/80 rounded-full p-2 hover:bg-white"
         >

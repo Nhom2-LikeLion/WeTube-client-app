@@ -27,9 +27,6 @@ export default function WatchRoomLayout() {
         console.error("Failed to connect STOMP:", err);
       });
     }
-    return () => {
-      disconnect();
-    };
   }, []);
 
   const handleLeaveRoom = () => {

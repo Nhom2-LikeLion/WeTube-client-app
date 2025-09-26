@@ -51,7 +51,13 @@ export const useRoomStore = create<RoomStore>((set) => ({
   setMediaState: (mediaState: MediaPlayerState) =>
     set((state) => ({
       room: state.room
-        ? { ...state.room, playerState: { ...state.room.playerState } }
+        ? {
+            ...state.room,
+            playerState: {  
+              ...state.room.playerState,
+              ...mediaState,
+            },
+          }
         : null,
     })),
 }));

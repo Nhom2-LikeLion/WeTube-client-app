@@ -13,21 +13,21 @@ interface VideoPlayerProps {
 export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { room, setMediaState, myUsername, host } = useRoomStore();
-  const { publish, subscribe, unsubscribe } = useStompStore();
-  const videos = room?.playlist ?? [];
-  const currentVideo = room?.playerState.currentSongId;
-  const mediaState = room?.playerState;
+  const { room, setMediaState, host } = useRoomStore();
+  const { publish, subscribe } = useStompStore();
+  const videos = room!.playlist ?? [];
+  const currentVideo = room!.playerState.currentSongId;
+  const mediaState = room!.playerState;
   const currentTimeInSeconds = mediaState!.currentTimeMillis / 1000 || 0;
 
   // 1️⃣ Setup & teardown chat
   useEffect(() => {
     if (!room) return;
+    console.log("MediaPlayeer Is Hostttt???????:", host);
 
     if (host) return;
-
+    console.log("Hereeeeeeeeeeeeee", host);
     const topicEndpoint = `/topic/rooms/mediaState/${room.roomId}`;
-    const publishEndpoint = `/app/room/mediaState/${room.roomId}`;
 
     subscribe(topicEndpoint, (msg) => {
       try {
