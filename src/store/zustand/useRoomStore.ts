@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Room, VideoRoom } from "@/types/room";
+import { MediaPlayerState, Room, VideoRoom } from "@/types/room";
 
 interface RoomStore {
   room: Room | null;
@@ -9,6 +9,7 @@ interface RoomStore {
   setMyUsername: (username: string) => void;
   clearMyUsername: () => void;
   addSong: (song: VideoRoom) => void;
+  setMediaState: (mediaState: MediaPlayerState) => void;
   setCurrentSongId: (id: string) => void;
 }
 
@@ -30,10 +31,22 @@ export const useRoomStore = create<RoomStore>((set) => ({
     set((state) => ({
       room: state.room
         ? {
-            ...state.room, // giữ nguyên các thuộc tính khác trong room
+            ...state.room,
             playerState: {
-              ...state.room.playerState, // giữ nguyên các thuộc tính trong playerState
-              currentSongId: id, // cập nhật currentSongId
+              ...state.room.playerState,
+              currentSongId: id,
+            },
+          }
+        : null,
+    })),
+  setMediaState: (mediaState: MediaPlayerState) =>
+    set((state) => ({
+      room: state.room
+        ? {
+            ...state.room,
+            playerState: {
+              ...state.room.playerState, // Giữ nguyên playerState hiện tại
+              ...mediaState, // Cập nhật hoặc thay thế các trường trong playerState
             },
           }
         : null,

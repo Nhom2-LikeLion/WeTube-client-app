@@ -93,7 +93,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
 
         // Parse message.body để lấy thông tin Room
         const room: Room = JSON.parse(message.body); // Bây giờ parse ở đây
-        // console.log("Parsed room:", room);
+        console.log("Parsed room:", room);
 
         setRoom(room);
         setMyUsername(username);

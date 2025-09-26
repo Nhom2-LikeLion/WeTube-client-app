@@ -1,6 +1,8 @@
 "use client";
 
 import { useRoomStore } from "@/store/zustand/useRoomStore";
+import { useStompStore } from "@/store/zustand/useStompStore";
+import { MediaPlayerState } from "@/types/room";
 import { VideoOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,19 +13,79 @@ interface VideoPlayerProps {
 export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { room } = useRoomStore();
+  const { room, setMediaState } = useRoomStore();
+  const { publish, subscribe, unsubscribe } = useStompStore();
   const videos = room?.playlist ?? [];
   const currentVideo = room?.playerState.currentSongId;
+  const mediaState = room?.playerState;
+  const currentTimeInSeconds = mediaState!.currentTimeMillis / 1000 || 0;
 
+  // 1️⃣ Setup & teardown chat
   useEffect(() => {
-    if (videoRef.current && currentVideo) {
+    if (!room) return;
+
+    const topicEndpoint = `/topic/rooms/mediaState/${room.roomId}`;
+    const publishEndpoint = `/app/room/mediaState/${room.roomId}`;
+
+    subscribe(topicEndpoint, (msg) => {
+      try {
+        const payload: MediaPlayerState = JSON.parse(msg.body);
+        console.log("MediaPlayerState received:", payload);
+        setMediaState(payload);
+      } catch (err) {
+        console.error("❌ Failed to parse message:", msg.body);
+      }
+    });
+
+    // Gửi JOIN message
+    // publish(publishEndpoint, {
+
+    // });
+  }, []);
+
+useEffect(() => {
+  // Kiểm tra nếu videoRef và currentSongId đã có giá trị
+  if (videoRef.current && mediaState?.currentSongId) {
+    const videoUrl = mediaState.currentSongId;
+    const video = videos.find((v) => v.videoUrl === videoUrl);
+
+    // Log để kiểm tra giá trị của video và mediaState
+    console.log("mediaState received:", mediaState);
+    console.log("currentVideoUrl:", videoUrl);
+    console.log("Found video:", video);
+
+    if (video && videoRef.current) {
+      // Cập nhật nguồn video khi có video mới
+      console.log("Updating video src:", video.videoUrl);
+      videoRef.current.src = video.videoUrl;
+
+      // Thiết lập lại thời gian video khi video đổi
+      console.log("Setting currentTime to:", currentTimeInSeconds);
+      videoRef.current.currentTime = currentTimeInSeconds;
+
+      // Reload video để cập nhật nguồn mới
       videoRef.current.load();
-      videoRef.current.play().catch(() => {
-        console.log("Autoplay bị chặn, user cần click vào video.");
-      });
-      onChangeVideo?.(currentVideo); // gọi callback nếu cần
+      console.log("Video loaded successfully");
+      console.log("mediaState.isPlaying:", mediaState.playing);
+
+      // Kiểm tra trạng thái "playing" để phát hoặc tạm dừng video
+      if (mediaState.playing) {
+        console.log("Playing video...");
+        videoRef.current.play().catch((err) => {
+          console.log("Error while playing video:", err);
+        });
+      } else {
+        console.log("Pausing video...");
+        videoRef.current.pause();
+      }
+    } else {
+      console.log("No video found with the given URL or videoRef is null.");
     }
-  }, [currentVideo]);
+  } else {
+    console.log("No videoRef or currentSongId available.");
+  }
+}, [mediaState]); // Chạy lại khi mediaState thay đổi
+
 
   const handleEnded = () => {
     if (currentIndex < videos.length - 1) {
@@ -50,7 +112,7 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
       key={currentVideo}
       src={currentVideo}
       controls
-      autoPlay
+      autoPlay={true}
       className="w-full h-full rounded-lg"
       onEnded={handleEnded}
     />

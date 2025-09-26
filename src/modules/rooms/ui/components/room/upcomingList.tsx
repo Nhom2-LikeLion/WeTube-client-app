@@ -25,9 +25,11 @@ import { useEffect, useRef } from "react";
 
 // Component hiển thị thông tin bài hát
 function SortableVideo({
+  roomId,
   video,
   isActive,
 }: {
+  roomId: string;
   video: VideoRoom;
   isActive: boolean;
 }) {
@@ -42,6 +44,7 @@ function SortableVideo({
   };
 
   const { setCurrentSongId } = useRoomStore();
+  const { client, connected, connect, publish, subscribe } = useStompStore();
 
   return (
     <div
@@ -72,7 +75,13 @@ function SortableVideo({
           // Phát bài hát khi nhấn nút play
           onDoubleClick={() => {
             console.log("Double Clicked to play:", video);
-            setCurrentSongId(video.videoUrl);
+            //setCurrentSongId(video.videoUrl);
+            publish(`/app/room/mediaState/${roomId}`, {
+              roomId: roomId,
+              playing: true,
+              currentTimeMillis: 0,
+              currentSongId: video.videoUrl,
+            });
           }} // Update room.playerState.currentSongId
           className="bg-white/80 rounded-full p-2 hover:bg-white"
         >
@@ -85,9 +94,11 @@ function SortableVideo({
 
 // Danh sách bài hát có khả năng kéo và thả
 function DraggableVideoList({
+  roomId,
   videos,
   currentVideoId,
 }: {
+  roomId: string;
   videos: VideoRoom[];
   currentVideoId: string;
 }) {
@@ -131,6 +142,7 @@ function DraggableVideoList({
         {videos.map((v) => (
           <SortableVideo
             key={v.id}
+            roomId={roomId}
             video={v}
             isActive={v.id === currentVideoId}
           />
@@ -171,12 +183,13 @@ export default function UpcomingList({ roomId }: { roomId: string }) {
     return () => {
       unsubscribe(subscriptionRef.current);
     };
-  }, [roomId, addSong, subscribe, unsubscribe]);
+  }, []);
 
-  return (
+  return (  
     <DndContext sensors={sensors} collisionDetection={closestCenter}>
       <DraggableVideoList
         videos={room?.playlist || []}
+        roomId={room!.roomId}
         currentVideoId={room?.playerState.currentSongId || ""}
       />
     </DndContext>

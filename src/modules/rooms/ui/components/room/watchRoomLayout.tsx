@@ -64,7 +64,12 @@ export default function WatchRoomLayout() {
             )}
 
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400">
-              <UpcomingList onPlay={setCurrentVideoId} roomId={room!.roomId} />
+              {room && (
+                <UpcomingList
+                //   onPlay={setCurrentVideoId}
+                  roomId={room!.roomId}
+                />
+              )}
             </div>
 
             {room && client && (
@@ -80,7 +85,7 @@ export default function WatchRoomLayout() {
         </div>
 
         <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
-          {room && (
+          {room && client && (
             <div className="flex-1 overflow-y-auto">
               <RoomChat
                 roomId={room.roomId}
