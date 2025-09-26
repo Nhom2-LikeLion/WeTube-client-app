@@ -13,7 +13,7 @@ interface VideoPlayerProps {
 export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { room, setMediaState, myUsername } = useRoomStore();
+  const { room, setMediaState, myUsername, host } = useRoomStore();
   const { publish, subscribe, unsubscribe } = useStompStore();
   const videos = room?.playlist ?? [];
   const currentVideo = room?.playerState.currentSongId;
@@ -23,6 +23,8 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   // 1️⃣ Setup & teardown chat
   useEffect(() => {
     if (!room) return;
+
+    if (host) return;
 
     const topicEndpoint = `/topic/rooms/mediaState/${room.roomId}`;
     const publishEndpoint = `/app/room/mediaState/${room.roomId}`;
@@ -36,11 +38,6 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
         console.error("❌ Failed to parse message:", msg.body);
       }
     });
-
-    // Gửi JOIN message
-    // publish(publishEndpoint, {
-
-    // });
   }, []);
 
   useEffect(() => {
@@ -84,36 +81,33 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
     } else {
       console.log("No videoRef or currentSongId available.");
     }
-  }, [mediaState]); // Chạy lại khi mediaState thay đổi
+  }, [mediaState]);
 
   const handlePause = () => {
     if (videoRef.current) {
       const newState: MediaPlayerState = {
         ...mediaState!,
         playing: false,
-        currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
+        currentTimeMillis: videoRef.current.currentTime * 1000,
       };
-      const host = room?.members.find((m) => m.isHost);
-      if(host?.username === myUsername){
-        //publishMediaState(newState); // Gửi lên server
-      }else{
-        setMediaState(newState); 
+
+      if (host) {
+        publishMediaState(newState); // Gửi lên server
       }
     }
   };
 
-  const handleSeek = () => {
+  const publishSeek = () => {
     if (videoRef.current) {
       const newState: MediaPlayerState = {
         ...mediaState!,
         playing: true, // Giả sử video đang chơi khi seek
         currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
       };
-      const host = room?.members.find((m) => m.isHost);
-      if(host?.username === myUsername){
-        //publishMediaState(newState); // Gửi lên server
-      }else{
-        setMediaState(newState); 
+      console.log("Is HOst??????????:", host);
+
+      if (host) {
+        publishMediaState(newState); // Gửi lên server
       }
     }
   };
@@ -153,7 +147,7 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
       className="w-full h-full rounded-lg"
       onEnded={handleEnded}
       onPause={handlePause}
-      onSeeked={handleSeek}
+      onSeeked={host ? publishSeek : undefined}
     />
   );
 }

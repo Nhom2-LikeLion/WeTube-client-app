@@ -43,9 +43,9 @@ function SortableVideo({
     transition,
   };
 
-  const { setCurrentSongId } = useRoomStore();
-  const { client, connected, connect, publish, subscribe } = useStompStore();
-
+  const { setCurrentSongId, myUsername, room,host } = useRoomStore();
+  const { publish } = useStompStore();
+  
   return (
     <div
       ref={setNodeRef}
@@ -75,7 +75,11 @@ function SortableVideo({
           // Phát bài hát khi nhấn nút play
           onDoubleClick={() => {
             console.log("Double Clicked to play:", video);
-            //setCurrentSongId(video.videoUrl);
+            console.log("Is HOst??????????:", host);
+
+            if (host) {
+              setCurrentSongId(video.videoUrl);
+            }
             publish(`/app/room/mediaState/${roomId}`, {
               roomId: roomId,
               playing: true,
@@ -185,7 +189,7 @@ export default function UpcomingList({ roomId }: { roomId: string }) {
     };
   }, []);
 
-  return (  
+  return (
     <DndContext sensors={sensors} collisionDetection={closestCenter}>
       <DraggableVideoList
         videos={room?.playlist || []}
