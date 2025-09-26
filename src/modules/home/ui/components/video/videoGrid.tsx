@@ -42,7 +42,7 @@ export default function VideoGrid() {
   }, [visibleCount, videos.length, isFetching, loadMore]);
 
   if (!userId)
-    return <p className="p-4">Please Sign In To Enjoy Our Video Community ❤</p>;
+    return <p className="p-4">Please Sign In To Enjoy Our Video Community </p>;
 
   if (isLoading)
     return (
@@ -72,7 +72,7 @@ export default function VideoGrid() {
 
         {videos.length === 0 && !isFetching && (
             <p className="text-center mt-6 text-gray-500">
-              Let's start by searching something 😊
+              Let's start by searching something you like!
             </p>
         )}
 

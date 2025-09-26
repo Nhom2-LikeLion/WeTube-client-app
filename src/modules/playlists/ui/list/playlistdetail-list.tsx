@@ -91,6 +91,7 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <div
             key={video.videoId}
             className="flex gap-4 hover:bg-gray-50 p-2 rounded-lg"
+            
           >
             <div className="text-sm text-gray-500 w-8 flex-shrink-0 pt-2">
               {index + 1}
@@ -105,6 +106,7 @@ export default function PlaylistDetail({ playlistId }: { playlistId: string }) {
               />
               <span className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-1 rounded">
                 {video.duration || "0:00"}
+                
               </span>
             </div>
             <div className="flex-1 min-w-0">

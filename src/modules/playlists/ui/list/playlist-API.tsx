@@ -118,7 +118,7 @@ export const playlistService = {
   },
   // POST /{userId}/history/add/{videoId}
   addToHistory: async (userId: string, videoId: string) => {
-    if (!userId || !videoId) throw new Error("UserId and VideoId are required");
+    if (!userId || !videoId) throw new Error("   and VideoId are required");
 
     const res = await fetch(`${API_BASE}/${userId}/history/add/${videoId}`, {
       method: "POST",

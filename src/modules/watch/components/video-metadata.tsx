@@ -13,6 +13,7 @@ import {useVideoStore} from "@/store/zustand/videoStore";
 import {timeAgo} from "@/lib/utils";
 import {useEffect, useState } from "react";
 import { useSubscribeMutation, useUnsubscribeMutation } from "@/app/api/subscriptionsApi";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 
 export default function VideoMetadata() {
     const videoDetail = useVideoStore((state) => state.videoDetail);
@@ -102,9 +103,26 @@ export default function VideoMetadata() {
                             <p className="text-sm font-bold">Thanks</p>
                         </button>
                     </div>
-                    <button className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full cursor-pointer">
-                        <EllipsisHorizontalIcon className="size-6"/>
-                    </button>
+                    <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full cursor-pointer">
+                        <EllipsisHorizontalIcon className="size-6" />
+                        </button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent
+                        align="end"
+                        className="bg-white border border-gray-200 shadow-md rounded-md min-w-[160px]"
+                    >
+                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                        Lưu
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                        Báo vi phạm
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                    </DropdownMenu>
+
                 </section>
             </div>
 

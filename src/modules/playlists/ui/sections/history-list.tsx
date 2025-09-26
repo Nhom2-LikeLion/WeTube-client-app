@@ -1,147 +1,96 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { playlistService } from "../list/playlist-API";
 import VideoItem from "./VideoItem";
-import { useAuth } from "@/contexts/auth-context";
 
 
-export default function HistoryList({ userId }: { userId: string }) {
-  const [videos, setVideos] = useState<any[]>([]);
+
+export default function HistoryList({ playlistId }: {playlistId: string}) {
   const [loading, setLoading] = useState(true);
-  const {user} = useAuth();
+  const [playlist, setPlaylist] = useState<any>(null);
 
+  
   useEffect(() => {
-    const fetchHistory = async () => {
+    if (!playlistId) return;
+
+    const fetchData = async () => {
       try {
-        const res = await playlistService.getByUserAndType(userId, "HISTORY");
-        setVideos(res?.videos || []);
+        const data = await playlistService.getDetail(playlistId);
+        setPlaylist(data);
       } catch (err) {
-        console.error(" Lỗi load history:", err);
+        console.error("Error loading playlist detail", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHistory();
-  }, [userId]);
+    fetchData();
+  }, [playlistId]);
+
+
+  const videos = playlist?.videos || [];
 
   if (loading) return <p>Đang tải lịch sử...</p>;
-
   if (!videos.length) return <p>Chưa có video nào trong lịch sử</p>;
+
+  const tabs = [
+    { label: "All", value: "all", type: null },
+    { label: "Video", value: "video", type: "VIDEO" },
+    { label: "Podcast", value: "podcast", type: "PODCAST" },
+    { label: "Music", value: "music", type: "MUSIC" },
+  ];
+
+  const getVideosForTab = (tab: { value: string; type: string | null }) => {
+    if (!tab.type) return videos;
+    return videos.filter((v) => v.type === tab.type);
+  };
 
   return (
     <div className="max-w-4xl pl-12 pt-6 text-black">
       <h1 className="text-4xl font-bold mb-3">Watch History</h1>
 
-      {/* Filter Tabs */}
-      <Tabs defaultValue="all" className="mb-0">
-        <TabsList className="border-none p-0 h-auto gap-2 flex-rap">
-          {["all", "video", "shorts", "podcast", "music"].map((tab) => (
-            <TabsTrigger
-              key={tab}
-              value={tab}
-              className="bg-gray-200 text-black hover:bg-gray-400 data-[state=active]:bg-black data-[state=active]:text-white rounded-sm px-3 py-1.5"
-            >
-              {tab === "all"
-                ? "All"
-                : tab === "video"
-                ? "Video"
-                : tab === "shorts"
-                ? "Shorts"
-                : tab === "podcast"
-                ? "Podcast"
-                : "Music"}
-            </TabsTrigger>
-          ))}
+      <Tabs defaultValue="all">
+        <TabsList className="border-none gap-2 flex-wrap">
+          {tabs
+            .filter((tab) => getVideosForTab(tab).length > 0)
+            .map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="bg-gray-200 hover:bg-gray-400 data-[state=active]:bg-black data-[state=active]:text-white rounded-md px-3 py-1.5 text-sm"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
         </TabsList>
 
-        {/* Tab All */}
-        <TabsContent value="all" className="mt-8">
-          <h2 className="text-xl font-bold mb-6">Hôm nay</h2>
-          <div className="space-y-3">
-            {videos.map((v) => (
-              <VideoItem
-                key={v.videoId}
-                id={v.videoId}
-                title={v.videoTitle}
-                channel={v.channelName || "Unknown"}
-                views={`${v.totalViews || 0} lượt xem`}
-                duration={v.duration}
-                thumbnail={v.thumbnailUrl}
-                progress={v.historyDuration}
-                 onAddedToHistory={v.fetchHistory}
-              />
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* Tab Video */}
-        <TabsContent value="video" className="mt-8">
-          <h2 className="text-xl font-bold mb-6">Video</h2>
-          <div className="space-y-3">
-            {videos
-              .filter((v) => v.type === "VIDEO")
-              .map((v) => (
-                <VideoItem
-                  key={v.videoId}
-                  id={v.videoId}
-                  title={v.videoTitle}
-                  channel={v.channelName || "Unknown"}
-                  views={`${v.totalViews || 0} lượt xem`}
-                  duration={v.duration}
-                  thumbnail={v.thumbnailUrl}
-                  progress={v.historyDuration}
-                  onAddedToHistory={v.fetchHistory}
-                />
-              ))}
-          </div>
-        </TabsContent>
-
-        {/* Tab Podcast */}
-        <TabsContent value="podcast" className="mt-8">
-          <h2 className="text-xl font-bold mb-6">Podcast</h2>
-          <div className="space-y-3">
-            {videos
-              .filter((v) => v.type === "PODCAST")
-              .map((v) => (
-                <VideoItem
-                  key={v.videoId}
-                  id={v.videoId}
-                  title={v.videoTitle}
-                  channel={v.channelName || "Unknown"}
-                  views={`${v.totalViews || 0} lượt xem`}
-                  duration={v.duration}
-                  thumbnail={v.thumbnailUrl}
-                  progress={v.historyDuration}
-                  onAddedToHistory={v.fetchHistory}
-                />
-              ))}
-          </div>
-        </TabsContent>
-
-        {/* Tab Music */}
-        <TabsContent value="music" className="mt-8">
-          <h2 className="text-xl font-bold mb-6">Âm nhạc</h2>
-          <div className="space-y-3">
-            {videos
-              .filter((v) => v.type === "MUSIC")
-              .map((v) => (
-                <VideoItem
-                  key={v.videoId}
-                  id={v.videoId}
-                  title={v.videoTitle}
-                  channel={v.channelName || "Unknown"}
-                  views={`${v.totalViews || 0} lượt xem`}
-                  duration={v.duration}
-                  thumbnail={v.thumbnailUrl}
-                  progress={v.historyDuration}
-                  onAddedToHistory={v.fetchHistory}
-                />
-              ))}
-          </div>
-        </TabsContent>
+        {tabs
+          .filter((tab) => getVideosForTab(tab).length > 0)
+          .map((tab) => (
+            <TabsContent key={tab.value} value={tab.value} className="mt-8">
+              <h2 className="text-xl font-bold mb-6">{tab.label}</h2>
+              <div className="space-y-3">
+                {getVideosForTab(tab).map((v) => (
+                  <VideoItem
+                    key={v.videoId}
+                    videoId={v.videoId}
+                    videoTitle={v.videoTitle}
+                    videoUrl={`/watch/${v.videoId}`}
+                    updatedAt={v.updatedAt || ""}
+                    historyDuration={parseInt(v.historyDuration || "0", 10)}
+                    channel={v.channelName || "Unknown"}
+                    views={`${v.totalViews || 0} lượt xem`}
+                    duration={v.duration}
+                    thumbnailUrl={v.thumbnailUrl || "/images/thumbnail.png"}
+                    description={v.description}
+                    
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          ))}
       </Tabs>
     </div>
   );

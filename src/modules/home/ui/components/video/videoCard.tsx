@@ -3,10 +3,10 @@ import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { useAuth } from "@/contexts/auth-context";
 import { formatDuration, formatViews, timeAgo } from "@/lib/utils";
+import { playlistService } from "@/modules/playlists/ui/list/playlist-API";
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// ✅ import mutation
 
 const VideoCard = ({
   id,
@@ -29,14 +29,18 @@ const VideoCard = ({
   const handleClick = async () => {
     try {
       if (user?.sub && id) {
+        await playlistService.addToHistory(user.sub, id);
+        console.log("Đã lưu vào history:", id);
+
         await saveInteraction({
-          userId: user.sub, // ✅ lấy userId từ auth
+          userId: user.sub, 
           videoId: id,
           type: "VIEW",
         }).unwrap();
       }
     } catch (err) {
-      console.error("❌ Ghi nhận VIEW thất bại:", err);
+      console.error("Lỗi khi lưu history/interaction:", err);
+      console.error("Ghi nhận VIEW thất bại:", err);
     } finally {
       router.push(`/watch/${id}`);
     }

@@ -14,6 +14,7 @@ export interface Playlists {
 }
 export interface Video {
   videoId: string;
+  videoUrl: string;
   thumbnailUrl: string;
   createdAt: string;
 }
