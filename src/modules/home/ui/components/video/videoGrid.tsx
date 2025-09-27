@@ -22,7 +22,7 @@ export default function VideoGrid() {
   const { data, isLoading, isFetching, error } = useGetRecommendVideosQuery(
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
-      skip: !user?.sub || !hasMore,
+      skip: isAuthLoading || !user || !hasMore,
     }
   );
 
