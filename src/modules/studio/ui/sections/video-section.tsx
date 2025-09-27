@@ -91,7 +91,7 @@ export default function VideosSection() {
 
   return (
     <div className="border-y">
-      <Table>
+      <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>
             <TableHead className="pl-6">Video</TableHead>
