@@ -15,15 +15,8 @@ export default function WatchRoomLayout() {
   const router = useRouter();
   const [chatOpen, setChatOpen] = useState(false);
 
-  const {
-    room,
-    myUsername,
-    setMediaState,
-    addSong,
-    host,
-    addMember,
-    subtractMember,
-  } = useRoomStore();
+  const { room, myUsername, setMediaState, addSong, host, setMemberList } =
+    useRoomStore();
   const { client, publish, subscribe, unsubscribe } = useStompStore();
   const addMessage = useChatStore((state) => state.addMessage);
   const clearMessages = useChatStore((state) => state.clearMessages);
@@ -43,9 +36,18 @@ export default function WatchRoomLayout() {
 
       subscribe(`/topic/rooms/member/${roomId}`, (msg) => {
         if (msg.body) {
-          const member: WatchMember = JSON.parse(msg.body);
-          console.log("New member joined:", member);
-          addMember(member);
+          let members: WatchMember[] = [];
+          try {
+            const parsed = JSON.parse(msg.body);
+
+            // đảm bảo là array
+            members = Array.isArray(parsed) ? parsed : [parsed];
+          } catch (e) {
+            console.error("Failed to parse members from server", e);
+          }
+
+          console.log("Updated member list:", members);
+          setMemberList(members);
         }
       }),
     ];
@@ -64,19 +66,19 @@ export default function WatchRoomLayout() {
 
     return () => {
       publish(`/app/chat/${roomId}`, { type: "LEAVE", sender: myUsername });
+      publish(`/app/room/member/leave/${room?.roomId}`, {
+        username: myUsername,
+      });
+
       subs.forEach(unsubscribe);
       clearMessages();
     };
   }, []);
 
   const handleLeaveRoom = () => {
-    if (client?.connected) {
-      publish(`/app/chat/${room?.roomId}`, {
-        type: "LEAVE",
-        sender: myUsername,
-      });
-    }
-    router.push("/"); // Redirect to home or other page after leaving the room
+    publish(`/app/chat/${room?.roomId}`, { type: "LEAVE", sender: myUsername });
+    publish(`/app/room/member/leave/${room?.roomId}`, { username: myUsername });
+    router.push("/");
   };
 
   return (
@@ -116,11 +118,7 @@ export default function WatchRoomLayout() {
 
             {room && client && (
               <div className="mt-3">
-                <MemberList
-                  roomId={room?.roomId}
-                  stompClient={client}
-                  username={myUsername}
-                />
+                <MemberList />
               </div>
             )}
           </div>

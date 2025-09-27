@@ -12,8 +12,7 @@ interface RoomStore {
   addSong: (song: VideoRoom) => void;
   setMediaState: (mediaState: MediaPlayerState) => void;
   setCurrentSongId: (id: string) => void;
-  addMember: (member: WatchMember) => void;
-  subtractMember: (username: string) => void;
+  setMemberList: (members: WatchMember[]) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
@@ -24,9 +23,12 @@ export const useRoomStore = create<RoomStore>((set) => ({
   setRoom: (room) =>
     set((state) => {
       const hostMember = room.members.find((m) => m.host);
-      const isHost = hostMember!.username === state.myUsername;
+      const isHost = hostMember?.username === state.myUsername;
       return {
-        room,
+        room: {
+          ...room,
+          members: room.members || [],
+        },
         host: isHost,
       };
     }),
@@ -67,31 +69,13 @@ export const useRoomStore = create<RoomStore>((set) => ({
         : null,
     })),
 
-  addMember: (member: WatchMember) =>
+  setMemberList: (members: WatchMember[]) =>
     set((state) =>
       state.room
         ? {
             room: {
               ...state.room,
-              members: state.room.members.some(
-                (m) => m.username === member.username
-              )
-                ? state.room.members
-                : [...state.room.members, member],
-            },
-          }
-        : state
-    ),
-
-  subtractMember: (username: string) =>
-    set((state) =>
-      state.room
-        ? {
-            room: {
-              ...state.room,
-              members: state.room.members.filter(
-                (m) => m.username !== username
-              ),
+              members: members || [],
             },
           }
         : state
