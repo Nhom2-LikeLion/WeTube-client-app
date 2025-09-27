@@ -22,14 +22,13 @@ export default function VideoGrid() {
   const { data, isLoading, isFetching, error } = useGetRecommendVideosQuery(
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
-      skip: !user?.sub || !hasMore,
+      skip: isAuthLoading || !user || !hasMore,
     }
   );
 
-  const newVideos = data?.content || [];
-
   useEffect(() => {
-    if (newVideos.length > 0) {
+    if (data?.content && data.content.length > 0) {
+      const newVideos = data.content;
       setAllVideos((prevVideos) => {
         const combined = [...prevVideos, ...newVideos];
         const uniqueVideos = Array.from(
@@ -38,10 +37,11 @@ export default function VideoGrid() {
         return uniqueVideos;
       });
     }
-    if (newVideos.length < LOAD_COUNT) {
+
+    if (!data?.content || data.content.length < LOAD_COUNT) {
       setHasMore(false);
     }
-  }, [newVideos]);
+  }, [data]);
 
   useEffect(() => {
     if (inView && hasMore && !isFetching) {

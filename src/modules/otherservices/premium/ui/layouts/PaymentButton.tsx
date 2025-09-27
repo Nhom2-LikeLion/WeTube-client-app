@@ -10,16 +10,19 @@ export default function PaymentButton() {
   const handlePayment = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/payment/momo/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user?.sub,
-          subPackId: "550e8400-e29b-41d4-a716-446655440000", 
-        }),
-      });
+      const res = await fetch(
+        "https://wetube.name.vn/api/payment/momo/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user?.sub,
+            subPackId: "550e8400-e29b-41d4-a716-446655440000",
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Payment API failed");
 

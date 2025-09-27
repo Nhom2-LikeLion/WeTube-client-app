@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUploadVideoMutation, videoApi } from "@/app/api/videoApi";
 import { useDispatch } from "react-redux";
 import { playlistApi } from "@/app/api/playlistApi";
-import { formatDuration } from '@/lib/utils';
+import { formatDuration } from "@/lib/utils";
 
 const MAX_VIDEO_SIZE_MB = 100;
 const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
