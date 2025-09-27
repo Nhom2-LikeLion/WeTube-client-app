@@ -1,7 +1,7 @@
 export interface WatchMember {
     userId: string;
     username: string;
-    isHost: boolean;
+    host: boolean;
 }
 
 export interface VideoRoom {
@@ -19,7 +19,7 @@ export interface VideoRoom {
 
 export interface MediaPlayerState {
     roomId: string;
-    isPlaying: boolean;
+    playing: boolean;
     currentTimeMillis: number;
     currentSongId: string;
 }

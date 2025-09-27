@@ -1,15 +1,15 @@
 "use client";
 
-import React, {useState, useEffect, useCallback} from "react";
-import {Button} from "@/components/ui/button";
+import React, { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import {
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-    DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import {Clock, Film, Loader2, X} from "lucide-react";
 import {useAuth} from "@/contexts/auth-context";
@@ -30,46 +30,42 @@ const MAX_THUMBNAIL_SIZE_MB = 5;
 const MAX_THUMBNAIL_SIZE_BYTES = MAX_THUMBNAIL_SIZE_MB * 1024 * 1024;
 
 const videoUploadSchema = z.object({
-    title: z
-        .string()
-        .trim()
-        .min(1, {message: "Title is required."})
-        .max(100, {message: "Title must be 100 characters or fewer."}),
-    description: z
-        .string()
-        .max(10000, {message: "Description must be 10000 characters or fewer."})
-        .optional(),
-    tags: z
-        .string()
-        .max(200, {message: "Tags must be 200 characters or fewer."})
-        .refine(
-            (value) =>
-                value === "" || /^(#[a-zA-Z0-9_]+(\s+#[a-zA-Z0-9_]+)*)$/.test(value),
-            {
-                message: 'Tags must be in the format "#tag1 #tag2"',
-            }
-        )
-        .optional(),
-    videoFile: z
-        .instanceof(File, {message: "Video file is required."})
-        .refine(
-            (file) => file.size <= MAX_VIDEO_SIZE_BYTES,
-            `Video file must be ${MAX_VIDEO_SIZE_MB}MB or less.`
-        ),
-    thumbnailFile: z
-        .instanceof(File, {message: "Please select or generate a thumbnail."})
-        .refine(
-            (file) => file.size <= MAX_THUMBNAIL_SIZE_BYTES,
-            `Thumbnail file must be ${MAX_THUMBNAIL_SIZE_MB}MB or less.`
-        ),
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: "Title is required." })
+    .max(100, { message: "Title must be 100 characters or fewer." }),
+  description: z
+    .string()
+    .max(5000, { message: "Description must be 5000 characters or fewer." })
+    .optional(),
+  tags: z
+    .string()
+    .max(200, { message: "Tags must be 200 characters or fewer." })
+    .refine((value) => value === "" || /^(#\w+(\s+#\w+)*)$/.test(value), {
+      message: 'Tags must be in the format "#tag1 #tag2"',
+    })
+    .optional(),
+  videoFile: z
+    .instanceof(File, { message: "Video file is required." })
+    .refine(
+      (file) => file.size <= MAX_VIDEO_SIZE_BYTES,
+      `Video file must be ${MAX_VIDEO_SIZE_MB}MB or less.`
+    ),
+  thumbnailFile: z
+    .instanceof(File, { message: "Please select or generate a thumbnail." })
+    .refine(
+      (file) => file.size <= MAX_THUMBNAIL_SIZE_BYTES,
+      `Thumbnail file must be ${MAX_THUMBNAIL_SIZE_MB}MB or less.`
+    ),
 });
 
 type VideoFormData = z.infer<typeof videoUploadSchema>;
 
 interface VideoDetailsModalProps {
-    file: File;
-    onClose: () => void;
-    onUploadComplete: () => void;
+  file: File;
+  onClose: () => void;
+  onUploadComplete: () => void;
 }
 
 export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
@@ -208,6 +204,19 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
             videoElement.currentTime = thumbnailTime;
         };
 
+        const handleDataLoaded = () => {
+            const correctDuration = videoElement.duration;
+            if (isFinite(correctDuration) && correctDuration > 0) {
+                setDuration(correctDuration);
+                setResolution(
+                    `${videoElement.videoWidth} x ${videoElement.videoHeight}`
+                );
+
+                const thumbnailTime = Math.min(correctDuration / 2, 1);
+                videoElement.currentTime = thumbnailTime;
+            }
+        };
+
         const handleSeeked = async () => {
             try {
                 if (!thumbnailFile) {
@@ -232,18 +241,20 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
             setIsGeneratingThumbnail(false);
         };
 
+        videoElement.addEventListener("loadeddata", handleDataLoaded);
         videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
         videoElement.addEventListener("seeked", handleSeeked);
         videoElement.addEventListener("error", handleError);
 
-        // Cleanup function
-        return () => {
-            URL.revokeObjectURL(url);
-            videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
-            videoElement.removeEventListener("seeked", handleSeeked);
-            videoElement.removeEventListener("error", handleError);
-        };
-    }, [file, generateThumbnail, setValue, thumbnailFile]);
+    // Cleanup function
+    return () => {
+      URL.revokeObjectURL(url);
+        videoElement.removeEventListener("loadeddata", handleDataLoaded);
+      videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
+      videoElement.removeEventListener("seeked", handleSeeked);
+      videoElement.removeEventListener("error", handleError);
+    };
+  }, [file, generateThumbnail, setValue, thumbnailFile]);
 
     useEffect(() => {
         return () => {

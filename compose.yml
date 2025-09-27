@@ -22,11 +22,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # ✅ Đảm bảo bạn có đoạn code này để đẩy 2 tag
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/wetube-client-app:latest
-          build-args: |
-            NEXT_PUBLIC_API_BASE=${{ secrets.NEXT_PUBLIC_API_BASE }}
-            NEXT_PUBLIC_LIVEKIT_URL=${{ secrets.NEXT_PUBLIC_LIVEKIT_URL }}
-            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
