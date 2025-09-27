@@ -4,11 +4,12 @@ import { useSaveInteractionMutation } from "@/app/api/interactionApi";
 import { Skeleton } from '@/components/ui/skeleton';
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { useAuth } from "@/contexts/auth-context";
-import { formatViews, timeAgo } from "@/lib/utils";
 import { VideoThumbnail } from '@/modules/videos/ui/components/video-thumbnail';
+import { playlistService } from "@/modules/playlists/ui/list/playlist-API";
 import { RecommendedVideoItem } from "@/types/video";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { formatViews, timeAgo } from "@/lib/utils";
 
 const VideoCard = ({
   id,
@@ -31,6 +32,9 @@ const VideoCard = ({
   const handleClick = async () => {
     try {
       if (user?.sub && id) {
+        await playlistService.addToHistory(user.sub, id);
+        console.log("Đã lưu vào history:", id);
+
         await saveInteraction({
           userId: user.sub, 
           videoId: id,
@@ -38,7 +42,9 @@ const VideoCard = ({
         }).unwrap();
       }
     } catch (err) {
-      console.error("❌ Failed to record VIEW interaction:", err);
+      console.error("Failed to record VIEW interaction:", err);
+      console.error("Lỗi khi lưu history/interaction:", err);
+      console.error("Ghi nhận VIEW thất bại:", err);
     } finally {
       router.push(`/watch/${id}`);
     }
