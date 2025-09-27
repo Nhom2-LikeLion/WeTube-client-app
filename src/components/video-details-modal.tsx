@@ -242,7 +242,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
         };
 
         videoElement.addEventListener("loadeddata", handleDataLoaded);
-        videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
+        // videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
         videoElement.addEventListener("seeked", handleSeeked);
         videoElement.addEventListener("error", handleError);
 
@@ -250,7 +250,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     return () => {
       URL.revokeObjectURL(url);
         videoElement.removeEventListener("loadeddata", handleDataLoaded);
-      videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
+      // videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
       videoElement.removeEventListener("seeked", handleSeeked);
       videoElement.removeEventListener("error", handleError);
     };
@@ -292,6 +292,9 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
         formData.append("tags", data.tags || "");
         formData.append("usersId", user.sub);
         formData.append("duration", duration.toString());
+
+        const isShort = duration <= 60;
+        formData.append("isShort", String(isShort));
 
         setUploadProgress(0);
 
