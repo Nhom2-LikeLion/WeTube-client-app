@@ -38,7 +38,7 @@ export default function RoomChat() {
       <div className="p-3 border-b font-semibold">
         Room Chat ({room!.roomId})
       </div>
-      <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 bg-gray-50 h-[calc(100vh-200px)]">
         {messages.map((msg, i) => (
           <div key={i}>
             {msg.type === "JOIN" && (
@@ -60,7 +60,7 @@ export default function RoomChat() {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className="flex p-2 border-t">
+      <form onSubmit={handleSendMessage} className="flex p-2 border-t bg-white shadow-inner">
         <input
           type="text"
           className="flex-1 border rounded px-2 py-1 text-sm"
