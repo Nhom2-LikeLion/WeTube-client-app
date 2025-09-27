@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
-import { Check, Clock, ListPlus, MoreVertical } from "lucide-react";
+import { Check, Clock, ListPlus, MoreVertical, X } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
@@ -21,13 +21,13 @@ interface VideoItemProps {
   videoTitle: string;
   videoUrl: string;
   channel?: string;
-  views?: string;
+  totalView?: string;
   duration?: number | string;
   description?: string;
   thumbnailUrl?: string;
   historyDuration?: number;
-  updatedAt: string;
   onAddedToHistory?: () => void;
+  onRemove?: (videoId: string) => void;
 }
 
 export default function VideoItem({
@@ -36,12 +36,12 @@ export default function VideoItem({
   videoUrl,
   channel,
   description,
-  views,
+  totalView = "0 lượt xem",
   duration,
   thumbnailUrl,
   historyDuration = 0,
-  updatedAt,
   onAddedToHistory,
+  onRemove,
 }: VideoItemProps) {
   const [watchLaterClicked, setWatchLaterClicked] = useState(false);
   const [addedPlaylistClicked, setAddedPlaylistClicked] = useState(false);
@@ -69,20 +69,17 @@ export default function VideoItem({
     }
 
     try {
-      // Gọi API thêm vào history
       await playlistService.addToHistory(user.sub, videoId);
       console.log("Đã lưu history:", videoId);
 
       if (onAddedToHistory) onAddedToHistory();
 
-      // Sau khi lưu xong thì chuyển hướng
       router.push(`/watch/${videoId}`);
     } catch (err) {
       console.error("Lỗi khi lưu history:", err);
-      router.push(`/watch/${videoId}`); // vẫn cho xem video nếu API lỗi
+      router.push(`/watch/${videoId}`); 
     }
   };
-  
 
   return (
     <Card
@@ -93,7 +90,7 @@ export default function VideoItem({
         <div className="flex gap-3 group">
           {/* Thumbnail */}
           <div
-            className="relative w-1/3 h-28 overflow-hidden rounded-sm flex-shrink-0 cursor-pointer"
+            className="relative w-1/3 h-38 overflow-hidden rounded-sm flex-shrink-0 cursor-pointer"
             onClick={handleClickVideo}
           >
             <Image
@@ -104,7 +101,6 @@ export default function VideoItem({
               className="object-cover"
             />
 
-            {/* Hover buttons */}
             <div className="absolute top-0 right-1 flex flex-col gap-1 transition-all duration-300 translate-y-0 opacity-0 group-hover:opacity-100 group-hover:translate-y-2">
               <button
                 className="p-2 bg-black/70 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110"
@@ -137,30 +133,37 @@ export default function VideoItem({
               </button>
             </div>
 
-            {/* Thời lượng + progress */}
             <VideoOverlay
               duration={Number(duration)}
               progress={historyDuration}
             />
           </div>
 
-          {/* Info */}
           <div className="flex-1 cursor-pointer" onClick={handleClickVideo}>
-            <h3 className="text-[16px] font-semibold text-black line-clamp-2 mb-1 group-hover:text-blue-600">
+            <h3 className="text-[20px] font-semibold text-black line-clamp-2 mb-1 group-hover:text-blue-600">
               {videoTitle}
             </h3>
-            <p className="text-[13px] text-gray-600">{channel || "Unknown"}</p>
-            <p className="text-[13px] text-gray-600">
-              {views} • {new Date(updatedAt).toLocaleDateString("vi-VN")}
-            </p>
+            <p className="text-[14px] text-gray-600">{channel || "Unknown"} • {totalView} </p>
+            
             {description && (
-              <p className="text-[13px] text-gray-500 mt-1 line-clamp-2">
+              <p className="text-[14px] text-gray-500 mt-1 line-clamp-2">
                 {description}
               </p>
             )}
           </div>
 
-          {/* Dropdown menu */}
+          <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-black rounded-full hover:bg-gray-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove?.(videoId);
+              }}
+            >
+              <X className="h-8 w-8 " />
+            </Button>
+
           <div className="w-1/8">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -176,7 +179,13 @@ export default function VideoItem({
                 align="end"
                 className="bg-white border-gray-200 text-black"
               >
-                <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                <DropdownMenuItem 
+                className="hover:bg-gray-100 cursor-pointer text-black"
+                 onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove?.(videoId);
+                  }}
+                >
                   Xóa khỏi nhật ký xem
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">

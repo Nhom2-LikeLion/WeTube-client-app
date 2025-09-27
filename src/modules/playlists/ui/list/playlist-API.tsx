@@ -128,5 +128,15 @@ export const playlistService = {
     return res.json();
   },
 
+  getHistory: async (userId: string) => {
+  if (!userId) throw new Error("UserId is required");
+
+  const res = await fetch(`${API_BASE}/${userId}/history`, {
+    method: "GET",
+    headers: jsonHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch watch history");
+  return res.json();
+},
 
 };

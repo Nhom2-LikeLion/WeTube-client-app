@@ -1,5 +1,4 @@
 
-import { motion } from "motion/react";
 import { CommentInput } from "../inputs/comment-input";
 import { CommentComponent, Comment } from "./comment";
 
@@ -7,18 +6,18 @@ import { Loader } from "../misc/loader";
 import { useVideoStore } from "@/store/zustand/videoStore";
 import { useGetCommentsByTargetQuery } from "@/app/api/commentApi";
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      duration: 0.15,
-      type: "spring",
-      staggerChildren: 0.1,
-      bounce: 0.2,
-    },
-  },
-};
+// const container = {
+//   hidden: { opacity: 0 },
+//   show: {
+//     opacity: 1,
+//     transition: {
+//       duration: 0.15,
+//       type: "spring",
+//       staggerChildren: 0.1,
+//       bounce: 0.2,
+//     },
+//   },
+// };
 
 const mapApiCommentToUI = (apiComment: any): Comment => ({
     id: apiComment.id,

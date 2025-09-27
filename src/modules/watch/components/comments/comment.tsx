@@ -9,7 +9,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useGetLikeInfoQuery, useToggleLikeMutation } from "@/app/api/likeApi";
 import { useAuth } from "@/contexts/auth-context";
-import { useCreateCommentMutation } from "@/app/api/commentApi";
+// import { useCreateCommentMutation } from "@/app/api/commentApi";
 
 export interface Comment {
     id: string;
@@ -57,7 +57,7 @@ export const CommentComponent = ({ comment }: { comment: Comment }) => {
     );
     const [toggleLike] = useToggleLikeMutation();
 
-    const [createComment] = useCreateCommentMutation();
+    // const [createComment] = useCreateCommentMutation();
 
     const handleLike = async () => {
         if (!userId) return;

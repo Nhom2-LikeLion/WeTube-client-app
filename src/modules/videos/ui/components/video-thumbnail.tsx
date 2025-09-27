@@ -27,6 +27,8 @@ export const VideoThumbnail = ({
   duration,
 }: VideoThumbnailProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   const [isVideo, setIsVideo] = useState(false);
 
   useEffect(() => {
@@ -41,13 +43,19 @@ export const VideoThumbnail = ({
   // Handle video playback on hover
   const handleMouseEnter = () => {
     if (videoRef.current && isVideo) {
-      videoRef.current
-        .play()
-        .catch((error) => console.error("Video play failed:", error));
+      timerRef.current = setTimeout(() => {
+        videoRef.current
+          ?.play()
+          .catch((error) => console.error("Video play failed:", error));
+      }, 300);
     }
   };
 
   const handleMouseLeave = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
     if (videoRef.current && isVideo) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0; // Reset video to start
@@ -73,7 +81,7 @@ export const VideoThumbnail = ({
           <video
             ref={videoRef}
             src={previewUrl}
-            preload="metadata" 
+            preload="metadata"
             loop
             muted
             playsInline

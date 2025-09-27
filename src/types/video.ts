@@ -20,11 +20,12 @@ export interface RecommendedVideoItem {
   id: string;
   title: string;
   thumbnailUrl: string;
+  videoUrl: string;
   totalView: number;
   createAt: string;
-  name: string;       // ChannelName
+  name: string; // ChannelName
   duration: number;
-  picture: string;    // avatar
+  picture: string; // avatar
   uploadedAgo?: string;
   historyDuration?: number;
 }

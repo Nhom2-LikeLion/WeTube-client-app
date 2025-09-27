@@ -7,18 +7,19 @@ import VideoItem from "./VideoItem";
 
 
 
-export default function HistoryList({ playlistId }: {playlistId: string}) {
+export default function HistoryList({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
-  const [playlist, setPlaylist] = useState<any>(null);
-
+  const [playlistId, setPlaylistId] = useState<string | null>(null);
+  const [videos, setVideos] = useState<any[]>([]);
   
   useEffect(() => {
-    if (!playlistId) return;
+    if (!userId) return;
 
     const fetchData = async () => {
       try {
-        const data = await playlistService.getDetail(playlistId);
-        setPlaylist(data);
+        const data = await playlistService.getHistory(userId);
+        setVideos(data);
+        setPlaylistId(data.playlistId || "history");
       } catch (err) {
         console.error("Error loading playlist detail", err);
       } finally {
@@ -26,11 +27,20 @@ export default function HistoryList({ playlistId }: {playlistId: string}) {
       }
     };
 
+
     fetchData();
-  }, [playlistId]);
+  }, [userId]);
 
+  const handleRemove = async (videoId: string) => {
+    try {
+      if (!playlistId) return;
+        await playlistService.removeVideo(playlistId, videoId);
+        setVideos((prev) => prev.filter((v) => v.videoId !== videoId));
+    } catch (err) {
+      console.error("Lỗi khi xoá video:", err);
+    }
+  };
 
-  const videos = playlist?.videos || [];
 
   if (loading) return <p>Đang tải lịch sử...</p>;
   if (!videos.length) return <p>Chưa có video nào trong lịch sử</p>;
@@ -78,13 +88,13 @@ export default function HistoryList({ playlistId }: {playlistId: string}) {
                     videoId={v.videoId}
                     videoTitle={v.videoTitle}
                     videoUrl={`/watch/${v.videoId}`}
-                    updatedAt={v.updatedAt || ""}
                     historyDuration={parseInt(v.historyDuration || "0", 10)}
-                    channel={v.channelName || "Unknown"}
-                    views={`${v.totalViews || 0} lượt xem`}
+                    channel={v.Name || "Unknown"}
+                    totalView={`${v.totalViews || 0} lượt xem`}
                     duration={v.duration}
                     thumbnailUrl={v.thumbnailUrl || "/images/thumbnail.png"}
                     description={v.description}
+                    onRemove={handleRemove}
                     
                   />
                 ))}
