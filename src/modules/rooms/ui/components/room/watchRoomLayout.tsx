@@ -2,7 +2,7 @@
 import { ChatMessage, useChatStore } from "@/store/zustand/useChatStore";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
-import { MediaPlayerState, VideoRoom } from "@/types/room";
+import { MediaPlayerState, VideoRoom, WatchMember } from "@/types/room";
 import { MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +15,15 @@ export default function WatchRoomLayout() {
   const router = useRouter();
   const [chatOpen, setChatOpen] = useState(false);
 
-  const { room, myUsername, setMediaState, addSong, host } = useRoomStore();
+  const {
+    room,
+    myUsername,
+    setMediaState,
+    addSong,
+    host,
+    addMember,
+    subtractMember,
+  } = useRoomStore();
   const { client, publish, subscribe, unsubscribe } = useStompStore();
   const addMessage = useChatStore((state) => state.addMessage);
   const clearMessages = useChatStore((state) => state.clearMessages);
@@ -32,6 +40,14 @@ export default function WatchRoomLayout() {
         const payload: ChatMessage = JSON.parse(msg.body);
         addMessage(payload);
       }),
+
+      subscribe(`/topic/rooms/member/${roomId}`, (msg) => {
+        if (msg.body) {
+          const member: WatchMember = JSON.parse(msg.body);
+          console.log("New member joined:", member);
+          addMember(member);
+        }
+      }),
     ];
 
     if (!host) {
@@ -41,6 +57,7 @@ export default function WatchRoomLayout() {
           setMediaState(payload);
         })
       );
+      publish(`/app/room/member/${roomId}`, { username: myUsername });
     }
 
     publish(`/app/chat/${roomId}`, { type: "JOIN", sender: myUsername });
