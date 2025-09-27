@@ -41,12 +41,16 @@ export default function VideoGrid() {
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
       skip: !user?.sub || !hasMore,
+      refetchOnMountOrArgChange: true,
     }
   );
 
   const { data: topRankedData } = useGetScoutVideosQuery(
     { userId: userId! },
-    { skip: !userId || page > 1 }
+    {
+      skip: !userId || page > 1,
+      refetchOnMountOrArgChange: true,
+    }
   );
 
   useEffect(() => {
@@ -79,9 +83,12 @@ export default function VideoGrid() {
   }, [inView, hasMore, isFetching]);
 
   const displayedVideos = useMemo(() => {
-    const videoMap = new Map(allVideos.map((v) => [v.id, v]));
-    topRanked.forEach((gem) => videoMap.set(gem.id, gem));
-    return Array.from(videoMap.values());
+    // const videoMap = new Map(allVideos.map((v) => [v.id, v]));
+    // topRanked.forEach((gem) => videoMap.set(gem.id, gem));
+    // return Array.from(videoMap.values());
+    const topRankedIds = new Set(topRanked.map((v) => v.id));
+    const otherVideos = allVideos.filter((v) => !topRankedIds.has(v.id));
+    return [...topRanked, ...otherVideos];
   }, [allVideos, topRanked]);
 
   if ((isLoading || isAuthLoading) && page === 1) return <VideoGridSkeleton />;
