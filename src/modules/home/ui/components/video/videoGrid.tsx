@@ -53,8 +53,6 @@ export default function VideoGrid() {
 
   if (!isAuthLoading && !user)
     return <p className="p-4">Please Sign In To Enjoy Our Video Community ❤</p>;
-  if (!userId)
-    return <p className="p-4">Please Sign In To Enjoy Our Video Community </p>;
 
   if (error) return <p className="p-4 text-red-500">Error Downloading Video</p>;
 
@@ -102,18 +100,6 @@ export default function VideoGrid() {
         </p>
       )}
     </div>
-        {videos.length === 0 && !isFetching && (
-            <p className="text-center mt-6 text-gray-500">
-              Let's start by searching something you like!
-            </p>
-        )}
-
-        {visibleCount >= videos.length && videos.length > 0 && !isFetching && (
-            <p className="text-center mt-6 text-gray-500">
-              You have reached the end of recommendations
-            </p>
-        )}
-      </div>
   );
 }
 
