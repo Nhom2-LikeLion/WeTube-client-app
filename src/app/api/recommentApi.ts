@@ -20,6 +20,12 @@ interface GetRecommendVideosParams {
   limit: number;
 }
 
+interface GetScoutVideosParams {
+  userId: string;
+  poolSize?: number;
+  topN?: number;
+}
+
 export const recommendApi = createApi({
   reducerPath: "recommendApi",
   baseQuery: fetchBaseQuery({
@@ -39,7 +45,16 @@ export const recommendApi = createApi({
         },
       }),
     }),
+    getScoutVideos: builder.query<RecommendedVideoItem[], GetScoutVideosParams>(
+      {
+        query: ({ userId, poolSize, topN }) => ({
+          url: `/scout/${userId}`,
+          params: { poolSize, topN },
+        }),
+      }
+    ),
   }),
 });
 
-export const { useGetRecommendVideosQuery } = recommendApi;
+export const { useGetRecommendVideosQuery, useGetScoutVideosQuery } =
+  recommendApi;

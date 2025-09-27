@@ -1,8 +1,11 @@
 "use client";
 
-import { useGetRecommendVideosQuery } from "@/app/api/recommentApi";
+import {
+  useGetRecommendVideosQuery,
+  useGetScoutVideosQuery,
+} from "@/app/api/recommentApi";
 import { useAuth } from "@/contexts/auth-context";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import VideoCard, { VideoCardSkeleton } from "./videoCard";
 import { useInView } from "react-intersection-observer";
 import { RecommendedVideoItem } from "@/types/video";
@@ -14,24 +17,36 @@ export default function VideoGrid() {
   const [page, setPage] = useState(1);
   const [allVideos, setAllVideos] = useState<RecommendedVideoItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [topRanked, setTopRanked] = useState<RecommendedVideoItem[]>([]);
 
   const userId = user?.sub;
 
+  console.log("User object in VideoGrid:", user);
+
   useEffect(() => {
     setAllVideos([]);
+    setTopRanked([]);
     setPage(1);
     setHasMore(true);
-  }, [userId]); 
+  }, [userId]);
 
   const { ref, inView } = useInView({
     threshold: 0,
   });
+
+  console.log("Query Params:", { userId: user?.sub, page, limit: LOAD_COUNT });
+  console.log("Is Skipped:", !user?.sub || !hasMore);
 
   const { data, isLoading, isFetching, error } = useGetRecommendVideosQuery(
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
       skip: !user?.sub || !hasMore,
     }
+  );
+
+  const { data: topRankedData } = useGetScoutVideosQuery(
+    { userId: userId! },
+    { skip: !userId || page > 1 }
   );
 
   useEffect(() => {
@@ -52,10 +67,22 @@ export default function VideoGrid() {
   }, [data]);
 
   useEffect(() => {
+    if (topRankedData) {
+      setTopRanked(topRankedData);
+    }
+  }, [topRankedData]);
+
+  useEffect(() => {
     if (inView && hasMore && !isFetching) {
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, hasMore, isFetching]);
+
+  const displayedVideos = useMemo(() => {
+    const videoMap = new Map(allVideos.map((v) => [v.id, v]));
+    topRanked.forEach((gem) => videoMap.set(gem.id, gem));
+    return Array.from(videoMap.values());
+  }, [allVideos, topRanked]);
 
   if ((isLoading || isAuthLoading) && page === 1) return <VideoGridSkeleton />;
 
@@ -67,7 +94,7 @@ export default function VideoGrid() {
   return (
     <div className="p-4">
       <div className="flex flex-wrap gap-4">
-        {allVideos.map((video) => (
+        {displayedVideos.map((video) => (
           <div
             key={video.id}
             className="w-full sm:w-[calc(33.333%-1rem)]"
