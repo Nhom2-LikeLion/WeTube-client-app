@@ -87,18 +87,19 @@ interface FormSectionProps {
 }
 
 export default function FormSection({ videoId }: FormSectionProps) {
+  const { user, isLoading: isAuthLoading } = useAuth();
+  
   const {
     data: video,
     isLoading,
     error,
-  } = useGetVideoFormDetailsQuery(videoId);
+  } = useGetVideoFormDetailsQuery(videoId, { skip: isAuthLoading });
   const [updateVideo, { isLoading: isUpdating }] =
     useUpdateVideoDetailsMutation();
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { user } = useAuth();
-
+  
   // Thumbnail states
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [resolution, setResolution] = useState<string>("");
