@@ -26,7 +26,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
   const [username, setUsername] = useState("");
   const router = useRouter();
   const { setRoom, setMyUsername } = useRoomStore();
-  const {connect, publish,subscribe} = useStompStore();
+  const { connect, publish, subscribe, unsubscribe } = useStompStore();
 
   // -------------------
   // JOIN ROOM
@@ -45,7 +45,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     }
 
     // Subscribe để nhận phản hồi khi phòng được tạo thành công
-    subscribe(`/topic/rooms/members/${roomId}`, (message) => {
+    const sub = subscribe(`/topic/rooms/members/${roomId}`, (message) => {
       try {
         console.log("Received message:", message);
         const room: Room = JSON.parse(message.body);
@@ -53,6 +53,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
 
         setMyUsername(username);
         setRoom(room);
+        unsubscribe(sub);
         toastEmitter.success("Room Joined!");
         router.push("/rooms");
       } catch (err) {
@@ -62,7 +63,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     });
 
     // Gửi yêu cầu tạo phòng
-    publish(`/app/room/join/${roomId}`, {username});
+    publish(`/app/room/join/${roomId}`, { username });
   };
 
   // -------------------
@@ -95,6 +96,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
         setMyUsername(username);
         setRoom(room);
         toastEmitter.success("Room created!");
+        unsubscribe(subscription);
         router.push("/rooms");
       } catch (err) {
         toastEmitter.error("Failed to parse room data");
@@ -103,7 +105,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     });
 
     // Gửi yêu cầu tạo phòng
-    publish("/app/room/create", {username});
+    publish("/app/room/create", { username });
   };
 
   return (

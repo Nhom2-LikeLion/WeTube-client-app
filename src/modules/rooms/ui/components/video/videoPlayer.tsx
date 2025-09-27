@@ -15,30 +15,11 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { room, setMediaState, host } = useRoomStore();
   const { publish, subscribe } = useStompStore();
-  const videos = room!.playlist ?? [];
-  const currentVideo = room!.playerState.currentSongId;
-  const mediaState = room!.playerState;
+  const videos = room?.playlist ?? [];
+  const currentVideo = room?.playerState.currentSongId || "";
+  const mediaState = room?.playerState;
   const currentTimeInSeconds = mediaState!.currentTimeMillis / 1000 || 0;
-
-  // 1️⃣ Setup & teardown chat
-  useEffect(() => {
-    if (!room) return;
-    console.log("MediaPlayeer Is Hostttt???????:", host);
-
-    if (host) return;
-    console.log("Hereeeeeeeeeeeeee", host);
-    const topicEndpoint = `/topic/rooms/mediaState/${room.roomId}`;
-
-    subscribe(topicEndpoint, (msg) => {
-      try {
-        const payload: MediaPlayerState = JSON.parse(msg.body);
-        console.log("MediaPlayerState received:", payload);
-        setMediaState(payload);
-      } catch (err) {
-        console.error("❌ Failed to parse message:", msg.body);
-      }
-    });
-  }, []);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     // Kiểm tra nếu videoRef và currentSongId đã có giá trị
@@ -83,11 +64,11 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
     }
   }, [mediaState]);
 
-  const handlePause = () => {
+  const handlePause = (isPlaying: boolean) => {
     if (videoRef.current) {
       const newState: MediaPlayerState = {
         ...mediaState!,
-        playing: false,
+        playing: isPlaying,
         currentTimeMillis: videoRef.current.currentTime * 1000,
       };
 
@@ -101,7 +82,7 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
     if (videoRef.current) {
       const newState: MediaPlayerState = {
         ...mediaState!,
-        playing: true, // Giả sử video đang chơi khi seek
+        playing: isPlaying, // Giả sử video đang chơi khi seek
         currentTimeMillis: videoRef.current.currentTime * 1000, // Đổi sang milliseconds
       };
       console.log("Is HOst??????????:", host);
@@ -145,8 +126,23 @@ export default function VideoPlayer({ onChangeVideo }: VideoPlayerProps) {
       controls
       autoPlay={true}
       className="w-full h-full rounded-lg"
+      onPlay={() => {
+        setIsPlaying(true);
+        handlePause(true);
+        // console.log("▶️ Video started playing");
+        // if (host) {
+        //   publish(`/app/media/${room?.roomId}`, {
+        //     type: "PLAY",
+        //     timestamp: videoRef.current?.currentTime ?? 0,
+        //     sender: myUsername,
+        //   });
+        // }
+      }}
       onEnded={handleEnded}
-      onPause={handlePause}
+      onPause={() => {
+        setIsPlaying(false);
+        handlePause(false);
+      }}
       onSeeked={host ? publishSeek : undefined}
     />
   );

@@ -21,7 +21,7 @@ import { VideoFromPlaylist } from "@/types/playlistSummary";
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("vi-VN"); 
+  return new Date(dateString).toLocaleDateString("vi-VN");
 };
 
 export default function VideosSection() {
@@ -49,7 +49,13 @@ export default function VideosSection() {
 
   const isLoading = isLoadingPlaylists || isLoadingDetails;
   const error = playlistsError || detailsError;
-  const videos: VideoFromPlaylist[] = playlistDetail?.videos || [];
+  const videosFromPlaylist: VideoFromPlaylist[] = playlistDetail?.videos || [];
+  
+  const sortedVideos = [...videosFromPlaylist].sort((a, b) => {
+    const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+    const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+    return dateB - dateA;
+  });
 
   useEffect(() => {
     if (allPlaylists) {
@@ -75,7 +81,7 @@ export default function VideosSection() {
     );
   }
 
-  if (videos.length === 0) {
+  if (videosFromPlaylist.length === 0) {
     return (
       <div className="p-6 text-center text-muted-foreground">
         You have no uploaded videos.
@@ -88,14 +94,15 @@ export default function VideosSection() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="pl-6 w-[480px]">Video</TableHead>
-            <TableHead className="text-center">Created at</TableHead>
-            <TableHead className="text-center">Updated at</TableHead>
-            <TableHead className="text-center">Views</TableHead>
+            <TableHead className="pl-6">Video</TableHead>
+            <TableHead className="w-[150px] text-center">Created at</TableHead>
+            <TableHead className="w-[150px] text-center">Updated at</TableHead>
+            <TableHead className="w-[100px] text-center">Views</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {videos.map((video) => (
+          {/* {videos.map((video) => ( */}
+          {sortedVideos.map((video) => (
             <TableRow
               className="cursor-pointer hover:bg-muted/50"
               key={video.videoId}
