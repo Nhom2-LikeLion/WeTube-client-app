@@ -1,111 +1,80 @@
-"use client";
-
+import { ChatMessage, useChatStore } from "@/store/zustand/useChatStore";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
+import { useStompStore } from "@/store/zustand/useStompStore";
 import { useEffect, useRef, useState } from "react";
-import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
 
-interface ChatMessage {
-    type: "CHAT" | "JOIN" | "LEAVE";
-    sender: string;
-    content?: string;
-}
+export default function RoomChat() {
+  const { room, myUsername } = useRoomStore();
 
-interface RoomChatProps {
-    roomId: string;
-    username: string;
-    stompClient: Client;
-}
+  const messages = useChatStore((state) => state.messages);
 
-export default function RoomChat({ roomId, username, stompClient }: RoomChatProps) {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [input, setInput] = useState("");
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { publish } = useStompStore();
 
-    useEffect(() => {
-        if (!stompClient) return;
+  // Scroll tới cuối
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-        let subscription: StompSubscription | undefined;
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
 
-        stompClient.onConnect = () => {
-            console.log("📌 Subscribing to topic:", `/topic/rooms.${roomId}.chat`);
+    const publishEndpoint = `/app/chat/${room!.roomId}`;
 
-            subscription = stompClient.subscribe(
-                `/topic/rooms.chat.${roomId}`,
-                (msg: IMessage) => {
-                    console.log("📩 Received:", msg.body);
-                    const payload = JSON.parse(msg.body);
-                    setMessages((prev) => [...prev, payload]);
-                }
-            );
-
-            stompClient.publish({
-                destination: `/app/chat.${roomId}`,
-                body: JSON.stringify({ type: "JOIN", sender: username }),
-            });
-        };
-
-        return () => {
-            if (subscription) subscription.unsubscribe();
-            if (stompClient && stompClient.connected) {
-                stompClient.publish({
-                    destination: `/app/chat.${roomId}`,
-                    body: JSON.stringify({ type: "LEAVE", sender: username }),
-                });
-            }
-        };
-    }, [stompClient, roomId, username]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    const handleSendMessage = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || !stompClient.connected) return;
-
-        stompClient.publish({
-            destination: `/app/chat.${roomId}`,
-            body: JSON.stringify({ type: "CHAT", sender: username, content: input }),
-        });
-
-        setInput("");
+    const message: ChatMessage = {
+      type: "CHAT",
+      sender: myUsername,
+      content: input.trim(),
     };
 
-    return (
-        <div className="flex flex-col w-full min-w-0 h-full border rounded-lg shadow-md bg-white">
-            <div className="p-3 border-b font-semibold">Room Chat ({roomId})</div>
-            <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
-                {messages.map((msg, i) => (
-                    <div key={i}>
-                        {msg.type === "JOIN" && (
-                            <p className="text-sm text-gray-500 italic">{msg.sender} joined the room</p>
-                        )}
-                        {msg.type === "LEAVE" && (
-                            <p className="text-sm text-gray-500 italic">{msg.sender} left the room</p>
-                        )}
-                        {msg.type === "CHAT" && (
-                            <p className="text-sm">
-                                <b>{msg.sender}:</b> {msg.content}
-                            </p>
-                        )}
-                    </div>
-                ))}
-                <div ref={messagesEndRef} />
-            </div>
-            <form onSubmit={handleSendMessage} className="flex p-2 border-t">
-                <input
-                    type="text"
-                    className="flex-1 border rounded px-2 py-1 text-sm"
-                    placeholder="Type a message..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                />
-                <button
-                    type="submit"
-                    className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded"
-                >
-                    Send
-                </button>
-            </form>
-        </div>
-    );
+    publish(publishEndpoint, message);
+    setInput("");
+  };
+
+  return (
+    <div className="flex flex-col w-full min-w-0 h-full border rounded-lg shadow-md bg-white">
+      <div className="p-3 border-b font-semibold">
+        Room Chat ({room!.roomId})
+      </div>
+      <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
+        {messages.map((msg, i) => (
+          <div key={i}>
+            {msg.type === "JOIN" && (
+              <p className="text-sm text-gray-500 italic">
+                {msg.sender} joined the room
+              </p>
+            )}
+            {msg.type === "LEAVE" && (
+              <p className="text-sm text-gray-500 italic">
+                {msg.sender} left the room
+              </p>
+            )}
+            {msg.type === "CHAT" && (
+              <p className="text-sm">
+                <b>{msg.sender}:</b> {msg.content}
+              </p>
+            )}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+      <form onSubmit={handleSendMessage} className="flex p-2 border-t">
+        <input
+          type="text"
+          className="flex-1 border rounded px-2 py-1 text-sm"
+          placeholder="Type a message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button
+          type="submit"
+          className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
 }

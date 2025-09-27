@@ -1,6 +1,7 @@
 "use client";
 
 import { useSaveInteractionMutation } from "@/app/api/interactionApi";
+import { Skeleton } from '@/components/ui/skeleton';
 import VideoOverlay from "@/components/videos/VideoOverlayProps";
 import { useAuth } from "@/contexts/auth-context";
 import { VideoThumbnail } from '@/modules/videos/ui/components/video-thumbnail';
@@ -83,6 +84,22 @@ const VideoCard = ({
           <p className="text-sm text-gray-400">
             {formatViews(totalView)} • {displayTime}
           </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const VideoCardSkeleton = () => {
+  return (
+    <div className="w-full flex flex-col">
+      <Skeleton className="w-full aspect-video rounded-xl" />
+      <div className="flex gap-3 pt-3">
+        <Skeleton className="w-12 h-12 rounded-full shrink-0" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
         </div>
       </div>
     </div>

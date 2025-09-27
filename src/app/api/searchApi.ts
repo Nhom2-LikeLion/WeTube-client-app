@@ -1,7 +1,7 @@
 // src/app/api/searchApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_PREFIX } from "@/constants/appConstant";
-import { RecommendedVideoItem } from "@/types/video";
+import { SearchVideoItem } from "@/types/video";
 
 export interface PageResponse<T> {
   content: T[];
@@ -20,7 +20,7 @@ export const searchApi = createApi({
   endpoints: (builder) => ({
     // 🔎 Search video đầy đủ (Elastic + MySQL) → trả về VideoDto (RecommendedVideoItem)
     searchVideosFull: builder.query<
-      PageResponse<RecommendedVideoItem>,
+      PageResponse<SearchVideoItem>,
       { query: string; page?: number; size?: number }
     >({
       query: ({ query, page = 0, size = 10 }) => ({

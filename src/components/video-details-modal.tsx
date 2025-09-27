@@ -40,13 +40,9 @@ const videoUploadSchema = z.object({
   tags: z
     .string()
     .max(200, { message: "Tags must be 200 characters or fewer." })
-    .refine(
-      (value) =>
-        value === "" || /^(#[a-zA-Z0-9_]+(\s+#[a-zA-Z0-9_]+)*)$/.test(value),
-      {
-        message: 'Tags must be in the format "#tag1 #tag2"',
-      }
-    )
+    .refine((value) => value === "" || /^(#\w+(\s+#\w+)*)$/.test(value), {
+      message: 'Tags must be in the format "#tag1 #tag2"',
+    })
     .optional(),
   videoFile: z
     .instanceof(File, { message: "Video file is required." })
@@ -101,7 +97,10 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     resolver: zodResolver(videoUploadSchema),
     mode: "onBlur",
     defaultValues: {
-      title: file.name.replace(/\.[^/.]+$/, "").slice(0, 100), // Auto truncate title to 100 chars
+      // title: file.name.replace(/\.[^/.]+$/, "").slice(0, 100),
+      title: decodeURIComponent(file.name)
+        .replace(/\.[^/.]+$/, "")
+        .slice(0, 100),
       description: "",
       tags: "",
       videoFile: file,
@@ -168,6 +167,19 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       videoElement.currentTime = thumbnailTime;
     };
 
+    const handleDataLoaded = () => {
+      const correctDuration = videoElement.duration;
+      if (isFinite(correctDuration) && correctDuration > 0) {
+        setDuration(correctDuration);
+        setResolution(
+          `${videoElement.videoWidth} x ${videoElement.videoHeight}`
+        );
+
+        const thumbnailTime = Math.min(correctDuration / 2, 1);
+        videoElement.currentTime = thumbnailTime;
+      }
+    };
+
     const handleSeeked = async () => {
       try {
         if (!thumbnailFile) {
@@ -192,14 +204,14 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       setIsGeneratingThumbnail(false);
     };
 
-    videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
+    videoElement.addEventListener("loadeddata", handleDataLoaded);
     videoElement.addEventListener("seeked", handleSeeked);
     videoElement.addEventListener("error", handleError);
 
     // Cleanup function
     return () => {
       URL.revokeObjectURL(url);
-      videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
+      videoElement.removeEventListener("loadeddata", handleDataLoaded);
       videoElement.removeEventListener("seeked", handleSeeked);
       videoElement.removeEventListener("error", handleError);
     };
