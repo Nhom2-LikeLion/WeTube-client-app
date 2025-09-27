@@ -15,6 +15,14 @@ export default function VideoGrid() {
   const [allVideos, setAllVideos] = useState<RecommendedVideoItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
+  const userId = user?.sub;
+
+  useEffect(() => {
+    setAllVideos([]);
+    setPage(1);
+    setHasMore(true);
+  }, [userId]); 
+
   const { ref, inView } = useInView({
     threshold: 0,
   });
@@ -22,7 +30,7 @@ export default function VideoGrid() {
   const { data, isLoading, isFetching, error } = useGetRecommendVideosQuery(
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
-      skip: isAuthLoading || !user || !hasMore,
+      skip: !user?.sub || !hasMore,
     }
   );
 
