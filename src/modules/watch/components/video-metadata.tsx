@@ -16,6 +16,7 @@ import {
   useSubscribeMutation,
   useUnsubscribeMutation,
 } from "@/app/api/subscriptionsApi";
+import TranscriptModal from "./transcriptModal";
 
 export default function VideoMetadata() {
   const videoDetail = useVideoStore((state) => state.videoDetail);
@@ -127,6 +128,7 @@ export default function VideoMetadata() {
           <button className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full cursor-pointer">
             <EllipsisHorizontalIcon className="size-6" />
           </button>
+            {/*<TranscriptModal videoId={videoDetail.detail.id} />*/}
         </section>
       </div>
 
