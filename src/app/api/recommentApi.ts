@@ -34,6 +34,7 @@ export const recommendApi = createApi({
   //   credentials: "include",
   // }),
   baseQuery: axiosBaseQuery(),
+  tagTypes: ["Recommendations"],
   endpoints: (builder) => ({
     getRecommendVideos: builder.query<
       PageResponse<RecommendedVideoItem>,
@@ -46,6 +47,30 @@ export const recommendApi = createApi({
           size: limit,
         },
       }),
+      providesTags: (result, error, { userId, page }) => [
+        { type: "Recommendations", id: `${userId}-${page}` },
+      ],
+      keepUnusedDataFor: 300,
+      merge: (currentCache, newItems, { arg: { page } }) => {
+        // Merge logic cho pagination - không replace toàn bộ
+        if (page === 1) {
+          return newItems;
+        }
+        if (currentCache && newItems) {
+          return {
+            ...newItems,
+            content: [...(currentCache.content || []), ...newItems.content],
+          };
+        }
+        return newItems;
+      },
+      serializeQueryArgs: ({ queryArgs }) => {
+        const { userId, limit } = queryArgs;
+        return { userId, limit }; 
+      },
+      forceRefetch: ({ currentArg, previousArg }) => {
+        return currentArg?.userId !== previousArg?.userId;
+      },
     }),
     getScoutVideos: builder.query<RecommendedVideoItem[], GetScoutVideosParams>(
       {
