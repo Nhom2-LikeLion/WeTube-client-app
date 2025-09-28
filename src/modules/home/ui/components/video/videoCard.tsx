@@ -11,10 +11,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatViews, timeAgo } from "@/lib/utils";
 
-type VideoCardProps = RecommendedVideoItem & {
-  loading?: "eager" | "lazy";
-};
-
 const VideoCard = ({
   id,
   title,
@@ -26,8 +22,7 @@ const VideoCard = ({
   duration,
   picture,
   historyDuration,
-  loading,
-}: VideoCardProps) => {
+}: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
   const { user } = useAuth();
@@ -41,7 +36,7 @@ const VideoCard = ({
         console.log("Đã lưu vào history:", id);
 
         await saveInteraction({
-          userId: user.sub,
+          userId: user.sub, 
           videoId: id,
           type: "VIEW",
         }).unwrap();
@@ -60,17 +55,21 @@ const VideoCard = ({
       className="w-full flex flex-col cursor-pointer group"
       onClick={handleClick}
     >
-      <div className="relative rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
+      <div className="rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
         <VideoThumbnail
           imageUrl={thumbnailUrl}
           previewUrl={videoUrl}
           title={title}
           duration={duration}
         />
-        <VideoOverlay
-          duration={duration}
-          progress={historyDuration ? historyDuration / duration : 0}
-        />
+        {historyDuration &&
+          historyDuration > 0 &&
+          historyDuration < duration && (
+            <VideoOverlay
+              duration={duration}
+              progress={historyDuration / duration}
+            />
+          )}
       </div>
 
       <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
@@ -79,7 +78,6 @@ const VideoCard = ({
           alt={name}
           width={48}
           height={48}
-          loading={loading}
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
