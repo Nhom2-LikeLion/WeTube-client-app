@@ -14,6 +14,7 @@ export interface Playlists {
 }
 export interface Video {
   videoId: string;
+  videoUrl: string;
   thumbnailUrl: string;
   createdAt: string;
 }
@@ -38,18 +39,16 @@ export default function PlaylistCard({
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )[0]?.thumbnailUrl ||
         playlists.thumbnailUrl ||
-        "/images/default-thumbnail.jpg";
-
+        "/images/thumbnail.png";
 
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div className="relative aspect-video">
         <Image
-          src={latestThumbnail || "/images/default-thumbnail.jpg"}
+          src={latestThumbnail || "/images/thumbnail.png"}
           alt={playlists.playlistTitle}
-          width={400}
-          height={225}
+          fill
           className="w-full h-full object-cover"
         />
         <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
