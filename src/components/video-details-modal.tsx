@@ -92,7 +92,8 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
     const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
-      const defaultTitle = file.name.replace(/\.[^/.]+$/, "");
+    const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+    const defaultTitle = decodeURIComponent(titleWithoutExt);
 
 
     const handleGenerateDescription = async () => {
