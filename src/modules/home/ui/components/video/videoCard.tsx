@@ -55,7 +55,7 @@ const VideoCard = ({
       className="w-full flex flex-col cursor-pointer group"
       onClick={handleClick}
     >
-      <div className="rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
+      <div className="relative rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
         <VideoThumbnail
           imageUrl={thumbnailUrl}
           previewUrl={videoUrl}
@@ -77,10 +77,10 @@ const VideoCard = ({
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h3 className="text-md font-semibold leading-tight break-words text-black group-hover:text-blue-600 transition-colors">
+          <h3 className="text-md font-semibold leading-tight text-black group-hover:text-blue-600 transition-colors line-clamp-2">
             {title}
           </h3>
-          <p className="text-sm text-gray-300">{name}</p>
+          <p className="text-sm text-gray-600">{name}</p>
           <p className="text-sm text-gray-400">
             {formatViews(totalView)} • {displayTime}
           </p>

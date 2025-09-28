@@ -1,3 +1,5 @@
+import { VideoSubtitleDto } from "./videoSubtitleDto";
+
 export interface Author {
   id: string;
   name: string;
@@ -16,6 +18,8 @@ export interface Video {
   views?: number;
 }
 
+// ======================= RECOMMEND =======================
+
 export interface RecommendedVideoItem {
   id: string;
   title: string;
@@ -23,54 +27,11 @@ export interface RecommendedVideoItem {
   videoUrl: string;
   totalView: number;
   createAt: string;
-  name: string; // ChannelName
+  name: string; // Channel name
   duration: number;
-  picture: string; // avatar
+  picture: string; // Avatar
   uploadedAgo?: string;
   historyDuration?: number;
-}
-
-export interface SearchVideoItem {
-  id: string;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  videoUrl: string;
-  videosStatus: string;
-  duration: number;
-  createdAt: string; 
-  user: User; 
-}
-
-type User = {
-  id: string;
-  name: string;
-  picture: string;
-};
-
-export interface VideoDetailResponseDto {
-  detail: VideoDetailDto;
-  recommend: RecommendResponseDto;
-}
-
-export interface VideoDetailDto {
-  id: string; // UUID dạng string
-  title: string;
-  description: string;
-  videoUrl: string;
-  createAt: string; // LocalDate -> string (YYYY-MM-DD)
-  totalView: number;
-  name: string;
-  picture: string;
-  totalSubscribers: number;
-  comments: Comment[];
-  subscribed: boolean;
-  channelId: string;
-}
-
-export interface RecommendResponseDto {
-  video: RecommendVideoDto[];
-  tags: TagDto[];
 }
 
 export interface RecommendVideoDto {
@@ -78,9 +39,9 @@ export interface RecommendVideoDto {
   title: string;
   thumbnailUrl: string;
   totalView: number;
-  createAt: string; // LocalDate -> string
+  createAt: string;
   name: string;
-  duration: number; // Long -> number
+  duration: number;
   picture: string;
 }
 
@@ -90,6 +51,64 @@ export interface TagDto {
   createdAt: string; // LocalDateTime -> string (ISO format)
   count: number;
 }
+
+export interface Tag {
+  id: string;
+  name: string;
+  createdAt: string;
+  count: number;
+}
+
+export interface RecommendResponseDto {
+  video: RecommendVideoDto[];
+  tags: TagDto[];
+}
+
+export interface RecommendResponse {
+  video: RecommendedVideoItem[];
+  tags: Tag[];
+}
+
+// ======================= VIDEO DETAIL =======================
+
+export interface VideoDetailDto {
+  id: string; // UUID
+  title: string;
+  description: string;
+  videoUrl: string;
+  createAt: string; // YYYY-MM-DD
+  totalView: number;
+  name: string; // channel name
+  picture: string; // channel avatar
+  totalSubscribers: number;
+  comments: ApiComment[];
+  subscribed: boolean;
+  channelId: string;
+  subtitles: VideoSubtitleDto[]; // ✅ subtitles
+}
+
+export interface VideoDetailResponseDto {
+  detail: VideoDetailDto;
+  recommend: RecommendResponseDto;
+}
+
+// export interface VideoDetail {
+//   id: string;
+//   title: string;
+//   description: string;
+//   videoUrl: string;
+//   createAt: string;
+//   totalView: number;
+//   name: string;
+//   picture: string;
+// }
+
+export interface VideoDetailResponse {
+  detail: VideoDetailDto;
+  recommend: RecommendResponse;
+}
+
+// ======================= COMMENT =======================
 
 export interface ApiUser {
   id: string;
@@ -107,6 +126,28 @@ export interface ApiComment {
   replyCount: number | null;
   replies: ApiComment[] | null;
 }
+
+// ======================= SEARCH =======================
+
+export interface SearchVideoItem {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  videosStatus: string;
+  duration: number;
+  createdAt: string;
+  user: User;
+}
+
+type User = {
+  id: string;
+  name: string;
+  picture: string;
+};
+
+// ======================= SHORTS =======================
 
 export interface Short {
   id: string;
@@ -121,33 +162,20 @@ export interface Short {
   };
 }
 
-export interface VideoDetail {
+// ======================= RELATED =======================
+
+export interface RelatedVideo {
   id: string;
   title: string;
-  description: string;
-  videoUrl: string;
-  createAt: string;
+  thumbnailUrl: string;
   totalView: number;
+  createAt: string;
   name: string;
+  duration: number;
   picture: string;
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-  createdAt: string;
-  count: number;
-}
-
-export interface RecommendResponse {
-  video: RecommendedVideoItem[];
-  tags: Tag[];
-}
-
-export interface VideoDetailResponse {
-  detail: VideoDetail;
-  recommend: RecommendResponse;
-}
+// ======================= FORM =======================
 
 export interface VideoFormDetail {
   id: string;
@@ -160,73 +188,4 @@ export interface VideoFormDetail {
   updatedAt: string;
   tags: Tag[];
   duration: number;
-}
-
-export interface VideoDetailResponseDto {
-  detail: VideoDetailDto;
-  recommend: RecommendResponseDto;
-}
-
-export interface VideoDetailDto {
-  id: string; // UUID dạng string
-  title: string;
-  description: string;
-  videoUrl: string;
-  createAt: string; // LocalDate -> string (YYYY-MM-DD)
-  totalView: number;
-  name: string;
-  picture: string;
-  totalSubscribers: number;
-  comments: Comment[];
-}
-
-export interface RecommendResponseDto {
-  video: RecommendVideoDto[];
-  tags: TagDto[];
-}
-
-export interface RecommendVideoDto {
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  totalView: number;
-  createAt: string; // LocalDate -> string
-  name: string;
-  duration: number; // Long -> number
-  picture: string;
-}
-
-export interface TagDto {
-  id: string;
-  name: string;
-  createdAt: string; // LocalDateTime -> string (ISO format)
-  count: number;
-}
-
-export interface ApiUser {
-  id: string;
-  name: string;
-  picture: string;
-}
-
-export interface ApiComment {
-  id: string;
-  content: string;
-  user: ApiUser;
-  likeCount: number;
-  createdAt: string;
-  updatedAt: string;
-  replyCount: number | null;
-  replies: ApiComment[] | null;
-}
-
-export interface RelatedVideo {
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  totalView: number;
-  createAt: string;
-  name: string;
-  duration: number;
-  picture: string;
 }

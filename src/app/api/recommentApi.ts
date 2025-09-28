@@ -1,6 +1,7 @@
 import { API_PREFIX } from "@/constants/appConstant";
 import { RecommendedVideoItem } from "@/types/video";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { axiosBaseQuery } from './axiosBaseQuery';
 
 export interface PageResponse<T> {
   content: T[];
@@ -28,17 +29,18 @@ interface GetScoutVideosParams {
 
 export const recommendApi = createApi({
   reducerPath: "recommendApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${API_PREFIX}/recommend`,
-    credentials: "include",
-  }),
+  // baseQuery: fetchBaseQuery({
+  //   baseUrl: `${API_PREFIX}/recommend`,
+  //   credentials: "include",
+  // }),
+  baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
     getRecommendVideos: builder.query<
       PageResponse<RecommendedVideoItem>,
       GetRecommendVideosParams
     >({
       query: ({ userId, page, limit }) => ({
-        url: `/${userId}`,
+        url: `/recommend/${userId}`,
         params: {
           page: page - 1,
           size: limit,
@@ -48,7 +50,7 @@ export const recommendApi = createApi({
     getScoutVideos: builder.query<RecommendedVideoItem[], GetScoutVideosParams>(
       {
         query: ({ userId, poolSize, topN }) => ({
-          url: `/scout/${userId}`,
+          url: `/recommend/scout/${userId}`,
           params: { poolSize, topN },
         }),
       }

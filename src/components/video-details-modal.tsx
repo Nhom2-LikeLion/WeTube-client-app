@@ -92,6 +92,10 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
     const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
+    const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+    const defaultTitle = decodeURIComponent(titleWithoutExt);
+
+
     const handleGenerateDescription = async () => {
         const values = getValues();
         const title = values.title?.trim();
@@ -137,7 +141,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
         resolver: zodResolver(videoUploadSchema),
         mode: "onBlur",
         defaultValues: {
-            title: "",
+            title: defaultTitle,
             description: "",
             tags: "",
             videoFile: file,
@@ -320,15 +324,14 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
             toast.success("Video upload successfully!");
 
-            if (user) {
-                dispatch(
-                    playlistApi.util.invalidateTags([
-                        {type: "Playlist", id: `USER_${user.sub}`},
-                    ])
-                );
-                dispatch(playlistApi.util.invalidateTags(["Playlist"]));
-            }
-            dispatch(videoApi.util.invalidateTags(["VideoList"]));
+      if (user) {
+        dispatch(
+          playlistApi.util.invalidateTags([
+            { type: "Playlist", id: `USER_${user.sub}` },
+          ])
+        );
+      }
+      dispatch(videoApi.util.invalidateTags(["VideoList"]));
 
             onUploadComplete();
 
