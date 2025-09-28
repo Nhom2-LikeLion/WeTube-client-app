@@ -45,7 +45,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     }
 
     // Subscribe để nhận phản hồi khi phòng được tạo thành công
-    const sub = subscribe(`/topic/rooms/members/${roomId}`, (message) => {
+    const sub = subscribe(`/topic/rooms/join/${roomId}`, (message) => {
       try {
         console.log("Received message:", message);
         const room: Room = JSON.parse(message.body);

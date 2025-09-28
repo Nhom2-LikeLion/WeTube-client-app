@@ -1,5 +1,6 @@
-import { MediaPlayerState, Room, VideoRoom } from "@/types/room";
+import { MediaPlayerState, Room, VideoRoom, WatchMember } from "@/types/room";
 import { create } from "zustand";
+
 interface RoomStore {
   room: Room | null;
   myUsername: string;
@@ -11,27 +12,32 @@ interface RoomStore {
   addSong: (song: VideoRoom) => void;
   setMediaState: (mediaState: MediaPlayerState) => void;
   setCurrentSongId: (id: string) => void;
+  setMemberList: (members: WatchMember[]) => void;
 }
+
 export const useRoomStore = create<RoomStore>((set) => ({
   room: null,
   myUsername: "",
   host: false,
+
   setRoom: (room) =>
     set((state) => {
       const hostMember = room.members.find((m) => m.host);
-      const isHost = hostMember!.username === state.myUsername;
-      console.log("📦 Incoming room:", room);
-      console.log("🙋‍♂️ My username:", state.myUsername);
-      console.log("👑 Host member:", hostMember);
-      console.log("✅ Is host?", isHost);
+      const isHost = hostMember?.username === state.myUsername;
       return {
-        room,
+        room: {
+          ...room,
+          members: room.members || [],
+        },
         host: isHost,
       };
     }),
+
   clearRoom: () => set({ room: null }),
+
   setMyUsername: (username) => set({ myUsername: username }),
   clearMyUsername: () => set({ myUsername: "" }),
+
   addSong: (song) =>
     set((state) => ({
       room: {
@@ -39,6 +45,7 @@ export const useRoomStore = create<RoomStore>((set) => ({
         playlist: [...(state.room?.playlist || []), song],
       } as Room,
     })),
+
   setCurrentSongId: (id: string) =>
     set((state) => ({
       room: state.room
@@ -48,16 +55,29 @@ export const useRoomStore = create<RoomStore>((set) => ({
           }
         : null,
     })),
+
   setMediaState: (mediaState: MediaPlayerState) =>
     set((state) => ({
       room: state.room
         ? {
             ...state.room,
-            playerState: {  
+            playerState: {
               ...state.room.playerState,
               ...mediaState,
             },
           }
-          : null,
+        : null,
     })),
+
+  setMemberList: (members: WatchMember[]) =>
+    set((state) =>
+      state.room
+        ? {
+            room: {
+              ...state.room,
+              members: members || [],
+            },
+          }
+        : state
+    ),
 }));

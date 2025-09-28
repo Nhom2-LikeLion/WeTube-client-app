@@ -11,6 +11,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatViews, timeAgo } from "@/lib/utils";
 
+type VideoCardProps = RecommendedVideoItem & {
+  loading?: "eager" | "lazy";
+};
+
 const VideoCard = ({
   id,
   title,
@@ -22,7 +26,8 @@ const VideoCard = ({
   duration,
   picture,
   historyDuration,
-}: RecommendedVideoItem) => {
+  loading,
+}: VideoCardProps) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
   const { user } = useAuth();
@@ -36,7 +41,7 @@ const VideoCard = ({
         console.log("Đã lưu vào history:", id);
 
         await saveInteraction({
-          userId: user.sub, 
+          userId: user.sub,
           videoId: id,
           type: "VIEW",
         }).unwrap();
@@ -74,6 +79,7 @@ const VideoCard = ({
           alt={name}
           width={48}
           height={48}
+          loading={loading}
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
