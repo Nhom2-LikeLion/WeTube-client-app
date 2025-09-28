@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FilterCarousel } from "@/components/filter-carousel";
+import VideoGrid from '../components/video/videoGrid';
 
 type HomeViewProps = {
     categoryId : string;
@@ -30,13 +31,16 @@ export default function HomeView({categoryId }: HomeViewProps) {
     ];
     
   return (
-    <div className="p-6">
-      <FilterCarousel
-        value={selectedCategory}
-        onSelect={(value) => setSelectedCategory(value)}
-        data={categories}
-        isLoading={false}
-      />
+    <div>
+      <div className="p-6">
+        <FilterCarousel
+          value={selectedCategory}
+          onSelect={(value) => setSelectedCategory(value)}
+          data={categories}
+          isLoading={false}
+        />
+      </div>
+      <VideoGrid />
     </div>
   );
 }

@@ -62,10 +62,14 @@ const VideoCard = ({
           title={title}
           duration={duration}
         />
-        <VideoOverlay
-          duration={duration}
-          progress={historyDuration ? historyDuration / duration : 0}
-        />
+        {historyDuration &&
+          historyDuration > 0 &&
+          historyDuration < duration && (
+            <VideoOverlay
+              duration={duration}
+              progress={historyDuration / duration}
+            />
+          )}
       </div>
 
       <div className="flex gap-3 pt-3 pr-3 pb-3 pl-0 items-start">
@@ -77,10 +81,10 @@ const VideoCard = ({
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h3 className="text-md font-semibold leading-tight break-words text-black group-hover:text-blue-600 transition-colors">
+          <h3 className="text-md font-semibold leading-tight text-black group-hover:text-blue-600 transition-colors line-clamp-2">
             {title}
           </h3>
-          <p className="text-sm text-gray-300">{name}</p>
+          <p className="text-sm text-gray-600">{name}</p>
           <p className="text-sm text-gray-400">
             {formatViews(totalView)} • {displayTime}
           </p>

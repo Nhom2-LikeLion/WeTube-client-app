@@ -44,6 +44,9 @@ export const recommendApi = createApi({
           size: limit,
         },
       }),
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.userId !== previousArg?.userId;
+      },
     }),
     getScoutVideos: builder.query<RecommendedVideoItem[], GetScoutVideosParams>(
       {
