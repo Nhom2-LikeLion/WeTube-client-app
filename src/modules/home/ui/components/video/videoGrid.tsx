@@ -24,11 +24,19 @@ export default function VideoGrid() {
   console.log("User object in VideoGrid:", user);
 
   useEffect(() => {
+    if (!user?.sub) {
+      setAllVideos([]);
+      setTopRanked([]);
+      setPage(1);
+      setHasMore(true);
+      return;
+    }
+
     setAllVideos([]);
     setTopRanked([]);
     setPage(1);
     setHasMore(true);
-  }, [userId]);
+  }, [user?.sub]);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -83,13 +91,17 @@ export default function VideoGrid() {
   }, [inView, hasMore, isFetching]);
 
   const displayedVideos = useMemo(() => {
-    // const videoMap = new Map(allVideos.map((v) => [v.id, v]));
-    // topRanked.forEach((gem) => videoMap.set(gem.id, gem));
-    // return Array.from(videoMap.values());
     const topRankedIds = new Set(topRanked.map((v) => v.id));
     const otherVideos = allVideos.filter((v) => !topRankedIds.has(v.id));
     return [...topRanked, ...otherVideos];
   }, [allVideos, topRanked]);
+
+    const isEmpty = 
+    !isLoading && 
+    !isFetching && 
+    allVideos.length === 0 && 
+    topRanked.length === 0 && 
+    user?.sub;
 
   if ((isLoading || isAuthLoading) && page === 1) return <VideoGridSkeleton />;
 
@@ -124,13 +136,13 @@ export default function VideoGrid() {
         </div>
       )}
 
-      {hasMore && !isFetching && (
+      {hasMore && !isFetching && displayedVideos.length > 0 && (
         <div
           ref={ref}
           className="h-10"
         />
       )}
-      {allVideos.length === 0 && !isFetching && (
+      {isEmpty && (
         <p className="text-center mt-6 text-gray-500">
           No recommendations found for you yet. Start watching some videos!
         </p>
