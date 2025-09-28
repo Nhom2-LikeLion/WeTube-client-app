@@ -92,6 +92,10 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
     const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
+    const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+    const defaultTitle = decodeURIComponent(titleWithoutExt);
+
+
     const handleGenerateDescription = async () => {
         const values = getValues();
         const title = values.title?.trim();
@@ -137,7 +141,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
         resolver: zodResolver(videoUploadSchema),
         mode: "onBlur",
         defaultValues: {
-            title: "",
+            title: defaultTitle,
             description: "",
             tags: "",
             videoFile: file,
