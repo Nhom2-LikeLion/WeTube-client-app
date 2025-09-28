@@ -1,5 +1,6 @@
 import { API_PREFIX } from "@/constants/appConstant";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { axiosBaseQuery } from './axiosBaseQuery';
 
 export type InteractionType = "VIEW" | "LIKE" | "COMMENT" | "SHARE";
 
@@ -15,18 +16,22 @@ export interface SaveInteractionResponse {
 
 export const interactionApi = createApi({
   reducerPath: "interactionApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${API_PREFIX}/interactions`,
-    credentials: "include",
-  }),
+  // baseQuery: fetchBaseQuery({
+  //   baseUrl: `${API_PREFIX}/interactions`,
+  //   credentials: "include",
+  // }),
+  baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
-    saveInteraction: builder.mutation<SaveInteractionResponse, SaveInteractionRequest>({
+    saveInteraction: builder.mutation<
+      SaveInteractionResponse,
+      SaveInteractionRequest
+    >({
       query: (body) => ({
-        url: "",
+        url: "/interactions",
         method: "POST",
         body,
         headers: { "Content-Type": "application/json" },
-        responseHandler: async (response) => response.text(),
+        // responseHandler: async (response) => response.text(),
       }),
     }),
   }),
