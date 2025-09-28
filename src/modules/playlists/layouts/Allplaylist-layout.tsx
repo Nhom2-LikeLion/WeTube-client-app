@@ -9,7 +9,6 @@ export default function Allplaylistlayout({children}: AllPlaylistlayoutProps) {
   return (
             <div className="w-full">
                 <HomeNavbar />
-                
                     <HomeSidebar />
                     <main className="flex-1 overflow-y-auto">
                         {children}

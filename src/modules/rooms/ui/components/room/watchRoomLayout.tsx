@@ -124,14 +124,15 @@ export default function WatchRoomLayout() {
           </div>
         </div>
 
-        <div className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden min-h-[300px]">
-          {room && client && (
-            <div className="flex-1 overflow-y-auto">
-              {room && client && <RoomChat />}
+                <div
+                    className="hidden lg:flex w-full lg:w-[30%] flex-col bg-gray-100 rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    {room && client && (
+                        <div className="flex flex- flex-1 min-h-0">
+                                {room && client && <RoomChat/>}
+                        </div>
+                    )}
+                </div>
             </div>
-          )}
-        </div>
-      </div>
 
       <button
         onClick={() => setChatOpen(true)}

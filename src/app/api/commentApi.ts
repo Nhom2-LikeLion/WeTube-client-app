@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_PREFIX } from "@/constants/appConstant";
+import { axiosBaseQuery } from './axiosBaseQuery';
 
 export type TargetType = "POST" | "VIDEO" | "COMMENT";
 
@@ -38,66 +39,76 @@ export interface UpdateCommentRequest {
 }
 
 export const commentApi = createApi({
-    reducerPath: "commentApi",
-    baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/comments` }),
-    tagTypes: ["Comment"],
-    endpoints: (builder) => ({
-        getCommentsByTarget: builder.query<Comment[], { targetId: string; targetType: TargetType }>({
-            query: ({ targetId, targetType }) => `/${targetType}/${targetId}`,
-            providesTags: (result, error, { targetId }) =>
-                result
-                    ? [
-                        ...result.map(({ id }) => ({ type: "Comment" as const, id })),
-                        { type: "Comment", id: `LIST-${targetId}` },
-                    ]
-                    : [{ type: "Comment", id: `LIST-${targetId}` }],
-        }),
-
-        getReplies: builder.query<Comment[], string>({
-            query: (parentId) => `/reply/${parentId}`,
-            providesTags: (result, error, parentId) =>
-                result
-                    ? [
-                        ...result.map(({ id }) => ({ type: "Comment" as const, id })),
-                        { type: "Comment", id: `REPLIES-${parentId}` },
-                    ]
-                    : [{ type: "Comment", id: `REPLIES-${parentId}` }],
-        }),
-
-        createComment: builder.mutation<Comment, CreateCommentRequest>({
-            query: (body) => ({
-                url: ``,
-                method: "POST",
-                body,
-            }),
-            invalidatesTags: (result, error, { targetId }) => [
-                { type: "Comment", id: `LIST-${targetId}` },
-            ],
-        }),
-
-        updateComment: builder.mutation<Comment, UpdateCommentRequest>({
-            query: ({ id, ...body }) => ({
-                url: `/${id}`,
-                method: "PUT",
-                body,
-            }),
-            invalidatesTags: (result, error, { targetId, id }) => [
-                { type: "Comment", id },
-                { type: "Comment", id: `LIST-${targetId}` },
-            ],
-        }),
-
-        deleteComment: builder.mutation<void, { id: string; targetId: string }>({
-            query: ({ id }) => ({
-                url: `/${id}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: (result, error, { id, targetId }) => [
-                { type: "Comment", id },
-                { type: "Comment", id: `LIST-${targetId}` },
-            ],
-        }),
+  reducerPath: "commentApi",
+  // baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/comments` }),
+  baseQuery: axiosBaseQuery(),
+  tagTypes: ["Comment"],
+  endpoints: (builder) => ({
+    getCommentsByTarget: builder.query<
+      Comment[],
+      { targetId: string; targetType: TargetType }
+    >({
+      //   query: ({ targetId, targetType }) => `/${targetType}/${targetId}`,
+      query: ({ targetId, targetType }) => ({
+        url: `/comments/${targetType}/${targetId}`,
+      }),
+      providesTags: (result, error, { targetId }) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Comment" as const, id })),
+              { type: "Comment", id: `LIST-${targetId}` },
+            ]
+          : [{ type: "Comment", id: `LIST-${targetId}` }],
     }),
+
+    getReplies: builder.query<Comment[], string>({
+      //   query: (parentId) => `/reply/${parentId}`,
+      query: (parentId) => ({
+        url: `/comments/reply/${parentId}`,
+      }),
+      providesTags: (result, error, parentId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Comment" as const, id })),
+              { type: "Comment", id: `REPLIES-${parentId}` },
+            ]
+          : [{ type: "Comment", id: `REPLIES-${parentId}` }],
+    }),
+
+    createComment: builder.mutation<Comment, CreateCommentRequest>({
+      query: (body) => ({
+        url: `/comments`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { targetId }) => [
+        { type: "Comment", id: `LIST-${targetId}` },
+      ],
+    }),
+
+    updateComment: builder.mutation<Comment, UpdateCommentRequest>({
+      query: ({ id, ...body }) => ({
+        url: `/comments/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { targetId, id }) => [
+        { type: "Comment", id },
+        { type: "Comment", id: `LIST-${targetId}` },
+      ],
+    }),
+
+    deleteComment: builder.mutation<void, { id: string; targetId: string }>({
+      query: ({ id }) => ({
+        url: `/comments/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, { id, targetId }) => [
+        { type: "Comment", id },
+        { type: "Comment", id: `LIST-${targetId}` },
+      ],
+    }),
+  }),
 });
 
 export const {
