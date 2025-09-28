@@ -1,90 +1,44 @@
-"use client";
-
+import { ChatMessage, useChatStore } from "@/store/zustand/useChatStore";
+import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
-import { Client } from "@stomp/stompjs";
 import { useEffect, useRef, useState } from "react";
 
-interface ChatMessage {
-  type: "CHAT" | "JOIN" | "LEAVE";
-  sender: string;
-  content?: string;
-}
+export default function RoomChat() {
+  const { room, myUsername } = useRoomStore();
 
-interface RoomChatProps {
-  roomId: string;
-  username: string;
-  stompClient: Client;
-}
+  const messages = useChatStore((state) => state.messages);
 
-export default function RoomChat({
-  roomId,
-  username,
-  stompClient,
-}: RoomChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { publish, subscribe, unsubscribe } = useStompStore();
-  const subscriptionRef = useRef<ReturnType<typeof subscribe> | null>(null);
+  const { publish } = useStompStore();
 
-  // 1️⃣ Setup & teardown chat
-  useEffect(() => {
-    if (!roomId) return;
-
-    const topicEndpoint = `/topic/rooms/chat/${roomId}`;
-    const publishEndpoint = `/app/chat/${roomId}`;
-
-    // Subscribe to topic
-    subscriptionRef.current = subscribe(topicEndpoint, (msg) => {
-      try {
-        const payload: ChatMessage = JSON.parse(msg.body);
-        setMessages((prev) => [...prev, payload]);
-      } catch (err) {
-        console.error("❌ Failed to parse message:", msg.body);
-      }
-    });
-
-    // Gửi JOIN message
-    publish(publishEndpoint, {
-      type: "JOIN",
-      sender: username,
-      content: "Hello!",
-    });
-
-    // Cleanup
-    return () => {
-      unsubscribe(subscriptionRef.current);
-      publish(publishEndpoint, {
-        type: "LEAVE",
-        sender: username,
-      });
-    };
-  }, []);
-
+  // Scroll tới cuối
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 3️⃣ Gửi tin nhắn
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const publishEndpoint = `/app/chat/${roomId}`;
+    const publishEndpoint = `/app/chat/${room!.roomId}`;
 
-    publish(publishEndpoint, {
+    const message: ChatMessage = {
       type: "CHAT",
-      sender: username,
+      sender: myUsername,
       content: input.trim(),
-    });
+    };
 
+    publish(publishEndpoint, message);
     setInput("");
   };
 
   return (
     <div className="flex flex-col w-full min-w-0 h-full border rounded-lg shadow-md bg-white">
-      <div className="p-3 border-b font-semibold">Room Chat ({roomId})</div>
-      <div className="flex-1 h-64 overflow-y-auto p-3 space-y-2 bg-gray-50">
+      <div className="p-3 border-b font-semibold">
+        Room Chat ({room!.roomId})
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 bg-gray-50 h-[calc(100vh-200px)]">
         {messages.map((msg, i) => (
           <div key={i}>
             {msg.type === "JOIN" && (
@@ -106,7 +60,7 @@ export default function RoomChat({
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className="flex p-2 border-t">
+      <form onSubmit={handleSendMessage} className="flex p-2 border-t bg-white shadow-inner">
         <input
           type="text"
           className="flex-1 border rounded px-2 py-1 text-sm"

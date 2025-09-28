@@ -1,6 +1,5 @@
-import HistoryView from "@/modules/playlists/ui/view/history-view";
-function page() {
-  return <HistoryView />;
-}
+import Historyview from "@/modules/playlists/ui/view/history-view";
 
-export default page;
+export default function Historypage() {
+  return <Historyview />;
+}

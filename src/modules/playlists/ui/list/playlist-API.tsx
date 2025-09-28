@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/playlists";
+const API_BASE = "https://wetube.name.vn/api/playlists";
 
 function jsonHeaders() {
   return {
@@ -116,4 +116,27 @@ export const playlistService = {
     if (!res.ok) throw new Error("Failed to remove playlist");
     return res.json();
   },
+  // POST /{userId}/history/add/{videoId}
+  addToHistory: async (userId: string, videoId: string) => {
+    if (!userId || !videoId) throw new Error("   and VideoId are required");
+
+    const res = await fetch(`${API_BASE}/${userId}/history/add/${videoId}`, {
+      method: "POST",
+      headers: jsonHeaders(),
+    });
+    if (!res.ok) throw new Error("Failed to add video to history");
+    return res.json();
+  },
+
+  getHistory: async (userId: string) => {
+  if (!userId) throw new Error("UserId is required");
+
+  const res = await fetch(`${API_BASE}/${userId}/history`, {
+    method: "GET",
+    headers: jsonHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch watch history");
+  return res.json();
+},
+
 };

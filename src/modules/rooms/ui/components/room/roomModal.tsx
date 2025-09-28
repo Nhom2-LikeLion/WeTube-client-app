@@ -26,7 +26,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
   const [username, setUsername] = useState("");
   const router = useRouter();
   const { setRoom, setMyUsername } = useRoomStore();
-  const stomp = useStompStore();
+  const { connect, publish, subscribe, unsubscribe } = useStompStore();
 
   // -------------------
   // JOIN ROOM
@@ -37,23 +37,23 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
 
     onOpenChange(false);
     try {
-      await stomp.connect();
-        toastEmitter.updateSuccess(toastId, "Connected Successfully!");
+      await connect();
+      toastEmitter.updateSuccess(toastId, "Connected Successfully!");
     } catch (err) {
-        toastEmitter.updateError(toastId, "Connection failed!");
+      toastEmitter.updateError(toastId, "Connection failed!");
       return;
     }
 
-        // Subscribe để nhận phản hồi khi phòng được tạo thành công
-    stomp.subscribe(`/topic/rooms/members/${roomId}`, (message) => {
+    // Subscribe để nhận phản hồi khi phòng được tạo thành công
+    const sub = subscribe(`/topic/rooms/members/${roomId}`, (message) => {
       try {
-        
         console.log("Received message:", message);
-        const room: Room = JSON.parse(message.body); 
+        const room: Room = JSON.parse(message.body);
         // console.log("Parsed room:", room);
 
-        setRoom(room);
         setMyUsername(username);
+        setRoom(room);
+        unsubscribe(sub);
         toastEmitter.success("Room Joined!");
         router.push("/rooms");
       } catch (err) {
@@ -63,9 +63,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     });
 
     // Gửi yêu cầu tạo phòng
-    stomp.publish(`/app/room/join/${roomId}`, {
-        username: username
-    });
+    publish(`/app/room/join/${roomId}`, { username });
   };
 
   // -------------------
@@ -78,7 +76,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     // const toastId = toastEmitter.loading("🐱‍🏍 Connecting...");
 
     try {
-      await stomp.connect();
+      await connect();
       //   toastEmitter.updateSuccess(toastId, "Connected Successfully!");
     } catch (err) {
       //   toastEmitter.updateError(toastId, "Connection failed!");
@@ -86,7 +84,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     }
 
     // Subscribe để nhận phản hồi khi phòng được tạo thành công
-    const subscription = stomp.subscribe("/topic/room/create", (message) => {
+    const subscription = subscribe("/topic/room/create", (message) => {
       try {
         // In ra toàn bộ message, bạn có thể debug để kiểm tra
         // console.log("Received message:", message);
@@ -95,9 +93,10 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
         const room: Room = JSON.parse(message.body); // Bây giờ parse ở đây
         console.log("Parsed room:", room);
 
-        setRoom(room);
         setMyUsername(username);
+        setRoom(room);
         toastEmitter.success("Room created!");
+        unsubscribe(subscription);
         router.push("/rooms");
       } catch (err) {
         toastEmitter.error("Failed to parse room data");
@@ -106,7 +105,7 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
     });
 
     // Gửi yêu cầu tạo phòng
-    stomp.publish("/app/room/create", username);
+    publish("/app/room/create", { username });
   };
 
   return (

@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import PlaylistCard, { Playlists } from "./playlist-card";
 import { playlistService } from "./playlist-API";
+import { get } from "http";
 
 export default function Playlistlist({ userId }: { userId: string }) {
   const [playlists, setPlaylists] = useState<Playlists[]>([]);
-  // const [recentPlaylists, setRecentPlaylists] = useState<Playlists[]>([]);
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -29,7 +29,6 @@ export default function Playlistlist({ userId }: { userId: string }) {
 
   const tabs = [
     { label: "Playlists", value: "playlists", playlistType: null },
-    { label: "Recently Added", value: "recently-added", playlistType: null },
     { label: "Watch Later", value: "watchlater", playlistType: "WATCH_LATER" },
     { label: "Music", value: "music", playlistType: "MUSIC" },
     { label: "Saved", value: "saved", playlistType: "SAVED" },
@@ -41,16 +40,17 @@ export default function Playlistlist({ userId }: { userId: string }) {
     tabValue: string,
     playlistType: string | null
   ) => {
-    if (tabValue === "recently-added") {
+     let filtered = playlists;
+    if (tabValue === "Playlists") {
       return [...playlists].sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     }
-    if (playlistType) {
-      return playlists.filter((p) => p.playlistType === playlistType);
+    else if (playlistType) {
+       filtered = playlists.filter((p) => p.playlistType === playlistType);
     }
-    return playlists;
+    return filtered.filter((p) => (p.totalVideos ?? 0) > 0);
   };
 
   return (
@@ -59,7 +59,9 @@ export default function Playlistlist({ userId }: { userId: string }) {
 
       <Tabs defaultValue="playlists">
         <TabsList className="flex justify-start border-none p-0 h-auto gap-2 px-6 w-full">
-          {tabs.map((tab) => (
+          {tabs
+          .filter((tab) => getPlaylistsForTab(tab.value, tab.playlistType).length > 0)
+          .map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
@@ -72,38 +74,15 @@ export default function Playlistlist({ userId }: { userId: string }) {
           ))}
         </TabsList>
 
-        {tabs.map((tab) => (
+        {tabs
+        .filter((tab) => getPlaylistsForTab(tab.value, tab.playlistType).length > 0)
+        .map((tab) => (
           <TabsContent
             key={tab.value}
             value={tab.value}
             className="mt-8"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* {tab.value === "recently-added"
-                ? recentPlaylists.map((playlist) => (
-                    <PlaylistCard
-                      key={playlist.playlistId}
-                      playlists={playlist}
-                      category={tab.value}
-                    />
-                  ))
-                : tab.playlistType
-                ? playlists
-                    .filter((p) => p.playlistType === tab.playlistType)
-                    .map((playlist) => (
-                      <PlaylistCard
-                        key={playlist.playlistId}
-                        playlists={playlist}
-                        category={tab.value}
-                      />
-                    ))
-                : playlists.map((playlist) => (
-                    <PlaylistCard
-                      key={playlist.playlistId}
-                      playlists={playlist}
-                      category={tab.value}
-                    />
-                  ))} */}
               {getPlaylistsForTab(tab.value, tab.playlistType).map(
                 (playlist) => (
                   <PlaylistCard
