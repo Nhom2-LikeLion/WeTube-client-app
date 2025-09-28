@@ -11,10 +11,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatViews, timeAgo } from "@/lib/utils";
 
-type VideoCardProps = RecommendedVideoItem & {
-  loading?: "eager" | "lazy";
-};
-
 const VideoCard = ({
   id,
   title,
@@ -26,8 +22,7 @@ const VideoCard = ({
   duration,
   picture,
   historyDuration,
-  loading,
-}: VideoCardProps) => {
+}: RecommendedVideoItem) => {
   const router = useRouter();
   const displayTime = timeAgo(createAt);
   const { user } = useAuth();
@@ -41,7 +36,7 @@ const VideoCard = ({
         console.log("Đã lưu vào history:", id);
 
         await saveInteraction({
-          userId: user.sub,
+          userId: user.sub, 
           videoId: id,
           type: "VIEW",
         }).unwrap();
@@ -60,7 +55,7 @@ const VideoCard = ({
       className="w-full flex flex-col cursor-pointer group"
       onClick={handleClick}
     >
-      <div className="relative rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
+      <div className="rounded-xl overflow-hidden transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:rounded-none">
         <VideoThumbnail
           imageUrl={thumbnailUrl}
           previewUrl={videoUrl}
@@ -79,14 +74,13 @@ const VideoCard = ({
           alt={name}
           width={48}
           height={48}
-          loading={loading}
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h3 className="text-md font-semibold leading-tight text-black group-hover:text-blue-600 transition-colors line-clamp-2">
+          <h3 className="text-md font-semibold leading-tight break-words text-black group-hover:text-blue-600 transition-colors">
             {title}
           </h3>
-          <p className="text-sm text-gray-600">{name}</p>
+          <p className="text-sm text-gray-300">{name}</p>
           <p className="text-sm text-gray-400">
             {formatViews(totalView)} • {displayTime}
           </p>

@@ -2,20 +2,15 @@ import { API_PREFIX } from "@/constants/appConstant";
 import { PlaylistDetail, PlaylistSummary, VideoFromApi } from "@/types/playlistSummary";
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { axiosBaseQuery } from './axiosBaseQuery';
 
 export const playlistApi = createApi({
   reducerPath: "playlistApi",
-  // baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/playlists` }),
-  baseQuery: axiosBaseQuery(),
+  baseQuery: fetchBaseQuery({ baseUrl: `${API_PREFIX}/playlists` }),
   tagTypes: ["Playlist"],
   endpoints: (builder) => ({
     // 🔹 Lấy tất cả playlist theo user
     getPlaylistsByUserId: builder.query<PlaylistSummary[], string>({
-      // query: (userId) => `all/${userId}`,
-      query: (userId) => ({
-        url: `/playlists/all/${userId}`,
-      }),
+      query: (userId) => `all/${userId}`,
       providesTags: (result, error, userId) => [
         { type: "Playlist", id: `USER_${userId}` },
         "Playlist",
@@ -24,10 +19,7 @@ export const playlistApi = createApi({
 
     // 🔹 Lấy detail 1 playlist
     getPlaylistDetails: builder.query<PlaylistDetail, string>({
-      // query: (playlistId) => `detail/${playlistId}`,
-      query: (playlistId) => ({
-        url: `/playlists/detail/${playlistId}`,
-      }),
+      query: (playlistId) => `detail/${playlistId}`,
       providesTags: (result, error, playlistId) => [
         { type: "Playlist", id: playlistId },
         "Playlist",
@@ -36,11 +28,7 @@ export const playlistApi = createApi({
 
     // 🔹 Lấy playlist HISTORY của user
     getHistoryPlaylist: builder.query<PlaylistSummary[], string>({
-      // query: (userId) => `${userId}/playlistType?playlistType=HISTORY`,
-      query: (userId) => ({
-        url: `/playlists/${userId}/playlistType`,
-        params: { playlistType: "HISTORY" },
-      }),
+      query: (userId) => `${userId}/playlistType?playlistType=HISTORY`,
       providesTags: (result, error, userId) => [
         { type: "Playlist", id: `HISTORY_${userId}` },
         "Playlist",
@@ -53,7 +41,7 @@ export const playlistApi = createApi({
       { playlistId: string; videoId: string; historyDuration?: number }
     >({
       query: (body) => ({
-        url: `/playlists/add`,
+        url: `add`,
         method: "POST",
         body,
         headers: { "Content-Type": "application/json" },
