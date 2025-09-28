@@ -64,13 +64,22 @@ const SearchInputSuspense = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-[600px]">
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-[600px]"
+    >
       {/* Input */}
-      <form className="flex w-full" onSubmit={handleSearch}>
+      <form
+        className="flex w-full"
+        onSubmit={handleSearch}
+      >
         <div className="relative w-full">
           <input
             value={value}
-            onChange={(e) => { setValue(e.target.value); setIsOpen(true); }}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setIsOpen(true);
+            }}
             onFocus={() => setIsOpen(true)}
             type="text"
             placeholder="Search"
@@ -101,7 +110,9 @@ const SearchInputSuspense = () => {
       {/* Dropdown */}
       {isOpen && value.length > 0 && (
         <div className="absolute z-[9999] mt-1 w-full bg-white border rounded shadow max-h-72 overflow-y-auto">
-          {isFetching && <div className="p-2 text-sm text-gray-500">Searching...</div>}
+          {isFetching && (
+            <div className="p-2 text-sm text-gray-500">Searching...</div>
+          )}
 
           {!isFetching && isError && (
             <div className="p-2 text-sm text-red-500">
@@ -113,7 +124,9 @@ const SearchInputSuspense = () => {
             <div className="p-2 text-sm text-gray-400">No suggestions</div>
           )}
 
-          {!isFetching && !isError && suggestions.length > 0 &&
+          {!isFetching &&
+            !isError &&
+            suggestions.length > 0 &&
             suggestions.map((text, i) => (
               <button
                 key={`${text}-${i}`}
@@ -121,7 +134,9 @@ const SearchInputSuspense = () => {
                 onMouseDown={(e) => e.preventDefault()} // giữ dropdown khi click
                 onClick={() => {
                   if (mode === "rooms") {
-                    publish(`/app/room/addSong/${room?.roomId}`, { videoTitle: text });
+                    publish(`/app/room/addSong/${room?.roomId}`, {
+                      videoTitle: text,
+                    });
                     toastEmitter.success("Video Added!");
                   } else {
                     router.push(`/search?query=${encodeURIComponent(text)}`);
@@ -132,13 +147,12 @@ const SearchInputSuspense = () => {
               >
                 {text}
               </button>
-            ))
-          }
+            ))}
 
           {/* 🔍 Debug panel: xóa nếu không cần */}
           <div className="border-t mt-1 p-1 text-[11px] text-gray-500 bg-gray-50">
-            value="{value}" · open={String(isOpen)} · fetching={String(isFetching)} ·
-            len={suggestions.length}
+            {`value="${value}"`} · open={String(isOpen)} · fetching=
+            {String(isFetching)} · len={suggestions.length}
           </div>
         </div>
       )}

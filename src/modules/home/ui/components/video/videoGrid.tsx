@@ -15,7 +15,7 @@ const LOAD_COUNT = 12;
 export default function VideoGrid() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [page, setPage] = useState(1);
-  const [allVideos, setAllVideos] = useState<RecommendedVideoItem[]>([]);
+  // const [allVideos, setAllVideos] = useState<RecommendedVideoItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [topRanked, setTopRanked] = useState<RecommendedVideoItem[]>([]);
 
@@ -25,14 +25,14 @@ export default function VideoGrid() {
 
   useEffect(() => {
     if (!user?.sub) {
-      setAllVideos([]);
+      // setAllVideos([]);
       setTopRanked([]);
       setPage(1);
       setHasMore(true);
       return;
     }
 
-    setAllVideos([]);
+    // setAllVideos([]);
     setTopRanked([]);
     setPage(1);
     setHasMore(true);
@@ -49,7 +49,7 @@ export default function VideoGrid() {
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
       skip: !user?.sub || !hasMore,
-      refetchOnMountOrArgChange: true,
+      // refetchOnMountOrArgChange: true,
     }
   );
 
@@ -61,22 +61,22 @@ export default function VideoGrid() {
     }
   );
 
-  useEffect(() => {
-    if (data?.content && data.content.length > 0) {
-      const newVideos = data.content;
-      setAllVideos((prevVideos) => {
-        const combined = [...prevVideos, ...newVideos];
-        const uniqueVideos = Array.from(
-          new Map(combined.map((v) => [v.id, v])).values()
-        );
-        return uniqueVideos;
-      });
-    }
+  // useEffect(() => {
+  //   if (data?.content && data.content.length > 0) {
+  //     const newVideos = data.content;
+  //     setAllVideos((prevVideos) => {
+  //       const combined = [...prevVideos, ...newVideos];
+  //       const uniqueVideos = Array.from(
+  //         new Map(combined.map((v) => [v.id, v])).values()
+  //       );
+  //       return uniqueVideos;
+  //     });
+  //   }
 
-    if (!data?.content || data.content.length < LOAD_COUNT) {
-      setHasMore(false);
-    }
-  }, [data]);
+  //   if (!data?.content || data.content.length < LOAD_COUNT) {
+  //     setHasMore(false);
+  //   }
+  // }, [data]);
 
   useEffect(() => {
     if (topRankedData) {
@@ -91,17 +91,20 @@ export default function VideoGrid() {
   }, [inView, hasMore, isFetching]);
 
   const displayedVideos = useMemo(() => {
+    const allVideos = data?.content ?? [];
     const topRankedIds = new Set(topRanked.map((v) => v.id));
     const otherVideos = allVideos.filter((v) => !topRankedIds.has(v.id));
     return [...topRanked, ...otherVideos];
-  }, [allVideos, topRanked]);
+    // }, [allVideos, topRanked]);
+  }, [data?.content, topRanked]);
 
-    const isEmpty = 
-    !isLoading && 
-    !isFetching && 
-    allVideos.length === 0 && 
-    topRanked.length === 0 && 
-    user?.sub;
+
+    const isEmpty =
+      !isLoading &&
+      !isFetching &&
+      (data?.content?.length ?? 0) === 0 &&
+      topRanked.length === 0 &&
+      user?.sub;
 
   if ((isLoading || isAuthLoading) && page === 1) return <VideoGridSkeleton />;
 
@@ -148,7 +151,7 @@ export default function VideoGrid() {
         </p>
       )}
 
-      {!hasMore && allVideos.length > 0 && (
+      {!hasMore && (data?.content?.length ?? 0) > 0 && (
         <p className="text-center mt-6 text-gray-500">
           You have reached the end of recommendations.
         </p>
