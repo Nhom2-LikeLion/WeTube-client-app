@@ -49,7 +49,7 @@ export default function VideoGrid() {
     { userId: user?.sub, page, limit: LOAD_COUNT },
     {
       skip: !user?.sub || !hasMore,
-      refetchOnMountOrArgChange: true,
+      // refetchOnMountOrArgChange: true,
     }
   );
 
