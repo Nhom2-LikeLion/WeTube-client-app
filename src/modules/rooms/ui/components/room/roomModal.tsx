@@ -49,7 +49,6 @@ export default function RoomModal({ open, onOpenChange }: RoomProps) {
       try {
         console.log("Received message:", message);
         const room: Room = JSON.parse(message.body);
-        // console.log("Parsed room:", room);
 
         setMyUsername(username);
         setRoom(room);
