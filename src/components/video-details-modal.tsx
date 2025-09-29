@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
   DialogHeader,
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogContent,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,12 +78,9 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   const { user } = useAuth();
   const dispatch = useDispatch();
 
-  // RTK Query mutation
   const [uploadVideo, { isLoading: isUploading }] = useUploadVideoMutation();
 
-  // Progress tracking states
   const [uploadProgress, setUploadProgress] = useState(0);
-
   const [videoSrc, setVideoSrc] = useState("");
   const [duration, setDuration] = useState(0);
   const [resolution, setResolution] = useState("");
@@ -92,43 +91,14 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
+  // Modal error state
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Dropdown chọn ngôn ngữ
+  const [targetLang, setTargetLang] = useState(""); // mặc định English
+
   const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "");
   const defaultTitle = decodeURIComponent(titleWithoutExt);
-
-  const handleGenerateDescription = async () => {
-    const values = getValues();
-    const title = values.title?.trim();
-    if (!title) {
-      toast.error("Please enter a title first.");
-      return;
-    }
-
-    try {
-      setIsGeneratingDescription(true);
-
-      const res = await axios.post(
-        `${API_PREFIX}/ai/description`,
-        { title },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      if (res.data) {
-        const { description, tags } = res.data;
-
-        if (description)
-          setValue("description", description, { shouldValidate: true });
-
-        if (tags) setValue("tags", tags, { shouldValidate: true });
-
-        toast.success("AI generated description & tags!");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to generate description & tags");
-    } finally {
-      setIsGeneratingDescription(false);
-    }
-  };
 
   const {
     register,
@@ -148,43 +118,57 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     },
   });
 
-  const generateThumbnail = useCallback(
-    (video: HTMLVideoElement): Promise<File> => {
-      return new Promise((resolve, reject) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+  // Generate mô tả bằng AI
+  const handleGenerateDescription = async () => {
+    const values = getValues();
+    const title = values.title?.trim();
+    if (!title) {
+      toast.error("Please enter a title first.");
+      return;
+    }
+    try {
+      setIsGeneratingDescription(true);
+      const res = await axios.post(
+        `${API_PREFIX}/ai/description`,
+        { title },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      if (res.data) {
+        if (res.data.description)
+          setValue("description", res.data.description, { shouldValidate: true });
+        if (res.data.tags) setValue("tags", res.data.tags, { shouldValidate: true });
+        toast.success("AI generated description & tags!");
+      }
+    } catch (err) {
+      toast.error("Failed to generate description & tags");
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
 
-        if (!ctx) {
-          reject(new Error("Could not get canvas context"));
-          return;
-        }
-
-        // Set canvas size to video dimensions
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // Draw current video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Convert canvas to blob then to File
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const file = new File([blob], "thumbnail.jpg", {
-                type: "image/jpeg",
-              });
-              resolve(file);
-            } else {
-              reject(new Error("Could not generate thumbnail"));
-            }
-          },
-          "image/jpeg",
-          0.8
-        );
-      });
-    },
-    []
-  );
+  // Generate thumbnail tự động
+  const generateThumbnail = useCallback((video: HTMLVideoElement): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(new File([blob], "thumbnail.jpg", { type: "image/jpeg" }));
+          } else reject(new Error("Could not generate thumbnail"));
+        },
+        "image/jpeg",
+        0.8
+      );
+    });
+  }, []);
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -193,94 +177,50 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
     const videoElement = document.createElement("video");
     videoElement.src = url;
-    videoElement.crossOrigin = "anonymous";
     videoElement.muted = true;
 
-    const handleMetadataLoaded = () => {
-      setDuration(videoElement.duration);
-      setResolution(`${videoElement.videoWidth} x ${videoElement.videoHeight}`);
-
-      const thumbnailTime = Math.max(
-        1,
-        Math.min(videoElement.duration / 2, videoElement.duration - 1)
-      );
-      videoElement.currentTime = thumbnailTime;
-    };
-
-    const handleDataLoaded = () => {
-      const correctDuration = videoElement.duration;
-      if (isFinite(correctDuration) && correctDuration > 0) {
-        setDuration(correctDuration);
-        setResolution(
-          `${videoElement.videoWidth} x ${videoElement.videoHeight}`
-        );
-
-        const thumbnailTime = Math.min(correctDuration / 2, 1);
-        videoElement.currentTime = thumbnailTime;
+    videoElement.addEventListener("loadeddata", () => {
+      if (isFinite(videoElement.duration) && videoElement.duration > 0) {
+        setDuration(videoElement.duration);
+        setResolution(`${videoElement.videoWidth} x ${videoElement.videoHeight}`);
+        videoElement.currentTime = Math.min(videoElement.duration / 2, 1);
       }
-    };
+    });
 
-    const handleSeeked = async () => {
+    videoElement.addEventListener("seeked", async () => {
       try {
         if (!thumbnailFile) {
-          const autoThumbnailFile = await generateThumbnail(videoElement);
-          setThumbnailFile(autoThumbnailFile);
-          const previewUrl = URL.createObjectURL(autoThumbnailFile);
+          const autoThumb = await generateThumbnail(videoElement);
+          setThumbnailFile(autoThumb);
+          const previewUrl = URL.createObjectURL(autoThumb);
           setThumbnailPreview(previewUrl);
-          setValue("thumbnailFile", autoThumbnailFile, {
-            shouldValidate: true,
-          });
+          setValue("thumbnailFile", autoThumb, { shouldValidate: true });
         }
-      } catch (error) {
-        console.error("Error generating thumbnail:", error);
-        toast.error("Could not generate thumbnail automatically");
       } finally {
         setIsGeneratingThumbnail(false);
       }
-    };
+    });
 
-    const handleError = () => {
-      console.error("Video loading error");
-      setIsGeneratingThumbnail(false);
-    };
-
-    videoElement.addEventListener("loadeddata", handleDataLoaded);
-    // videoElement.addEventListener("loadedmetadata", handleMetadataLoaded);
-    videoElement.addEventListener("seeked", handleSeeked);
-    videoElement.addEventListener("error", handleError);
-
-    // Cleanup function
     return () => {
       URL.revokeObjectURL(url);
-      videoElement.removeEventListener("loadeddata", handleDataLoaded);
-      // videoElement.removeEventListener("loadedmetadata", handleMetadataLoaded);
-      videoElement.removeEventListener("seeked", handleSeeked);
-      videoElement.removeEventListener("error", handleError);
     };
   }, [file, generateThumbnail, setValue, thumbnailFile]);
 
   useEffect(() => {
     return () => {
-      if (thumbnailPreview) {
-        URL.revokeObjectURL(thumbnailPreview);
-      }
+      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
     };
   }, [thumbnailPreview]);
 
-  const handleThumbnailChange = useCallback(
-    (selectedFile: File) => {
-      if (thumbnailPreview) {
-        URL.revokeObjectURL(thumbnailPreview);
-      }
-      setThumbnailFile(selectedFile);
-      const previewUrl = URL.createObjectURL(selectedFile);
-      setThumbnailPreview(previewUrl);
+  const handleThumbnailChange = (selectedFile: File) => {
+    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+    setThumbnailFile(selectedFile);
+    const previewUrl = URL.createObjectURL(selectedFile);
+    setThumbnailPreview(previewUrl);
+    setValue("thumbnailFile", selectedFile, { shouldValidate: true });
+  };
 
-      setValue("thumbnailFile", selectedFile, { shouldValidate: true });
-    },
-    [thumbnailPreview, setValue]
-  );
-
+  // Submit upload
   const onSubmit = async (data: VideoFormData) => {
     if (!user) {
       toast.error("You need to login to access.");
@@ -295,89 +235,59 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     formData.append("tags", data.tags || "");
     formData.append("usersId", user.sub);
     formData.append("duration", duration.toString());
+    formData.append("isShort", String(duration <= 60));
+    if (targetLang && targetLang !== "") {
+      formData.append("targetLang", targetLang);
+    }
 
-    const isShort = duration <= 60;
-    formData.append("isShort", String(isShort));
 
     setUploadProgress(0);
 
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return Math.round(prev + Math.random() * 15);
-      });
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => (prev >= 90 ? prev : prev + 5));
     }, 200);
 
     try {
-      const result = await uploadVideo(formData).unwrap();
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
 
+      await uploadVideo(formData).unwrap();
+      clearInterval(interval);
       setUploadProgress(100);
-      clearInterval(progressInterval);
 
-      console.log("✅ Video uploaded, server response:", result);
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      toast.success("Video upload successfully!");
+      toast.success("Video upload successfully!", { duration: 3000 });
 
       if (user) {
-        dispatch(
-          playlistApi.util.invalidateTags([
-            { type: "Playlist", id: `USER_${user.sub}` },
-          ])
-        );
+        dispatch(playlistApi.util.invalidateTags([{ type: "Playlist", id: `USER_${user.sub}` }]));
       }
-      dispatch(playlistApi.util.invalidateTags(["Playlist"]));
       dispatch(videoApi.util.invalidateTags(["VideoList"]));
-
       onUploadComplete();
-
-      setTimeout(() => {
-        onUploadComplete();
-      }, 300);
-    } catch (error: any) {
-      console.error("Upload failed:", error);
+    } catch (err: any) {
+      clearInterval(interval);
       setUploadProgress(0);
-      clearInterval(progressInterval);
-
-      // Handle RTK Query error format
-      const errorMessage =
-        error?.data?.message ||
-        error?.message ||
-        "Upload failed. Please try again.";
-      toast.error(errorMessage);
+      const msg = err?.data?.message || err?.message || "Upload failed. Please try again.";
+      setErrorMessage(msg);
     }
   };
 
-  const renderButtonContent = () => {
-    if (isUploading) {
-      return (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Uploading...
-        </>
-      );
-    }
-    if (isGeneratingThumbnail) {
-      return (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Generating thumbnail...
-        </>
-      );
-    }
-    return "Upload";
-  };
+  const renderButtonContent = () =>
+    isUploading ? (
+      <>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+      </>
+    ) : isGeneratingThumbnail ? (
+      <>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating thumbnail...
+      </>
+    ) : (
+      "Upload"
+    );
 
   return (
     <div className="flex flex-col h-full max-h-[90vh]">
       <DialogHeader className="p-4 border-b flex-shrink-0">
-        <DialogTitle className="text-2xl font-medium">
-          Video Details
-        </DialogTitle>
+        <DialogTitle className="text-2xl font-medium">Video Details</DialogTitle>
         <DialogClose asChild>
           <Button
             variant="ghost"
@@ -390,60 +300,35 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
         </DialogClose>
       </DialogHeader>
 
+      {/* Body */}
       <div className="flex-1 p-6 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
-          <div className="lg:col-span-2 overflow-y-auto pr-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 overflow-y-auto pr-2">
+            {/* Title */}
             <div>
-              <label
-                htmlFor="title"
-                className="font-semibold mb-2 block"
-              >
+              <label htmlFor="title" className="font-semibold mb-2 block">
                 Title
               </label>
-              <Textarea
-                id="title"
-                placeholder="Input video title"
-                disabled={isUploading}
-                className={errors?.title ? "border-red-500" : ""}
-                {...register("title")}
-              />
-              {errors.title && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.title.message}
-                </p>
-              )}
+              <Textarea id="title" {...register("title")} disabled={isUploading} />
+              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
             </div>
 
+            {/* Description */}
             <div>
-              <label
-                htmlFor="description"
-                className="font-semibold mb-2 block"
-              >
+              <label htmlFor="description" className="font-semibold mb-2 block">
                 Description
               </label>
-              <Textarea
-                id="description"
-                placeholder="Describe your video..."
-                rows={6}
-                disabled={isUploading || isGeneratingDescription}
-                className={errors?.description ? "border-red-500" : ""}
-                {...register("description")}
-              />
-              {errors.description && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.description.message}
-                </p>
-              )}
+              <Textarea id="description" rows={6} {...register("description")} disabled={isUploading} />
+              {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
               <Button
                 type="button"
                 onClick={handleGenerateDescription}
                 disabled={isGeneratingDescription}
-                className="mt-2 bg-purple-600 hover:bg-purple-700 text-white"
+                className="mt-2 bg-purple-600 text-white"
               >
                 {isGeneratingDescription ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Generating...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
                   </>
                 ) : (
                   "AI Generate Description"
@@ -451,6 +336,23 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
               </Button>
             </div>
 
+            {/* Dropdown chọn ngôn ngữ */}
+            <div className="mt-4">
+              <label className="font-semibold mb-2 block">Video Language</label>
+              <select
+                value={targetLang}
+                onChange={(e) => setTargetLang(e.target.value)}
+                className="border rounded px-3 py-2 w-full"
+                disabled={isUploading}
+              >
+                <option value="">--None--</option>
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+                <option value="ko">한국어</option>
+              </select>
+            </div>
+
+            {/* Thumbnail + Tags */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <ThumbnailSelector
                 thumbnailPreview={thumbnailPreview}
@@ -490,97 +392,75 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
                 Tags help others easily find your video.
               </p>
             </div>
+          
           </div>
 
+          {/* Preview */}
           <div className="lg:col-span-1 flex flex-col space-y-4">
-            {videoSrc && (
-              <video
-                src={videoSrc}
-                controls
-                className="w-full rounded-lg bg-black aspect-video flex-shrink-0"
-              />
-            )}
-
-            <div className="p-4 space-y-2 bg-gray-300 rounded-2xl flex-shrink-0">
+            {videoSrc && <video src={videoSrc} controls className="w-full rounded bg-black aspect-video" />}
+            {isUploading && (
               <div>
-                <p className="text-xs text-muted-foreground">File name</p>
-                <p className="text-sm text-gray-600 whitespace-normal break-words">
-                  {file.name}
-                </p>
+                <p className="text-sm">Uploading: {uploadProgress}%</p>
+                <div className="w-full bg-gray-200 h-2 rounded">
+                  <div
+                    className="bg-blue-600 h-2 rounded"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
               </div>
-
-              {/* Progress Bar - Same position and style as FormSection */}
-              {isUploading && (
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Upload progress...
-                    </span>
-                    <span className="font-medium">{uploadProgress}%</span>
+            )}
+            {duration > 0 && (
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs">Duration</p>
+                  <div className="flex items-center gap-1 text-sm">
+                    <Clock className="w-4 h-4" />
+                    <span>{formatDuration(duration)}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                  {uploadProgress === 100 && (
-                    <div className="flex items-center justify-center text-sm text-green-600 mt-2">
-                      <span>✓ Uploaded successfully!</span>
-                    </div>
-                  )}
                 </div>
-              )}
-
-              {duration > 0 && (
-                <div className="flex items-center gap-4 pt-2">
+                {resolution && (
                   <div>
-                    <p className="text-xs text-muted-foreground">Duration</p>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatDuration(duration)}</span>
+                    <p className="text-xs">Resolution</p>
+                    <div className="flex items-center gap-1 text-sm">
+                      <Film className="w-4 h-4" />
+                      <span>{resolution}</span>
                     </div>
                   </div>
-                  {resolution && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Resolution
-                      </p>
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <Film className="w-4 h-4" />
-                        <span>{resolution}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {errors?.videoFile && (
-              <p className="text-sm text-red-500 -mt-2 px-1">
-                {errors.videoFile.message}
-              </p>
+                )}
+              </div>
             )}
           </div>
         </div>
       </div>
 
+      {/* Footer */}
       <DialogFooter className="p-4 border-t flex-shrink-0">
-        <Button
-          variant="ghost"
-          onClick={onClose}
-          disabled={isUploading}
-        >
+        <Button variant="ghost" onClick={onClose} disabled={isUploading}>
           Return
         </Button>
         <Button
           onClick={handleSubmit(onSubmit)}
           disabled={isUploading || isGeneratingThumbnail}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-blue-600 text-white"
         >
           {renderButtonContent()}
         </Button>
       </DialogFooter>
+
+      {/* Error Modal */}
+      {errorMessage && (
+        <Dialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Lỗi Upload</DialogTitle>
+            </DialogHeader>
+            <p>{errorMessage}</p>
+            <DialogFooter>
+              <Button onClick={() => setErrorMessage(null)}>OK</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

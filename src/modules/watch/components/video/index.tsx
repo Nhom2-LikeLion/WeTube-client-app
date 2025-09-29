@@ -28,6 +28,7 @@ export default function ActiveVideo() {
     setTotalSeek,
     animatePlay,
     volume,
+    setVolume,
     setLoaded,
     isFullscreen,
     playbackSpeed,
@@ -37,6 +38,9 @@ export default function ActiveVideo() {
 
   const reactPlayerRef = useRef<ReactPlayer | null>(null);
   const [isClient, setIsClient] = useState(false);
+
+  // timeout để auto-hide controls
+  const hideTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // lấy dữ liệu video từ store
   const videoDetailResponse = useVideoStore((state) => state.videoDetail);
@@ -48,24 +52,28 @@ export default function ActiveVideo() {
   const cues = useSubtitles(subtitleUrl);
   const [currentSub, setCurrentSub] = useState("");
 
+  // quản lý hiển thị sub
+  const [showSubtitles, setShowSubtitles] = useState(true);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleDisplayControls = () => {
-    if (isPlaying) displayControls();
-  };
+  // 👉 xử lý auto-hide controls
+  const handleUserActivity = () => {
+    displayControls(); // hiện control khi có hoạt động
 
-  const handleHideControls = () => {
-    if (isPlaying) hideControls();
+    if (hideTimeout.current) clearTimeout(hideTimeout.current);
+
+    // 3 giây sau không có activity thì ẩn
+    hideTimeout.current = setTimeout(() => {
+      hideControls();
+    }, 3000);
   };
 
   const handleVideoClick = () => {
-    if (isPlaying) {
-      pauseVideo();
-    } else {
-      playVideo();
-    }
+    if (isPlaying) pauseVideo();
+    else playVideo();
   };
 
   const handleSeek = (value: string) => {
@@ -73,43 +81,65 @@ export default function ActiveVideo() {
     reactPlayerRef.current?.seekTo(Number(value) / 100, "fraction");
   };
 
+  // tua tới/lùi theo giây
+  const seekBy = (secondsDelta: number) => {
+    const player = reactPlayerRef.current;
+    if (!player) return;
+
+    const current = player.getCurrentTime ? player.getCurrentTime() : 0;
+    const duration = player.getDuration ? player.getDuration() : 0;
+
+    let newTime = current + secondsDelta;
+    if (newTime < 0) newTime = 0;
+    if (duration && newTime > duration) newTime = duration;
+
+    player.seekTo(newTime, "seconds");
+
+    setSeekSync(newTime);
+    if (duration > 0) {
+      setPercentage(Math.min(100, Math.max(0, (newTime / duration) * 100)));
+    }
+  };
+
   const renderPlayer = () => {
     if (!videoUrl) return null;
     return (
       <div className="relative w-full h-full">
-<div className="relative w-full aspect-video bg-black">
-  <ReactPlayer
-    ref={reactPlayerRef}
-    playing={isPlaying}
-    volume={pipMode ? 0 : volume / 100}
-    controls={false}
-    progressInterval={250}
-    url={videoUrl}
-    width="100%"
-    height="100%"
-    playbackRate={playbackSpeed}
-    onProgress={(state: OnProgressProps) => {
-      setPercentage(Math.min(100, state.played * 100));
-      setLoaded(Math.min(100, state.loaded * 100));
+        <div className="relative w-full aspect-video bg-black">
+          <ReactPlayer
+            ref={reactPlayerRef}
+            playing={isPlaying}
+            volume={pipMode ? 0 : volume / 100}
+            controls={false}
+            progressInterval={250}
+            url={videoUrl}
+            width="100%"
+            height="100%"
+            playbackRate={playbackSpeed}
+            onProgress={(state: OnProgressProps) => {
+              setPercentage(Math.min(100, state.played * 100));
+              setLoaded(Math.min(100, state.loaded * 100));
 
-      // cập nhật phụ đề
-      const cue = cues.find(
-        (c) =>
-          state.playedSeconds >= c.start &&
-          state.playedSeconds <= c.end
-      );
-      setCurrentSub(cue?.text ?? "");
-    }}
-    onSeek={(seconds: number) => setSeekSync(seconds)}
-    onReady={(player) => setTotalSeek(player.getDuration())}
-    onEnded={() => pauseVideo()}
-/>
-</div>
+              // cập nhật phụ đề
+              const cue = cues.find(
+                (c) =>
+                  state.playedSeconds >= c.start &&
+                  state.playedSeconds <= c.end
+              );
+              setCurrentSub(cue?.text ?? "");
+            }}
+            onSeek={(seconds: number) => setSeekSync(seconds)}
+            onReady={(player) => setTotalSeek(player.getDuration())}
+            onEnded={() => pauseVideo()}
+          />
+        </div>
 
-
-        {/* Overlay subtitle */}
-        {currentSub && (
-          <div className="absolute bottom-12 w-full text-center px-4 z-30">
+        {/* phụ đề */}
+        {showSubtitles && currentSub && (
+          <div
+            className={`absolute w-full text-center px-4 z-30 transition-all duration-300 ${showControls ? "bottom-24" : "bottom-12"
+              }`}
+          >
             <p className="inline-block bg-black/70 text-white text-lg md:text-xl rounded px-3 py-1 leading-relaxed drop-shadow-lg">
               {currentSub}
             </p>
@@ -130,14 +160,23 @@ export default function ActiveVideo() {
     if (loaded > 0) {
       return (
         <section
-          className={`absolute ${
-            isFullscreen ? "" : "bottom-0"
-          } left-0 z-20 h-max w-full flex flex-col justify-end items-center transition-opacity duration-150 ${
-            showControls ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute ${isFullscreen ? "" : "bottom-0"
+            } left-0 z-20 h-max w-full flex flex-col justify-end items-center transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
+            }`}
         >
           <SliderControls handleSeek={handleSeek} />
-          <ControlButtons />
+          <ControlButtons
+            isPlaying={isPlaying}
+            playVideo={playVideo}
+            pauseVideo={pauseVideo}
+            volume={volume}
+            setVolume={setVolume}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
+            showSubtitles={showSubtitles}
+            setShowSubtitles={setShowSubtitles}
+            seekBy={seekBy}
+          />
         </section>
       );
     }
@@ -177,20 +216,18 @@ export default function ActiveVideo() {
 
   return (
     <section
-      className={`${
-        isFullscreen
+      className={`${isFullscreen
           ? "w-screen h-screen fixed top-0 left-0 z-50"
           : "relative w-full h-max aspect-video rounded-2xl overflow-hidden"
-      }`}
-      onMouseOver={handleDisplayControls}
-      onMouseLeave={handleHideControls}
+        }`}
+      onMouseMove={handleUserActivity} // 👈 bắt sự kiện di chuột
+      onClick={handleUserActivity}     // 👈 click cũng reset timer
     >
       <div
-        className={`${
-          isFullscreen
+        className={`${isFullscreen
             ? "fixed bg-black h-screen w-screen flex flex-col justify-end items-center py-4"
             : ""
-        }`}
+          }`}
       >
         {renderVideoPlayer()}
         {renderVideoControls()}
