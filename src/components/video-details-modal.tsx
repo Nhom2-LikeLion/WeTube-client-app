@@ -177,6 +177,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
     const videoElement = document.createElement("video");
     videoElement.src = url;
+    videoElement.crossOrigin = "anonymous";
     videoElement.muted = true;
 
     videoElement.addEventListener("loadeddata", () => {
