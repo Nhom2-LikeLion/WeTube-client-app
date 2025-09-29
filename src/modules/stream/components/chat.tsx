@@ -22,7 +22,11 @@ function ChatMessage({ message }: { message: ReceivedChatMessage }) {
   const { localParticipant } = useLocalParticipant();
 
   return (
-    <Flex gap="2" align="start" className="break-words w-[220px]">
+    <Flex
+      gap="2"
+      align="start"
+      className="break-words w-[220px]"
+    >
       <Avatar
         size="1"
         fallback={message.from?.identity[0] ?? <PersonIcon />}
@@ -72,9 +76,15 @@ export function Chat() {
   };
 
   return (
-    <Flex direction="column" className="h-full">
+    <Flex
+      direction="column"
+      className="h-full"
+    >
       <Box className="text-center p-2 border-b border-accent-5">
-        <Text size="2" className="font-mono text-accent-11">
+        <Text
+          size="2"
+          className="font-mono text-accent-11"
+        >
           Live Chat
         </Text>
       </Box>
@@ -85,17 +95,24 @@ export function Chat() {
         gap="2"
       >
         {messages.map((msg) => (
-          <ChatMessage message={msg} key={msg.timestamp} />
+          <ChatMessage
+            message={msg}
+            key={msg.timestamp}
+          />
         ))}
       </Flex>
       <Box>
-        <Flex gap="2" py="2" px="4" mt="4" className="border-t border-accent-5">
+        <Flex
+          gap="2"
+          py="2"
+          px="4"
+          mt="4"
+          className="border-t border-accent-5"
+        >
           <Box className="flex-1">
             <TextField.Root
-              disabled={!chatEnabled}
-              placeholder={
-                chatEnabled ? "Say something..." : "Chat is disabled"
-              }
+              disabled={false}
+              placeholder={"Say something..."}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyUp={(e) => {
@@ -106,7 +123,10 @@ export function Chat() {
               }}
             />
           </Box>
-          <IconButton onClick={onSend} disabled={!draft.trim().length}>
+          <IconButton
+            onClick={onSend}
+            disabled={!draft.trim().length}
+          >
             <PaperPlaneIcon />
           </IconButton>
         </Flex>
