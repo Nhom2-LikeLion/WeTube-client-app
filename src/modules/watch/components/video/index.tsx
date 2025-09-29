@@ -12,7 +12,6 @@ import SliderControls from "./slider-controls";
 import { useControls } from "@/hooks/use-controls";
 import { useVideoStore } from "@/store/zustand/videoStore";
 import { useSubtitles } from "@/hooks/use-subtitles";
-import { useSearchParams } from "next/navigation";
 
 export default function ActiveVideo() {
   const {
@@ -56,19 +55,10 @@ export default function ActiveVideo() {
   // quản lý hiển thị sub
   const [showSubtitles, setShowSubtitles] = useState(true);
 
-  const searchParams = useSearchParams();
-  const canAutoplayWithSound = searchParams.get("autoplay") === "true";
-  const [isMuted, setIsMuted] = useState(!canAutoplayWithSound);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  useEffect(() => {
-    if (isClient && videoUrl && canAutoplayWithSound) {
-      playVideo();
-    }
-  }, [isClient, videoUrl, canAutoplayWithSound, playVideo]);
 
   // 👉 xử lý auto-hide controls
   const handleUserActivity = () => {
@@ -120,7 +110,6 @@ export default function ActiveVideo() {
           <ReactPlayer
             ref={reactPlayerRef}
             playing={isPlaying}
-            muted={isMuted}
             volume={pipMode ? 0 : volume / 100}
             controls={false}
             progressInterval={250}
@@ -185,8 +174,6 @@ export default function ActiveVideo() {
             pauseVideo={pauseVideo}
             volume={volume}
             setVolume={setVolume}
-            isMuted={isMuted}
-            setIsMuted={setIsMuted}
             isFullscreen={isFullscreen}
             toggleFullscreen={toggleFullscreen}
             showSubtitles={showSubtitles}

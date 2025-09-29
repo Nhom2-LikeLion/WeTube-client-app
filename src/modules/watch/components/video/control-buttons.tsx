@@ -19,8 +19,6 @@ interface ControlButtonsProps {
   pauseVideo: () => void;
   volume: number;
   setVolume: (v: number) => void;
-  isMuted: boolean;
-  setIsMuted: (muted: boolean) => void;
   isFullscreen: boolean;
   toggleFullscreen: () => void;
   showSubtitles: boolean;
@@ -34,8 +32,6 @@ export default function ControlButtons({
   pauseVideo,
   volume,
   setVolume,
-  isMuted, 
-  setIsMuted,
   isFullscreen,
   toggleFullscreen,
   showSubtitles,
@@ -75,20 +71,6 @@ export default function ControlButtons({
         className="text-white hover:text-blue-400"
       >
         <FastForward size={22} />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsMuted(!isMuted)}
-        className="text-white hover:text-blue-400"
-        title={isMuted ? "Unmute" : "Mute"}
-      >
-        {isMuted || volume === 0 ? (
-          <VolumeX size={22} />
-        ) : (
-          <Volume2 size={22} />
-        )}
       </Button>
 
       {/* Volume toggle */}
