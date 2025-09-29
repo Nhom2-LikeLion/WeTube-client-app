@@ -94,6 +94,9 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   // Modal error state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Dropdown chọn ngôn ngữ
+  const [targetLang, setTargetLang] = useState(""); // mặc định English
+
   const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "");
   const defaultTitle = decodeURIComponent(titleWithoutExt);
 
@@ -115,6 +118,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     },
   });
 
+  // Generate mô tả bằng AI
   const handleGenerateDescription = async () => {
     const values = getValues();
     const title = values.title?.trim();
@@ -142,6 +146,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     }
   };
 
+  // Generate thumbnail tự động
   const generateThumbnail = useCallback((video: HTMLVideoElement): Promise<File> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
@@ -215,6 +220,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     setValue("thumbnailFile", selectedFile, { shouldValidate: true });
   };
 
+  // Submit upload
   const onSubmit = async (data: VideoFormData) => {
     if (!user) {
       toast.error("You need to login to access.");
@@ -230,6 +236,10 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     formData.append("usersId", user.sub);
     formData.append("duration", duration.toString());
     formData.append("isShort", String(duration <= 60));
+    if (targetLang && targetLang !== "") {
+      formData.append("targetLang", targetLang);
+    }
+
 
     setUploadProgress(0);
 
@@ -238,6 +248,11 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     }, 200);
 
     try {
+      console.log("🚀 FormData being sent:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
       await uploadVideo(formData).unwrap();
       clearInterval(interval);
       setUploadProgress(100);
@@ -253,7 +268,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       clearInterval(interval);
       setUploadProgress(0);
       const msg = err?.data?.message || err?.message || "Upload failed. Please try again.";
-      setErrorMessage(msg); // ✅ trigger error modal
+      setErrorMessage(msg);
     }
   };
 
@@ -320,6 +335,22 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
                   "AI Generate Description"
                 )}
               </Button>
+            </div>
+
+            {/* Dropdown chọn ngôn ngữ */}
+            <div className="mt-4">
+              <label className="font-semibold mb-2 block">Video Language</label>
+              <select
+                value={targetLang}
+                onChange={(e) => setTargetLang(e.target.value)}
+                className="border rounded px-3 py-2 w-full"
+                disabled={isUploading}
+              >
+                <option value="">--None--</option>
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+                <option value="ko">한국어</option>
+              </select>
             </div>
 
             {/* Thumbnail + Tags */}

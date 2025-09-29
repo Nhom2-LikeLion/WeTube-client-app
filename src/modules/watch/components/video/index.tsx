@@ -48,6 +48,9 @@ export default function ActiveVideo() {
   const cues = useSubtitles(subtitleUrl);
   const [currentSub, setCurrentSub] = useState("");
 
+  // ✅ quản lý hiển thị sub
+  const [showSubtitles, setShowSubtitles] = useState(true);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -77,38 +80,37 @@ export default function ActiveVideo() {
     if (!videoUrl) return null;
     return (
       <div className="relative w-full h-full">
-<div className="relative w-full aspect-video bg-black">
-  <ReactPlayer
-    ref={reactPlayerRef}
-    playing={isPlaying}
-    volume={pipMode ? 0 : volume / 100}
-    controls={false}
-    progressInterval={250}
-    url={videoUrl}
-    width="100%"
-    height="100%"
-    playbackRate={playbackSpeed}
-    onProgress={(state: OnProgressProps) => {
-      setPercentage(Math.min(100, state.played * 100));
-      setLoaded(Math.min(100, state.loaded * 100));
+        <div className="relative w-full aspect-video bg-black">
+          <ReactPlayer
+            ref={reactPlayerRef}
+            playing={isPlaying}
+            volume={pipMode ? 0 : volume / 100}
+            controls={false}
+            progressInterval={250}
+            url={videoUrl}
+            width="100%"
+            height="100%"
+            playbackRate={playbackSpeed}
+            onProgress={(state: OnProgressProps) => {
+              setPercentage(Math.min(100, state.played * 100));
+              setLoaded(Math.min(100, state.loaded * 100));
 
-      // cập nhật phụ đề
-      const cue = cues.find(
-        (c) =>
-          state.playedSeconds >= c.start &&
-          state.playedSeconds <= c.end
-      );
-      setCurrentSub(cue?.text ?? "");
-    }}
-    onSeek={(seconds: number) => setSeekSync(seconds)}
-    onReady={(player) => setTotalSeek(player.getDuration())}
-    onEnded={() => pauseVideo()}
-/>
-</div>
+              // cập nhật phụ đề
+              const cue = cues.find(
+                (c) =>
+                  state.playedSeconds >= c.start &&
+                  state.playedSeconds <= c.end
+              );
+              setCurrentSub(cue?.text ?? "");
+            }}
+            onSeek={(seconds: number) => setSeekSync(seconds)}
+            onReady={(player) => setTotalSeek(player.getDuration())}
+            onEnded={() => pauseVideo()}
+          />
+        </div>
 
-
-        {/* Overlay subtitle */}
-        {currentSub && (
+        {/* ✅ chỉ hiển thị nếu sub đang bật */}
+        {showSubtitles && currentSub && (
           <div className="absolute bottom-12 w-full text-center px-4 z-30">
             <p className="inline-block bg-black/70 text-white text-lg md:text-xl rounded px-3 py-1 leading-relaxed drop-shadow-lg">
               {currentSub}
@@ -137,7 +139,11 @@ export default function ActiveVideo() {
           }`}
         >
           <SliderControls handleSeek={handleSeek} />
-          <ControlButtons />
+          {/* ✅ truyền props xuống ControlButtons */}
+          <ControlButtons
+            showSubtitles={showSubtitles}
+            setShowSubtitles={setShowSubtitles}
+          />
         </section>
       );
     }

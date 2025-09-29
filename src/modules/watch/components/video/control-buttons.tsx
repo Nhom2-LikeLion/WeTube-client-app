@@ -1,204 +1,207 @@
-"use client"
+"use client";
 
-import {
-  Airplay,
-  CornersOut,
-  Pause,
-  PictureInPicture,
-  Play,
-  Rectangle,
-  SkipForward,
-  SpeakerHigh,
-  SpeakerLow,
-  SpeakerSlash,
-  Subtitles,
-} from "@phosphor-icons/react";
-import { Switch } from "@headlessui/react";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import SettingsDropdown from "./settings";
+import { Pause, Play } from "@phosphor-icons/react";
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import ReactPlayer from "react-player";
+import type { OnProgressProps } from "react-player/base";
+import ControlButtons from "./control-buttons";
+import PlayerLoader from "./player-loader";
+import PreviewGrid from "./preview-grid";
+import SliderControls from "./slider-controls";
 import { useControls } from "@/hooks/use-controls";
+import { useVideoStore } from "@/store/zustand/videoStore";
+import { useSubtitles } from "@/hooks/use-subtitles";
 
-export default function ControlButtons() {
-  const [volumeShow, setVolumeShow] = useState(false);
+export default function ActiveVideo() {
   const {
-    isPlaying,
     percentage,
-    volume,
-    formattedSeek,
-    formattedTotal,
-    isAutoplayEnabled,
+    loaded,
+    isPlaying,
     playVideo,
-    setPercentage,
-    setVolume,
     pauseVideo,
-    toggleAutoplay,
+    showControls,
+    pipMode,
+    displayControls,
+    hideControls,
+    setPercentage,
+    setTotalSeek,
+    animatePlay,
+    volume,
+    setLoaded,
+    isFullscreen,
+    playbackSpeed,
     toggleFullscreen,
-    toggleTheaterMode,
-    togglePipMode,
+    setSeekSync,
   } = useControls();
 
-  const handleRestart = () => {
-    setPercentage(0);
-    playVideo();
+  const reactPlayerRef = useRef<ReactPlayer | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // lấy dữ liệu video từ store
+  const videoDetailResponse = useVideoStore((state) => state.videoDetail);
+  const videoDetail = videoDetailResponse?.detail;
+  const videoUrl = videoDetail?.videoUrl;
+  const subtitleUrl = videoDetail?.subtitles?.[0]?.subtitleUrl;
+
+  // hook xử lý phụ đề
+  const cues = useSubtitles(subtitleUrl);
+  const [currentSub, setCurrentSub] = useState("");
+
+  // ✅ quản lý hiển thị sub
+  const [showSubtitles, setShowSubtitles] = useState(true);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleDisplayControls = () => {
+    if (isPlaying) displayControls();
   };
 
-  const handleVolumeShow = () => {
-    if (!volumeShow) {
-      setVolumeShow(true);
-    }
+  const handleHideControls = () => {
+    if (isPlaying) hideControls();
   };
 
-  const handleVolumeHide = () => {
-    if (volumeShow) {
-      setVolumeShow(false);
-    }
-  };
-
-  const renderVolume = () => {
-    let Icon;
-    if (volume <= 0) {
-      Icon = SpeakerSlash;
-    } else if (volume > 50) {
-      Icon = SpeakerHigh;
+  const handleVideoClick = () => {
+    if (isPlaying) {
+      pauseVideo();
     } else {
-      Icon = SpeakerLow;
+      playVideo();
     }
+  };
 
-    const handleClick = () => {
-      setVolume(volume > 0 ? 0 : 100);
-    };
+  const handleSeek = (value: string) => {
+    setPercentage(Number(value));
+    reactPlayerRef.current?.seekTo(Number(value) / 100, "fraction");
+  };
 
+  const renderPlayer = () => {
+    if (!videoUrl) return null;
     return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={Icon.displayName}
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0.7 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Icon
-            className="cursor-pointer size-4 md:size-6"
-            weight="fill"
-            onClick={handleClick}
+      <div className="relative w-full h-full">
+        <div className="relative w-full aspect-video bg-black">
+          <ReactPlayer
+            ref={reactPlayerRef}
+            playing={isPlaying}
+            volume={pipMode ? 0 : volume / 100}
+            controls={false}
+            progressInterval={250}
+            url={videoUrl}
+            width="100%"
+            height="100%"
+            playbackRate={playbackSpeed}
+            onProgress={(state: OnProgressProps) => {
+              setPercentage(Math.min(100, state.played * 100));
+              setLoaded(Math.min(100, state.loaded * 100));
+
+              // cập nhật phụ đề
+              const cue = cues.find(
+                (c) =>
+                  state.playedSeconds >= c.start &&
+                  state.playedSeconds <= c.end
+              );
+              setCurrentSub(cue?.text ?? "");
+            }}
+            onSeek={(seconds: number) => setSeekSync(seconds)}
+            onReady={(player) => setTotalSeek(player.getDuration())}
+            onEnded={() => pauseVideo()}
           />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+
+        {/* ✅ chỉ hiển thị nếu sub đang bật */}
+        {showSubtitles && currentSub && (
+          <div className="absolute bottom-12 w-full text-center px-4 z-30">
+            <p className="inline-block bg-black/70 text-white text-lg md:text-xl rounded px-3 py-1 leading-relaxed drop-shadow-lg">
+              {currentSub}
+            </p>
+          </div>
+        )}
+      </div>
     );
   };
 
-  return (
-    <section className="h-12 relative w-full grid grid-cols-9 md:grid-cols-2 px-4 pb-2  bg-gradient-to-t from-black/50 to-transparent">
-      <section className="col-span-5 md:col-span-1 flex gap-3 md:gap-6 justify-start items-center px-3 text-white">
-        {!isPlaying ? (
-          percentage < 100 ? (
-            <Play
-              onClick={playVideo}
-              className="cursor-pointer size-4 md:size-6"
-              weight="fill"
-            />
-          ) : (
-            <ArrowPathIcon
-              className="size-4 cursor-pointer md:size-6"
-              onClick={handleRestart}
-            />
-          )
-        ) : (
-          <Pause
-            onClick={pauseVideo}
-            className="cursor-pointer size-4 md:size-6"
-            weight="fill"
-          />
-        )}
-        <SkipForward
-          className="cursor-pointer size-4 md:size-6"
-          weight="fill"
-        />
-        <div
-          className="flex justify-between items-center gap-6"
-          onMouseOver={handleVolumeShow}
-          onMouseLeave={handleVolumeHide}
+  const renderVideoPlayer = () => {
+    if (percentage < 100) {
+      return isClient ? renderPlayer() : <PlayerLoader />;
+    }
+    return <PreviewGrid />;
+  };
+
+  const renderVideoControls = () => {
+    if (loaded > 0) {
+      return (
+        <section
+          className={`absolute ${
+            isFullscreen ? "" : "bottom-0"
+          } left-0 z-20 h-max w-full flex flex-col justify-end items-center transition-opacity duration-150 ${
+            showControls ? "opacity-100" : "opacity-0"
+          }`}
         >
-          {renderVolume()}
-          {volumeShow && (
-            <div className="w-10 md:w-16 relative h-6 flex justify-center items-center">
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={volume}
-                onChange={(event) => setVolume(Number(event.target.value))}
-                className="appearance-none bg-transparent range-sm rounded-full w-full h-1 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full transition-all duration-150 cursor-pointer"
-              />
-              <div className="absolute w-full flex justify-start items-center -z-10">
-                <div
-                  className="h-1 bg-white rounded-l-full"
-                  style={{ width: `${volume}%` }}
-                />
-              </div>
-              <div className="absolute w-full flex justify-end items-center -z-10">
-                <div
-                  className="h-1 bg-gray-600/40 rounded-r-full"
-                  style={{
-                    width: `${100 - volume}%`,
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-        <p className="text-xs font-semibold select-none">
-          {formattedSeek} / {formattedTotal}
-        </p>
-      </section>
-      <section className="col-span-4 md:col-span-1 flex gap-3 md:gap-6 justify-end items-center px-3 text-white">
-        <div className="scale-75 md:scale-100">
-          <Switch
-            checked={isAutoplayEnabled}
-            onChange={toggleAutoplay}
-            className="group relative flex h-3 w-8 cursor-pointer rounded-full bg-gray-400 p-1 ease-in-out focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white"
+          <SliderControls handleSeek={handleSeek} />
+          {/* ✅ truyền props xuống ControlButtons */}
+          <ControlButtons
+            showSubtitles={showSubtitles}
+            setShowSubtitles={setShowSubtitles}
+          />
+        </section>
+      );
+    }
+  };
+
+  const renderVideoClickHandles = () => {
+    if (percentage < 100) {
+      return (
+        <section className="absolute h-full w-full flex justify-center items-center z-10 top-0 left-0">
+          <div
+            className="h-[85%] -mt-16 w-full flex justify-center items-center"
+            onClick={handleVideoClick}
+            onDoubleClick={toggleFullscreen}
           >
-            <span
-              aria-hidden="true"
-              className={`pointer-events-none w-5 h-5 -translate-x-2 -translate-y-2 rounded-full ${
-                isAutoplayEnabled ? "bg-white" : "bg-gray-500"
-              } shadow-lg ring-0 transition duration-150 flex justify-center items-center ease-in-out ${
-                isAutoplayEnabled ? "translate-x-3" : ""
-              }`}
-            >
-              {isAutoplayEnabled ? (
-                <Play className="text-black" weight="fill" size={10} />
-              ) : (
-                <Pause className="text-white" weight="fill" size={10} />
-              )}
-            </span>
-          </Switch>
-        </div>
-        <Subtitles className="cursor-pointer size-4 md:size-6" weight="fill" />
-        <SettingsDropdown />
-        <PictureInPicture
-          className="cursor-pointer size-4 md:size-6"
-          weight="bold"
-          onClick={togglePipMode}
-        />
-        <Rectangle
-          onClick={toggleTheaterMode}
-          className="cursor-pointer size-4 md:size-6"
-          weight="bold"
-        />
-        <Airplay
-          className="hidden md:block cursor-pointer size-6"
-          weight="bold"
-        />
-        <CornersOut
-          className="cursor-pointer size-4 md:size-6"
-          weight="bold"
-          onClick={toggleFullscreen}
-        />
-      </section>
+            {(animatePlay === "play" || animatePlay === "pause") && (
+              <motion.div
+                initial={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: 0, scale: 2 }}
+                transition={{
+                  duration: 0.6,
+                  scale: { type: "spring", visualDuration: 0.6, bounce: 0 },
+                }}
+                className="text-white bg-gray-500/50 p-4 rounded-full"
+              >
+                {animatePlay === "play" ? (
+                  <Play className="cursor-pointer" weight="fill" size={24} />
+                ) : (
+                  <Pause className="cursor-pointer" weight="fill" size={24} />
+                )}
+              </motion.div>
+            )}
+          </div>
+        </section>
+      );
+    }
+  };
+
+  return (
+    <section
+      className={`${
+        isFullscreen
+          ? "w-screen h-screen fixed top-0 left-0 z-50"
+          : "relative w-full h-max aspect-video rounded-2xl overflow-hidden"
+      }`}
+      onMouseOver={handleDisplayControls}
+      onMouseLeave={handleHideControls}
+    >
+      <div
+        className={`${
+          isFullscreen
+            ? "fixed bg-black h-screen w-screen flex flex-col justify-end items-center py-4"
+            : ""
+        }`}
+      >
+        {renderVideoPlayer()}
+        {renderVideoControls()}
+        {renderVideoClickHandles()}
+      </div>
     </section>
   );
 }
