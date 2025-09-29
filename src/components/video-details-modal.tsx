@@ -268,13 +268,14 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
       toast.success("Video upload successfully!", { duration: 3000 });
 
-      if (user) {
-        dispatch(
-          playlistApi.util.invalidateTags([
-            { type: "Playlist", id: `USER_${user.sub}` },
-          ])
-        );
-      }
+      // if (user) {
+      //   dispatch(
+      //     playlistApi.util.invalidateTags([
+      //       { type: "Playlist", id: `USER_${user.sub}` },
+      //     ])
+      //   );
+      // }
+      dispatch(playlistApi.util.invalidateTags(["Playlist"]));
       dispatch(videoApi.util.invalidateTags(["VideoList"]));
       onUploadComplete();
     } catch (err: any) {
