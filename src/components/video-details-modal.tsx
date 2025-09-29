@@ -135,8 +135,11 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       );
       if (res.data) {
         if (res.data.description)
-          setValue("description", res.data.description, { shouldValidate: true });
-        if (res.data.tags) setValue("tags", res.data.tags, { shouldValidate: true });
+          setValue("description", res.data.description, {
+            shouldValidate: true,
+          });
+        if (res.data.tags)
+          setValue("tags", res.data.tags, { shouldValidate: true });
         toast.success("AI generated description & tags!");
       }
     } catch (err) {
@@ -147,28 +150,33 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   };
 
   // Generate thumbnail tự động
-  const generateThumbnail = useCallback((video: HTMLVideoElement): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        reject(new Error("Could not get canvas context"));
-        return;
-      }
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(new File([blob], "thumbnail.jpg", { type: "image/jpeg" }));
-          } else reject(new Error("Could not generate thumbnail"));
-        },
-        "image/jpeg",
-        0.8
-      );
-    });
-  }, []);
+  const generateThumbnail = useCallback(
+    (video: HTMLVideoElement): Promise<File> => {
+      return new Promise((resolve, reject) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(
+                new File([blob], "thumbnail.jpg", { type: "image/jpeg" })
+              );
+            } else reject(new Error("Could not generate thumbnail"));
+          },
+          "image/jpeg",
+          0.8
+        );
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -183,7 +191,9 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     videoElement.addEventListener("loadeddata", () => {
       if (isFinite(videoElement.duration) && videoElement.duration > 0) {
         setDuration(videoElement.duration);
-        setResolution(`${videoElement.videoWidth} x ${videoElement.videoHeight}`);
+        setResolution(
+          `${videoElement.videoWidth} x ${videoElement.videoHeight}`
+        );
         videoElement.currentTime = Math.min(videoElement.duration / 2, 1);
       }
     });
@@ -241,7 +251,6 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       formData.append("targetLang", targetLang);
     }
 
-
     setUploadProgress(0);
 
     const interval = setInterval(() => {
@@ -260,14 +269,21 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       toast.success("Video upload successfully!", { duration: 3000 });
 
       if (user) {
-        dispatch(playlistApi.util.invalidateTags([{ type: "Playlist", id: `USER_${user.sub}` }]));
+        dispatch(
+          playlistApi.util.invalidateTags([
+            { type: "Playlist", id: `USER_${user.sub}` },
+          ])
+        );
       }
       dispatch(videoApi.util.invalidateTags(["VideoList"]));
       onUploadComplete();
     } catch (err: any) {
       clearInterval(interval);
       setUploadProgress(0);
-      const msg = err?.data?.message || err?.message || "Upload failed. Please try again.";
+      const msg =
+        err?.data?.message ||
+        err?.message ||
+        "Upload failed. Please try again.";
       setErrorMessage(msg);
     }
   };
@@ -279,7 +295,8 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
       </>
     ) : isGeneratingThumbnail ? (
       <>
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating thumbnail...
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating
+        thumbnail...
       </>
     ) : (
       "Upload"
@@ -288,7 +305,9 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
   return (
     <div className="flex flex-col h-full max-h-[90vh]">
       <DialogHeader className="p-4 border-b flex-shrink-0">
-        <DialogTitle className="text-2xl font-medium">Video Details</DialogTitle>
+        <DialogTitle className="text-2xl font-medium">
+          Video Details
+        </DialogTitle>
         <DialogClose asChild>
           <Button
             variant="ghost"
@@ -307,20 +326,41 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
           <div className="lg:col-span-2 space-y-6 overflow-y-auto pr-2">
             {/* Title */}
             <div>
-              <label htmlFor="title" className="font-semibold mb-2 block">
+              <label
+                htmlFor="title"
+                className="font-semibold mb-2 block"
+              >
                 Title
               </label>
-              <Textarea id="title" {...register("title")} disabled={isUploading} />
-              {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
+              <Textarea
+                id="title"
+                {...register("title")}
+                disabled={isUploading}
+              />
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
+              )}
             </div>
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="font-semibold mb-2 block">
+              <label
+                htmlFor="description"
+                className="font-semibold mb-2 block"
+              >
                 Description
               </label>
-              <Textarea id="description" rows={6} {...register("description")} disabled={isUploading} />
-              {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+              <Textarea
+                id="description"
+                rows={6}
+                {...register("description")}
+                disabled={isUploading}
+              />
+              {errors.description && (
+                <p className="text-sm text-red-500">
+                  {errors.description.message}
+                </p>
+              )}
               <Button
                 type="button"
                 onClick={handleGenerateDescription}
@@ -329,7 +369,8 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
               >
                 {isGeneratingDescription ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                    Generating...
                   </>
                 ) : (
                   "AI Generate Description"
@@ -393,41 +434,51 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
                 Tags help others easily find your video.
               </p>
             </div>
-          
           </div>
 
           {/* Preview */}
-          <div className="lg:col-span-1 flex flex-col space-y-4">
-            {videoSrc && <video src={videoSrc} controls className="w-full rounded bg-black aspect-video" />}
-            {isUploading && (
-              <div>
-                <p className="text-sm">Uploading: {uploadProgress}%</p>
-                <div className="w-full bg-gray-200 h-2 rounded">
-                  <div
-                    className="bg-blue-600 h-2 rounded"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
+          <div className="lg:col-span-1 flex flex-col">
+            {/* Video Player */}
+            {videoSrc && (
+              <video
+                src={videoSrc}
+                controls
+                className="w-full rounded-lg bg-black aspect-video"
+              />
             )}
-            {duration > 0 && (
-              <div className="flex items-center gap-4">
-                <div>
-                  <p className="text-xs">Duration</p>
-                  <div className="flex items-center gap-1 text-sm">
+
+            {/* Khung chứa thông tin chi tiết dưới video */}
+            <div className="mt-4 border rounded-md p-3 text-sm space-y-3 bg-gray-50">
+              <p className="font-semibold line-clamp-2 break-words">
+                {getValues("title")}
+              </p>
+
+              {duration > 0 && (
+                <div className="flex items-center gap-6 text-xs text-gray-600">
+                  <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4" />
                     <span>{formatDuration(duration)}</span>
                   </div>
-                </div>
-                {resolution && (
-                  <div>
-                    <p className="text-xs">Resolution</p>
-                    <div className="flex items-center gap-1 text-sm">
+                  {resolution && (
+                    <div className="flex items-center gap-1.5">
                       <Film className="w-4 h-4" />
                       <span>{resolution}</span>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Thanh tiến trình upload */}
+            {isUploading && (
+              <div className="mt-4">
+                <p className="text-sm mb-1">Uploading: {uploadProgress}%</p>
+                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -436,7 +487,11 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
       {/* Footer */}
       <DialogFooter className="p-4 border-t flex-shrink-0">
-        <Button variant="ghost" onClick={onClose} disabled={isUploading}>
+        <Button
+          variant="ghost"
+          onClick={onClose}
+          disabled={isUploading}
+        >
           Return
         </Button>
         <Button
@@ -450,7 +505,10 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
 
       {/* Error Modal */}
       {errorMessage && (
-        <Dialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+        <Dialog
+          open={!!errorMessage}
+          onOpenChange={() => setErrorMessage(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Lỗi Upload</DialogTitle>
