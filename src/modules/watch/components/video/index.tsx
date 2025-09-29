@@ -12,6 +12,7 @@ import SliderControls from "./slider-controls";
 import { useControls } from "@/hooks/use-controls";
 import { useVideoStore } from "@/store/zustand/videoStore";
 import { useSubtitles } from "@/hooks/use-subtitles";
+import { useSearchParams } from "next/navigation";
 
 export default function ActiveVideo() {
   const {
@@ -55,9 +56,19 @@ export default function ActiveVideo() {
   // quản lý hiển thị sub
   const [showSubtitles, setShowSubtitles] = useState(true);
 
+  const searchParams = useSearchParams();
+  const canAutoplayWithSound = searchParams.get("autoplay") === "true";
+  const [isMuted, setIsMuted] = useState(!canAutoplayWithSound);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (isClient && videoUrl && canAutoplayWithSound) {
+      playVideo();
+    }
+  }, [isClient, videoUrl, canAutoplayWithSound, playVideo]);
 
   // 👉 xử lý auto-hide controls
   const handleUserActivity = () => {
@@ -109,6 +120,7 @@ export default function ActiveVideo() {
           <ReactPlayer
             ref={reactPlayerRef}
             playing={isPlaying}
+            muted={isMuted}
             volume={pipMode ? 0 : volume / 100}
             controls={false}
             progressInterval={250}
@@ -123,8 +135,7 @@ export default function ActiveVideo() {
               // cập nhật phụ đề
               const cue = cues.find(
                 (c) =>
-                  state.playedSeconds >= c.start &&
-                  state.playedSeconds <= c.end
+                  state.playedSeconds >= c.start && state.playedSeconds <= c.end
               );
               setCurrentSub(cue?.text ?? "");
             }}
@@ -137,8 +148,9 @@ export default function ActiveVideo() {
         {/* phụ đề */}
         {showSubtitles && currentSub && (
           <div
-            className={`absolute w-full text-center px-4 z-30 transition-all duration-300 ${showControls ? "bottom-24" : "bottom-12"
-              }`}
+            className={`absolute w-full text-center px-4 z-30 transition-all duration-300 ${
+              showControls ? "bottom-24" : "bottom-12"
+            }`}
           >
             <p className="inline-block bg-black/70 text-white text-lg md:text-xl rounded px-3 py-1 leading-relaxed drop-shadow-lg">
               {currentSub}
@@ -160,9 +172,11 @@ export default function ActiveVideo() {
     if (loaded > 0) {
       return (
         <section
-          className={`absolute ${isFullscreen ? "" : "bottom-0"
-            } left-0 z-20 h-max w-full flex flex-col justify-end items-center transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
-            }`}
+          className={`absolute ${
+            isFullscreen ? "" : "bottom-0"
+          } left-0 z-20 h-max w-full flex flex-col justify-end items-center transition-opacity duration-300 ${
+            showControls ? "opacity-100" : "opacity-0"
+          }`}
         >
           <SliderControls handleSeek={handleSeek} />
           <ControlButtons
@@ -171,6 +185,8 @@ export default function ActiveVideo() {
             pauseVideo={pauseVideo}
             volume={volume}
             setVolume={setVolume}
+            isMuted={isMuted}
+            setIsMuted={setIsMuted}
             isFullscreen={isFullscreen}
             toggleFullscreen={toggleFullscreen}
             showSubtitles={showSubtitles}
@@ -202,9 +218,17 @@ export default function ActiveVideo() {
                 className="text-white bg-gray-500/50 p-4 rounded-full"
               >
                 {animatePlay === "play" ? (
-                  <Play className="cursor-pointer" weight="fill" size={24} />
+                  <Play
+                    className="cursor-pointer"
+                    weight="fill"
+                    size={24}
+                  />
                 ) : (
-                  <Pause className="cursor-pointer" weight="fill" size={24} />
+                  <Pause
+                    className="cursor-pointer"
+                    weight="fill"
+                    size={24}
+                  />
                 )}
               </motion.div>
             )}
@@ -216,18 +240,20 @@ export default function ActiveVideo() {
 
   return (
     <section
-      className={`${isFullscreen
+      className={`${
+        isFullscreen
           ? "w-screen h-screen fixed top-0 left-0 z-50"
           : "relative w-full h-max aspect-video rounded-2xl overflow-hidden"
-        }`}
+      }`}
       onMouseMove={handleUserActivity} // 👈 bắt sự kiện di chuột
-      onClick={handleUserActivity}     // 👈 click cũng reset timer
+      onClick={handleUserActivity} // 👈 click cũng reset timer
     >
       <div
-        className={`${isFullscreen
+        className={`${
+          isFullscreen
             ? "fixed bg-black h-screen w-screen flex flex-col justify-end items-center py-4"
             : ""
-          }`}
+        }`}
       >
         {renderVideoPlayer()}
         {renderVideoControls()}

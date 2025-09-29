@@ -46,7 +46,8 @@ const VideoCard = ({
       console.error("Lỗi khi lưu history/interaction:", err);
       console.error("Ghi nhận VIEW thất bại:", err);
     } finally {
-      router.push(`/watch/${id}`);
+      // router.push(`/watch/${id}`);
+      router.push(`/watch/${id}?autoplay=true`);
     }
   };
 

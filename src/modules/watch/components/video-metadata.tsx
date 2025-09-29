@@ -85,7 +85,7 @@ export default function VideoMetadata() {
               <p className="font-bold font-lg cursor-pointer">{name}</p>
 
               <p className="text-gray-500 text-xs font-semibold">
-                {totalSubscribers}
+                {totalSubscribers} subscribers
               </p>
             </section>
           </div>
@@ -109,7 +109,7 @@ export default function VideoMetadata() {
           <div className="cursor-pointer flex justify-between bg-gray-100 rounded-full overflow-hidden">
             <button className="flex gap-2 py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-l-full cursor-pointer">
               <HandThumbUpIcon className="size-5" />
-              <p className="text-sm font-bold">17K</p>
+              <p className="text-sm font-bold">17</p>
             </button>
             <div className="border-l-[1px] border-gray-300 my-2" />
             <button className="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-r-full cursor-pointer">
