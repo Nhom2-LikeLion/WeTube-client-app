@@ -248,8 +248,7 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
     }, 200);
 
     try {
-      console.log("🚀 FormData being sent:");
-      for (let [key, value] of formData.entries()) {
+      for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
 
@@ -361,14 +360,39 @@ export const VideoDetailsModal: React.FC<VideoDetailsModalProps> = ({
                 isGenerating={isGeneratingThumbnail}
                 disabled={isUploading}
               />
-              <div>
-                <label htmlFor="tags" className="font-semibold mb-2 block">
-                  Tags
-                </label>
-                <Input id="tags" {...register("tags")} disabled={isUploading} />
-                {errors.tags && <p className="text-sm text-red-500">{errors.tags.message}</p>}
+              <div className="flex-1 pt-1">
+                {errors.thumbnailFile && (
+                  <p className="text-sm text-red-500">
+                    {errors.thumbnailFile.message}
+                  </p>
+                )}
               </div>
             </div>
+
+            <div>
+              <label
+                htmlFor="tags"
+                className="font-semibold mb-2 block"
+              >
+                Tags
+              </label>
+              <Input
+                id="tags"
+                placeholder="Enter the tags, starting with #"
+                disabled={isUploading}
+                className={errors?.tags ? "border-red-500" : ""}
+                {...register("tags")}
+              />
+              {errors.tags && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.tags.message}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                Tags help others easily find your video.
+              </p>
+            </div>
+          
           </div>
 
           {/* Preview */}
