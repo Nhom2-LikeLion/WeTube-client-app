@@ -1,12 +1,13 @@
 "use client";
 
-import { useSearchSuggestQuery } from "@/app/api/searchApi";
+import { useSearchSuggestQuery, useSearchVideosFullQuery } from "@/app/api/searchApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastEmitter } from "@/lib/toastEmitter";
 import { useRoomStore } from "@/store/zustand/useRoomStore";
 import { useStompStore } from "@/store/zustand/useStompStore";
 import { SearchIcon, SquarePlus, XIcon } from "lucide-react";
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 
@@ -35,11 +36,23 @@ const SearchInputSuspense = () => {
   // ✅ gọi suggest; chỉ skip khi rỗng hoàn toàn
   const {
     data: suggestions = [],
-    isFetching,
+    isFetching: isSuggestFetching,
     isError,
     error,
-  } = useSearchSuggestQuery({ prefix: value }, { skip: value.trim().length === 0 });
+  } = useSearchSuggestQuery(
+    { prefix: value },
+    { skip: mode !== "home" || value.trim().length === 0 }
+  );
 
+  const { data: fullSearchData, isFetching: isFullSearchFetching } =
+    useSearchVideosFullQuery(
+      { query: value },
+      { skip: mode !== "rooms" || value.trim().length === 0 }
+    );
+  
+  const roomResults = fullSearchData?.content ?? [];
+  const isFetching = isSuggestFetching || isFullSearchFetching;
+  
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newQuery = value.trim();
@@ -114,7 +127,7 @@ const SearchInputSuspense = () => {
             <div className="p-2 text-sm text-gray-500">Searching...</div>
           )}
 
-          {!isFetching && isError && (
+          {/* {!isFetching && isError && (
             <div className="p-2 text-sm text-red-500">
               Suggest error: {String((error as any)?.status || "")}
             </div>
@@ -147,7 +160,76 @@ const SearchInputSuspense = () => {
               >
                 {text}
               </button>
-            ))}
+            ))} */}
+
+          {!isFetching && (
+            <>
+              {/* Giao diện cho chế độ "home" */}
+              {mode === "home" &&
+                (suggestions.length > 0 ? (
+                  suggestions.map((text, i) => (
+                    <button
+                      key={`${text}-${i}`}
+                      type="button"
+                      onClick={() => {
+                        router.push(
+                          `/search?query=${encodeURIComponent(text)}`
+                        );
+                        setIsOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-left hover:bg-gray-100"
+                    >
+                      {text}
+                    </button>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-gray-400">
+                    No suggestions
+                  </div>
+                ))}
+
+              {/* Giao diện cho chế độ "rooms" */}
+              {mode === "rooms" &&
+                (roomResults.length > 0 ? (
+                  roomResults.map((video) => (
+                    <button
+                      key={video.id}
+                      type="button"
+                      onClick={() => {
+                        // ✅ BƯỚC 3: GỬI ĐÚNG DỮ LIỆU (videoId)
+                        publish(`/app/room/addSong/${room?.roomId}`, {
+                          videoId: video.id,
+                        });
+                        toastEmitter.success("Video Added!");
+                        setIsOpen(false);
+                      }}
+                      className="flex w-full items-center gap-3 p-2 hover:bg-gray-100 text-left"
+                    >
+                      <Image
+                        src={video.thumbnailUrl}
+                        alt={video.title}
+                        width={100}
+                        height={56}
+                        className="rounded object-cover flex-shrink-0"
+                      />
+                      <div className="overflow-hidden">
+                        <p className="font-medium truncate text-sm">
+                          {video.title}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {video.user.name}
+                        </p>
+                      </div>
+                      <SquarePlus className="w-6 h-6 text-gray-400 ml-auto mr-2" />
+                    </button>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-gray-400">
+                    No results found
+                  </div>
+                ))}
+            </>
+          )}
 
           {/* 🔍 Debug panel: xóa nếu không cần */}
           <div className="border-t mt-1 p-1 text-[11px] text-gray-500 bg-gray-50">
